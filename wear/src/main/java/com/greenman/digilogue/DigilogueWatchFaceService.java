@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * Service to handle drawing of the watch face
  */
 public class DigilogueWatchFaceService extends CanvasWatchFaceService {
-    private static final String TAG = "AnalogWatchFaceService";
+    private static final String TAG = "WatchFaceService";
 
     private static final Typeface BOLD_TYPEFACE = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
     private static final Typeface NORMAL_TYPEFACE = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
@@ -50,44 +50,45 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
     private class Engine extends CanvasWatchFaceService.Engine {
         static final int MSG_UPDATE_TIME = 0;
-
-        Paint mHourPaint;
-        Paint mMinutePaint;
-        Paint mSecondPaint;
-        Paint mTickPaint;
-        Paint mMinuteTickPaint;
-        boolean mMute;
-        Time mTime;
-        boolean mRegisteredTimeZoneReceiver = false;
+        static final String COLON_STRING = ":";
 
         /**
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
          * disable anti-aliasing in ambient mode.
          */
         boolean mLowBitAmbient;
-
-        // Digital
+        boolean mMute;
+        boolean mRegisteredTimeZoneReceiver = false;
         boolean mShouldDrawColons;
+        Time mTime;
         float mXOffset;
         float mYOffset;
-        String mAmString;
-        String mPmString;
-        static final String COLON_STRING = ":";
-        Paint mBackgroundPaint;
-        Paint mDigitalHourPaint;
-        Paint mDigitalMinutePaint;
-        Paint mDigitalSecondPaint;
-        Paint mDigitalDayPaint;
-        Paint mAmPmPaint;
-        Paint mColonPaint;
-        float mColonWidth;
-        int mInteractiveBackgroundColor = Color.parseColor("black");
-        int mInteractiveHourDigitsColor = Color.parseColor("white");
-        int mInteractiveMinuteDigitsColor = Color.parseColor("white");
-        int mInteractiveSecondDigitsColor = Color.parseColor("gray");
-
         private int batteryLevel = 100;
         private float smallTextOffset;
+
+        int mBackgroundColor = Color.parseColor("black");
+        int mMiddleColor = Color.parseColor("gray");
+        int mForegroundColor = Color.parseColor("white");
+        int mAccentColor = Color.parseColor("red");
+
+        // Face
+        Paint mBackgroundPaint;
+        Paint mHourTickPaint;
+        Paint mMinuteTickPaint;
+        Paint mBatteryFullPaint;
+        Paint mBatteryPaint;
+        Paint mElementPaint;
+
+        // Analogue
+        Paint mHourPaint;
+        Paint mMinutePaint;
+        Paint mSecondPaint;
+
+        // Digital
+        Paint mDigitalHourPaint;
+        Paint mDigitalMinutePaint;
+        Paint mColonPaint;
+        float mColonWidth;
 
         /**
          * Handler to update the time once a second in interactive mode.
@@ -143,42 +144,51 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             Resources resources = DigilogueWatchFaceService.this.getResources();
 
             mHourPaint = new Paint();
-            mHourPaint.setARGB(255, 200, 200, 200);
-            mHourPaint.setStrokeWidth(5.f);
+            mHourPaint.setColor(mForegroundColor);
+            mHourPaint.setStrokeWidth(3f);
             mHourPaint.setAntiAlias(true);
             mHourPaint.setStrokeCap(Paint.Cap.ROUND);
 
             mMinutePaint = new Paint();
-            mMinutePaint.setARGB(255, 200, 200, 200);
-            mMinutePaint.setStrokeWidth(3.f);
+            mMinutePaint.setColor(mForegroundColor);
+            mMinutePaint.setStrokeWidth(3f);
             mMinutePaint.setAntiAlias(true);
             mMinutePaint.setStrokeCap(Paint.Cap.ROUND);
 
             mSecondPaint = new Paint();
-            mSecondPaint.setARGB(255, 255, 0, 0);
-            mSecondPaint.setStrokeWidth(2.f);
+            mSecondPaint.setColor(mAccentColor);
+            mSecondPaint.setStrokeWidth(2f);
             mSecondPaint.setAntiAlias(true);
             mSecondPaint.setStrokeCap(Paint.Cap.ROUND);
 
-            mTickPaint = new Paint();
-            mTickPaint.setARGB(100, 255, 255, 255);
-            mTickPaint.setStrokeWidth(2.f);
-            mTickPaint.setAntiAlias(true);
+            mHourTickPaint = new Paint();
+            mHourTickPaint.setColor(mForegroundColor);
+            mHourTickPaint.setAlpha(100);
+            mHourTickPaint.setStrokeWidth(2f);
+            mHourTickPaint.setAntiAlias(true);
 
             mMinuteTickPaint = new Paint();
-            mMinuteTickPaint.setARGB(100, 255, 255, 255);
-            mMinuteTickPaint.setStrokeWidth(1.f);
+            mMinuteTickPaint.setColor(mForegroundColor);
+            mMinuteTickPaint.setAlpha(100);
+            mMinuteTickPaint.setStrokeWidth(1f);
             mMinuteTickPaint.setAntiAlias(true);
+
+            mBatteryFullPaint = new Paint();
+            mBatteryFullPaint.setColor(mMiddleColor);
+            mBatteryFullPaint.setStrokeWidth(1f);
+
+            mBatteryPaint = new Paint();
+            mBatteryPaint.setColor(mForegroundColor);
+            mBatteryPaint.setStrokeWidth(1f);
 
             mYOffset = resources.getDimension(R.dimen.digital_y_offset);
 
             mBackgroundPaint = new Paint();
-            mBackgroundPaint.setColor(mInteractiveBackgroundColor);
+            mBackgroundPaint.setColor(mBackgroundColor);
 
-            mDigitalHourPaint = createTextPaint(mInteractiveHourDigitsColor, BOLD_TYPEFACE);
-            mDigitalMinutePaint = createTextPaint(mInteractiveMinuteDigitsColor);
-            mDigitalSecondPaint = createTextPaint(mInteractiveSecondDigitsColor);
-            mDigitalDayPaint = createTextPaint(mInteractiveSecondDigitsColor);
+            mDigitalHourPaint = createTextPaint(mForegroundColor, BOLD_TYPEFACE);
+            mDigitalMinutePaint = createTextPaint(mForegroundColor);
+            mElementPaint = createTextPaint(mForegroundColor);
             mColonPaint = createTextPaint(resources.getColor(R.color.digital_colons));
 
             mTime = new Time();
@@ -200,18 +210,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // Load resources that have alternate values for round watches.
             Resources resources = DigilogueWatchFaceService.this.getResources();
             boolean isRound = insets.isRound();
-            mXOffset = resources.getDimension(isRound
-                    ? R.dimen.digital_x_offset_round : R.dimen.digital_x_offset);
-            float textSize = resources.getDimension(isRound
-                    ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
-            float amPmSize = resources.getDimension(isRound
-                    ? R.dimen.digital_am_pm_size_round : R.dimen.digital_am_pm_size);
+            mXOffset = resources.getDimension(isRound ? R.dimen.digital_x_offset_round : R.dimen.digital_x_offset);
+            float textSize = resources.getDimension(isRound ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
 
             mDigitalHourPaint.setTextSize(textSize);
             mDigitalMinutePaint.setTextSize(textSize);
-            mDigitalSecondPaint.setTextSize(textSize);
-            mDigitalDayPaint.setTextSize(textSize / 2f);
-            mAmPmPaint.setTextSize(amPmSize);
+            mElementPaint.setTextSize(textSize / 2f);
             mColonPaint.setTextSize(textSize);
 
             mColonWidth = mColonPaint.measureText(COLON_STRING);
@@ -254,7 +258,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mHourPaint.setAntiAlias(antiAlias);
                 mMinutePaint.setAntiAlias(antiAlias);
                 mSecondPaint.setAntiAlias(antiAlias);
-                mTickPaint.setAntiAlias(antiAlias);
+                mHourTickPaint.setAntiAlias(antiAlias);
             }
             invalidate();
 
@@ -272,6 +276,14 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mHourPaint.setAlpha(inMuteMode ? 100 : 255);
                 mMinutePaint.setAlpha(inMuteMode ? 100 : 255);
                 mSecondPaint.setAlpha(inMuteMode ? 80 : 255);
+
+                mDigitalHourPaint.setAlpha(inMuteMode ? 100 : 255);
+                mDigitalMinutePaint.setAlpha(inMuteMode ? 100 : 255);
+
+                mElementPaint.setAlpha(inMuteMode ? 100 : 255);
+                mBatteryFullPaint.setAlpha(inMuteMode ? 100 : 255);
+                mBatteryPaint.setAlpha(inMuteMode ? 100 : 255);
+
                 invalidate();
             }
         }
@@ -307,13 +319,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 float innerY = (float) -Math.cos(tickRot) * innerTickRadius;
                 float outerX = (float) Math.sin(tickRot) * outerTickRadius;
                 float outerY = (float) -Math.cos(tickRot) * outerTickRadius;
-                canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mTickPaint);
+                canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mHourTickPaint);
 
                 float innerShortX = (float) Math.sin(tickRot) * innerShortTickRadius;
                 float innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius;
                 float outerShortX = (float) Math.sin(tickRot) * outerShortTickRadius;
                 float outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius;
-                canvas.drawLine(centerX + innerShortX, centerY + innerShortY, centerX + outerShortX, centerY + outerShortY, mTickPaint);
+                canvas.drawLine(centerX + innerShortX, centerY + innerShortY, centerX + outerShortX, centerY + outerShortY, mHourTickPaint);
             }
 
             // Draw the minute ticks.
@@ -361,15 +373,16 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // Digital
             // Draw the hours.
             float x = centerX - mXOffset;
-            //String hourString = String.valueOf(mTime.hour);
             String hourString = String.format("%02d", mTime.hour);
 
             mDigitalHourPaint.setStyle(Paint.Style.STROKE);
-            mDigitalHourPaint.setColor(getResources().getColor(R.color.black));
+            mDigitalHourPaint.setColor(mBackgroundColor);
+            mDigitalHourPaint.setAlpha(255);
             canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
 
             mDigitalHourPaint.setStyle(Paint.Style.FILL);
-            mDigitalHourPaint.setColor(getResources().getColor(R.color.white));
+            mDigitalHourPaint.setColor(mForegroundColor);
+            mDigitalHourPaint.setAlpha(mMute ? 100 : 255);
             canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
 
             x += mDigitalHourPaint.measureText(hourString);
@@ -378,11 +391,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // first colon for the first half of each second.
             if (isInAmbientMode() || mMute || mShouldDrawColons) {
                 mColonPaint.setStyle(Paint.Style.STROKE);
-                mColonPaint.setColor(getResources().getColor(R.color.black));
+                mColonPaint.setColor(mBackgroundColor);
+                mColonPaint.setAlpha(255);
                 canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
 
                 mColonPaint.setStyle(Paint.Style.FILL);
-                mColonPaint.setColor(getResources().getColor(R.color.digital_colons));
+                mColonPaint.setColor(mMiddleColor);
+                mColonPaint.setAlpha(mMute ? 100 : 255);
                 canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
             }
             x += mColonWidth;
@@ -391,28 +406,32 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             String minuteString = formatTwoDigitNumber(mTime.minute);
 
             mDigitalMinutePaint.setStyle(Paint.Style.STROKE);
-            mDigitalMinutePaint.setColor(getResources().getColor(R.color.black));
+            mDigitalMinutePaint.setColor(mBackgroundColor);
+            mDigitalMinutePaint.setAlpha(255);
             canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
 
             mDigitalMinutePaint.setStyle(Paint.Style.FILL);
-            mDigitalMinutePaint.setColor(getResources().getColor(R.color.white));
+            mDigitalMinutePaint.setColor(mForegroundColor);
+            mDigitalMinutePaint.setAlpha(mMute ? 100 : 255);
             canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
 
-            // Draw the Day.
+            // Draw the Day, Date.
             SimpleDateFormat sdf = new SimpleDateFormat("EEE, d");
             String dayString = sdf.format(new Date(mTime.toMillis(true)));
 
-            mDigitalDayPaint.setStyle(Paint.Style.STROKE);
-            mDigitalDayPaint.setColor(getResources().getColor(R.color.black));
-            canvas.drawText(dayString, (centerX * 1.5f) - 5, centerY + smallTextOffset, mDigitalDayPaint);
+            mElementPaint.setStyle(Paint.Style.STROKE);
+            mElementPaint.setColor(mBackgroundColor);
+            mElementPaint.setAlpha(255);
+            canvas.drawText(dayString, (centerX * 1.5f) - 5, centerY + smallTextOffset, mElementPaint);
 
-            mDigitalDayPaint.setStyle(Paint.Style.FILL);
-            mDigitalDayPaint.setColor(getResources().getColor(R.color.white));
-            canvas.drawText(dayString, (centerX * 1.5f) - 5, centerY + smallTextOffset, mDigitalDayPaint);
+            mElementPaint.setStyle(Paint.Style.FILL);
+            mElementPaint.setColor(mForegroundColor);
+            mElementPaint.setAlpha(mMute ? 100 : 255);
+            canvas.drawText(dayString, (centerX * 1.5f) - 5, centerY + smallTextOffset, mElementPaint);
 
-            // Battery icon
+            // Draw Battery icon
             Path batteryIcon = new Path();
-            batteryIcon.moveTo((centerX / 2) - 35, centerY + smallTextOffset);
+            batteryIcon.moveTo((centerX / 2f) - 35f, centerY + smallTextOffset);
             batteryIcon.rLineTo(0, -13);
             batteryIcon.rLineTo(2, 0);
             batteryIcon.rLineTo(0, -2);
@@ -422,12 +441,18 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             batteryIcon.rLineTo(0, 13);
             batteryIcon.close();
 
-            canvas.drawPath(batteryIcon, mDigitalSecondPaint);
+            mBatteryFullPaint.setColor(mBackgroundColor);
+            mBatteryFullPaint.setAlpha(255);
+            canvas.drawPath(batteryIcon, mBatteryFullPaint);
+
+            mBatteryFullPaint.setColor(mMiddleColor);
+            mBatteryFullPaint.setAlpha(mMute ? 100 : 255);
+            canvas.drawPath(batteryIcon, mBatteryFullPaint);
 
             float batteryHeight = (float)Math.ceil(15f * batteryLevel / 100f);
 
             Path batteryIconLevel = new Path();
-            batteryIconLevel.moveTo((centerX / 2) - 35, centerY + smallTextOffset);
+            batteryIconLevel.moveTo((centerX / 2f) - 35f, centerY + smallTextOffset);
 
             if (batteryHeight >= 13) {
                 batteryIconLevel.rLineTo(0, -13);
@@ -445,16 +470,18 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             batteryIconLevel.close();
 
-            canvas.drawPath(batteryIconLevel, mDigitalHourPaint);
+            canvas.drawPath(batteryIconLevel, mBatteryPaint);
 
             // Battery level
-            mDigitalDayPaint.setStyle(Paint.Style.STROKE);
-            mDigitalDayPaint.setColor(getResources().getColor(R.color.black));
-            canvas.drawText(String.valueOf(batteryLevel), (centerX / 2) - 20, centerY + smallTextOffset, mDigitalDayPaint);
+            mElementPaint.setStyle(Paint.Style.STROKE);
+            mElementPaint.setColor(mBackgroundColor);
+            mElementPaint.setAlpha(255);
+            canvas.drawText(String.valueOf(batteryLevel), (centerX / 2f) - 20f, centerY + smallTextOffset, mElementPaint);
 
-            mDigitalDayPaint.setStyle(Paint.Style.FILL);
-            mDigitalDayPaint.setColor(getResources().getColor(R.color.white));
-            canvas.drawText(String.valueOf(batteryLevel), (centerX / 2) - 20, centerY + smallTextOffset, mDigitalDayPaint);
+            mElementPaint.setStyle(Paint.Style.FILL);
+            mElementPaint.setColor(mForegroundColor);
+            mElementPaint.setAlpha(mMute ? 100 : 255);
+            canvas.drawText(String.valueOf(batteryLevel), (centerX / 2f) - 20f, centerY + smallTextOffset, mElementPaint);
         }
 
         @Override
