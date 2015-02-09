@@ -23,6 +23,18 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.Wearable;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -43,12 +55,17 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
      */
     private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
 
+    /**
+     * Update rate in milliseconds for mute mode. We update every minute, like in ambient mode.
+     */
+    private static final long MUTE_UPDATE_RATE_MS = TimeUnit.MINUTES.toMillis(1);
+
     @Override
     public Engine onCreateEngine() {
         return new Engine();
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine {
+    private class Engine extends CanvasWatchFaceService.Engine implements DataApi.DataListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener {
         static final int MSG_UPDATE_TIME = 0;
         static final String COLON_STRING = ":";
 
@@ -59,17 +76,27 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         boolean mLowBitAmbient;
         boolean mMute;
         boolean mRegisteredTimeZoneReceiver = false;
-        boolean mShouldDrawColons;
         Time mTime;
         float mXOffset;
         float mYOffset;
         private int batteryLevel = 100;
         private float smallTextOffset;
 
-        int mBackgroundColor = Color.parseColor("black");
+        /** How often {@link #mUpdateTimeHandler} ticks in milliseconds. */
+        long mInteractiveUpdateRateMs = INTERACTIVE_UPDATE_RATE_MS;
+
+        private int foregroundOpacityLevel;
+        private int accentOpacityLevel;
+
+        /*int mBackgroundColor = WatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_BACKGROUND;
         int mMiddleColor = Color.parseColor("gray");
-        int mForegroundColor = Color.parseColor("white");
-        int mAccentColor = Color.parseColor("red");
+        int mForegroundColor = WatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_FOREGROUND;
+        int mAccentColor = Color.parseColor("red");*/
+
+        String mBackgroundColor = WatchFaceUtil.COLOR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND;
+        String mMiddleColor = "gray";
+        String mForegroundColor = WatchFaceUtil.COLOR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
+        String mAccentColor = "red";
 
         // Face
         Paint mBackgroundPaint;
@@ -104,14 +131,19 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                         invalidate();
                         if (shouldTimerBeRunning()) {
                             long timeMs = System.currentTimeMillis();
-                            long delayMs = INTERACTIVE_UPDATE_RATE_MS
-                                    - (timeMs % INTERACTIVE_UPDATE_RATE_MS);
+                            long delayMs = INTERACTIVE_UPDATE_RATE_MS - (timeMs % INTERACTIVE_UPDATE_RATE_MS);
                             mUpdateTimeHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, delayMs);
                         }
                         break;
                 }
             }
         };
+
+        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(DigilogueWatchFaceService.this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(Wearable.API)
+                .build();
 
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
@@ -142,56 +174,58 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     .build());
 
             Resources resources = DigilogueWatchFaceService.this.getResources();
+            mYOffset = resources.getDimension(R.dimen.digital_y_offset);
 
             mHourPaint = new Paint();
-            mHourPaint.setColor(mForegroundColor);
+            mHourPaint.setColor(Color.parseColor(mForegroundColor));
             mHourPaint.setStrokeWidth(3f);
             mHourPaint.setAntiAlias(true);
             mHourPaint.setStrokeCap(Paint.Cap.ROUND);
 
             mMinutePaint = new Paint();
-            mMinutePaint.setColor(mForegroundColor);
+            mMinutePaint.setColor(Color.parseColor(mForegroundColor));
             mMinutePaint.setStrokeWidth(3f);
             mMinutePaint.setAntiAlias(true);
             mMinutePaint.setStrokeCap(Paint.Cap.ROUND);
 
             mSecondPaint = new Paint();
-            mSecondPaint.setColor(mAccentColor);
+            mSecondPaint.setColor(Color.parseColor(mAccentColor));
             mSecondPaint.setStrokeWidth(2f);
             mSecondPaint.setAntiAlias(true);
             mSecondPaint.setStrokeCap(Paint.Cap.ROUND);
 
             mHourTickPaint = new Paint();
-            mHourTickPaint.setColor(mForegroundColor);
+            mHourTickPaint.setColor(Color.parseColor(mForegroundColor));
             mHourTickPaint.setAlpha(100);
             mHourTickPaint.setStrokeWidth(2f);
             mHourTickPaint.setAntiAlias(true);
 
             mMinuteTickPaint = new Paint();
-            mMinuteTickPaint.setColor(mForegroundColor);
+            mMinuteTickPaint.setColor(Color.parseColor(mForegroundColor));
             mMinuteTickPaint.setAlpha(100);
             mMinuteTickPaint.setStrokeWidth(1f);
             mMinuteTickPaint.setAntiAlias(true);
 
             mBatteryFullPaint = new Paint();
-            mBatteryFullPaint.setColor(mMiddleColor);
+            mBatteryFullPaint.setColor(Color.parseColor(mMiddleColor));
             mBatteryFullPaint.setStrokeWidth(1f);
 
             mBatteryPaint = new Paint();
-            mBatteryPaint.setColor(mForegroundColor);
+            mBatteryPaint.setColor(Color.parseColor(mForegroundColor));
             mBatteryPaint.setStrokeWidth(1f);
 
-            mYOffset = resources.getDimension(R.dimen.digital_y_offset);
-
             mBackgroundPaint = new Paint();
-            mBackgroundPaint.setColor(mBackgroundColor);
+            mBackgroundPaint.setColor(Color.parseColor(mBackgroundColor));
 
-            mDigitalHourPaint = createTextPaint(mForegroundColor, BOLD_TYPEFACE);
-            mDigitalMinutePaint = createTextPaint(mForegroundColor);
-            mElementPaint = createTextPaint(mForegroundColor);
-            mColonPaint = createTextPaint(resources.getColor(R.color.digital_colons));
+            mDigitalHourPaint = createTextPaint(Color.parseColor(mForegroundColor), BOLD_TYPEFACE);
+            mDigitalMinutePaint = createTextPaint(Color.parseColor(mForegroundColor));
+            mElementPaint = createTextPaint(Color.parseColor(mForegroundColor));
+            mColonPaint = createTextPaint(Color.parseColor(mMiddleColor));
 
             mTime = new Time();
+
+            foregroundOpacityLevel = mMute ? 100 : 255;
+            accentOpacityLevel = mMute ? 80 : 255;
         }
 
         @Override
@@ -260,6 +294,32 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mSecondPaint.setAntiAlias(antiAlias);
                 mHourTickPaint.setAntiAlias(antiAlias);
             }
+
+            /*if (isInAmbientMode()) {
+                // TODO: possibly remove dimming on ambient or make it a user defined option
+                setBackgroundColor(WatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_BACKGROUND);
+                setForegroundColor(WatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_FOREGROUND);
+                setAccentColor(WatchFaceUtil.COLOR_VALUE_DEFAULT_ACCENT);
+            } else {
+                WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient,
+                        new WatchFaceUtil.FetchConfigDataMapCallback() {
+                            @Override
+                            public void onConfigDataMapFetched(DataMap config) {
+                                // If the DataItem hasn't been created yet or some keys are missing,
+                                // use the default values.
+                                setDefaultValuesForMissingConfigKeys(config);
+                                WatchFaceUtil.putConfigDataItem(mGoogleApiClient, config);
+
+                                updateUiForConfigDataMap(config);
+
+                                setBackgroundColor(config.getInt(WatchFaceUtil.KEY_BACKGROUND_COLOR));
+                                setForegroundColor(config.getInt(WatchFaceUtil.KEY_FOREGROUND_COLOR));
+                                setAccentColor(Color.parseColor("red"));
+                            }
+                        }
+                );
+            }*/
+
             invalidate();
 
             // Whether the timer should be running depends on whether we're in ambient mode (as well
@@ -271,30 +331,63 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         public void onInterruptionFilterChanged(int interruptionFilter) {
             super.onInterruptionFilterChanged(interruptionFilter);
             boolean inMuteMode = (interruptionFilter == WatchFaceService.INTERRUPTION_FILTER_NONE);
+
+            setInteractiveUpdateRateMs(inMuteMode ? MUTE_UPDATE_RATE_MS : INTERACTIVE_UPDATE_RATE_MS);
+
+            foregroundOpacityLevel = inMuteMode ? 100 : 255;
+            accentOpacityLevel = inMuteMode ? 80 : 255;
+
             if (mMute != inMuteMode) {
                 mMute = inMuteMode;
-                mHourPaint.setAlpha(inMuteMode ? 100 : 255);
-                mMinutePaint.setAlpha(inMuteMode ? 100 : 255);
-                mSecondPaint.setAlpha(inMuteMode ? 80 : 255);
+                mHourPaint.setAlpha(foregroundOpacityLevel);
+                mMinutePaint.setAlpha(foregroundOpacityLevel);
+                mSecondPaint.setAlpha(accentOpacityLevel);
 
-                mDigitalHourPaint.setAlpha(inMuteMode ? 100 : 255);
-                mDigitalMinutePaint.setAlpha(inMuteMode ? 100 : 255);
+                mDigitalHourPaint.setAlpha(foregroundOpacityLevel);
+                mDigitalMinutePaint.setAlpha(foregroundOpacityLevel);
 
-                mElementPaint.setAlpha(inMuteMode ? 100 : 255);
-                mBatteryFullPaint.setAlpha(inMuteMode ? 100 : 255);
-                mBatteryPaint.setAlpha(inMuteMode ? 100 : 255);
+                mElementPaint.setAlpha(foregroundOpacityLevel);
+                mBatteryFullPaint.setAlpha(foregroundOpacityLevel);
+                mBatteryPaint.setAlpha(foregroundOpacityLevel);
 
                 invalidate();
             }
         }
 
+        private void updatePaint(Paint paint, String colour, int opacityLevel) {
+            paint.setColor(Color.parseColor(colour));
+            paint.setAlpha(opacityLevel);
+        }
+
+        private void setBackgroundColor(String color) {
+            mBackgroundColor = color;
+            updatePaint(mBackgroundPaint, color, 255);
+        }
+
+        private void setForegroundColor(String color) {
+            mForegroundColor = color;
+
+            updatePaint(mHourPaint, color, foregroundOpacityLevel);
+            updatePaint(mMinutePaint, color, foregroundOpacityLevel);
+
+            updatePaint(mDigitalHourPaint, color, foregroundOpacityLevel);
+            updatePaint(mDigitalMinutePaint, color, foregroundOpacityLevel);
+
+            updatePaint(mElementPaint, color, foregroundOpacityLevel);
+            updatePaint(mBatteryPaint, color, foregroundOpacityLevel);
+
+            updatePaint(mHourTickPaint, color, 100);
+            updatePaint(mMinuteTickPaint, color, 100);
+        }
+
+        private void setAccentColor(String color) {
+            mAccentColor = color;
+            updatePaint(mSecondPaint, color, accentOpacityLevel);
+        }
+
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             mTime.setToNow();
-
-            // Show colons for the first half of each second so the colons blink on when the time
-            // updates.
-            mShouldDrawColons = (System.currentTimeMillis() % 1000) < 500;
 
             int width = bounds.width();
             int height = bounds.height();
@@ -373,46 +466,43 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // Digital
             // Draw the hours.
             float x = centerX - mXOffset;
-            String hourString = String.format("%02d", mTime.hour);
+            String hourString = formatTwoDigitNumber(mTime.hour);
 
             mDigitalHourPaint.setStyle(Paint.Style.STROKE);
-            mDigitalHourPaint.setColor(mBackgroundColor);
+            mDigitalHourPaint.setColor(Color.parseColor(mBackgroundColor));
             mDigitalHourPaint.setAlpha(255);
             canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
 
             mDigitalHourPaint.setStyle(Paint.Style.FILL);
-            mDigitalHourPaint.setColor(mForegroundColor);
-            mDigitalHourPaint.setAlpha(mMute ? 100 : 255);
+            mDigitalHourPaint.setColor(Color.parseColor(mForegroundColor));
+            mDigitalHourPaint.setAlpha(foregroundOpacityLevel);
             canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
 
             x += mDigitalHourPaint.measureText(hourString);
 
-            // In ambient and mute modes, always draw the first colon. Otherwise, draw the
-            // first colon for the first half of each second.
-            if (isInAmbientMode() || mMute || mShouldDrawColons) {
-                mColonPaint.setStyle(Paint.Style.STROKE);
-                mColonPaint.setColor(mBackgroundColor);
-                mColonPaint.setAlpha(255);
-                canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
+            mColonPaint.setStyle(Paint.Style.STROKE);
+            mColonPaint.setColor(Color.parseColor(mBackgroundColor));
+            mColonPaint.setAlpha(255);
+            canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
 
-                mColonPaint.setStyle(Paint.Style.FILL);
-                mColonPaint.setColor(mMiddleColor);
-                mColonPaint.setAlpha(mMute ? 100 : 255);
-                canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
-            }
+            mColonPaint.setStyle(Paint.Style.FILL);
+            mColonPaint.setColor(Color.parseColor(mMiddleColor));
+            mColonPaint.setAlpha(foregroundOpacityLevel);
+            canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
+
             x += mColonWidth;
 
             // Draw the minutes.
             String minuteString = formatTwoDigitNumber(mTime.minute);
 
             mDigitalMinutePaint.setStyle(Paint.Style.STROKE);
-            mDigitalMinutePaint.setColor(mBackgroundColor);
+            mDigitalMinutePaint.setColor(Color.parseColor(mBackgroundColor));
             mDigitalMinutePaint.setAlpha(255);
             canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
 
             mDigitalMinutePaint.setStyle(Paint.Style.FILL);
-            mDigitalMinutePaint.setColor(mForegroundColor);
-            mDigitalMinutePaint.setAlpha(mMute ? 100 : 255);
+            mDigitalMinutePaint.setColor(Color.parseColor(mForegroundColor));
+            mDigitalMinutePaint.setAlpha(foregroundOpacityLevel);
             canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
 
             // Draw the Day, Date.
@@ -420,13 +510,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             String dayString = sdf.format(new Date(mTime.toMillis(true)));
 
             mElementPaint.setStyle(Paint.Style.STROKE);
-            mElementPaint.setColor(mBackgroundColor);
+            mElementPaint.setColor(Color.parseColor(mBackgroundColor));
             mElementPaint.setAlpha(255);
             canvas.drawText(dayString, (centerX * 1.5f) - 5, centerY + smallTextOffset, mElementPaint);
 
             mElementPaint.setStyle(Paint.Style.FILL);
-            mElementPaint.setColor(mForegroundColor);
-            mElementPaint.setAlpha(mMute ? 100 : 255);
+            mElementPaint.setColor(Color.parseColor(mForegroundColor));
+            mElementPaint.setAlpha(foregroundOpacityLevel);
             canvas.drawText(dayString, (centerX * 1.5f) - 5, centerY + smallTextOffset, mElementPaint);
 
             // Draw Battery icon
@@ -441,12 +531,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             batteryIcon.rLineTo(0, 13);
             batteryIcon.close();
 
-            mBatteryFullPaint.setColor(mBackgroundColor);
+            mBatteryFullPaint.setColor(Color.parseColor(mBackgroundColor));
             mBatteryFullPaint.setAlpha(255);
             canvas.drawPath(batteryIcon, mBatteryFullPaint);
 
-            mBatteryFullPaint.setColor(mMiddleColor);
-            mBatteryFullPaint.setAlpha(mMute ? 100 : 255);
+            mBatteryFullPaint.setColor(Color.parseColor(mMiddleColor));
+            mBatteryFullPaint.setAlpha(foregroundOpacityLevel);
             canvas.drawPath(batteryIcon, mBatteryFullPaint);
 
             float batteryHeight = (float)Math.ceil(15f * batteryLevel / 100f);
@@ -474,13 +564,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             // Battery level
             mElementPaint.setStyle(Paint.Style.STROKE);
-            mElementPaint.setColor(mBackgroundColor);
+            mElementPaint.setColor(Color.parseColor(mBackgroundColor));
             mElementPaint.setAlpha(255);
             canvas.drawText(String.valueOf(batteryLevel), (centerX / 2f) - 20f, centerY + smallTextOffset, mElementPaint);
 
             mElementPaint.setStyle(Paint.Style.FILL);
-            mElementPaint.setColor(mForegroundColor);
-            mElementPaint.setAlpha(mMute ? 100 : 255);
+            mElementPaint.setColor(Color.parseColor(mForegroundColor));
+            mElementPaint.setAlpha(foregroundOpacityLevel);
             canvas.drawText(String.valueOf(batteryLevel), (centerX / 2f) - 20f, centerY + smallTextOffset, mElementPaint);
         }
 
@@ -492,6 +582,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
 
             if (visible) {
+                mGoogleApiClient.connect();
+
                 registerReceiver();
 
                 // Update time zone in case it changed while we weren't visible.
@@ -499,6 +591,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mTime.setToNow();
             } else {
                 unregisterReceiver();
+
+                if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+                    Wearable.DataApi.removeListener(mGoogleApiClient, this);
+                    mGoogleApiClient.disconnect();
+                }
             }
 
             // Whether the timer should be running depends on whether we're visible (as well as
@@ -561,8 +658,179 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             return paint;
         }
 
+        private void updateConfigDataItemAndUiOnStartup() {
+            WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient,
+                    new WatchFaceUtil.FetchConfigDataMapCallback() {
+                        @Override
+                        public void onConfigDataMapFetched(DataMap startupConfig) {
+                            // If the DataItem hasn't been created yet or some keys are missing,
+                            // use the default values.
+                            setDefaultValuesForMissingConfigKeys(startupConfig);
+                            WatchFaceUtil.putConfigDataItem(mGoogleApiClient, startupConfig);
+
+                            updateUiForConfigDataMap(startupConfig);
+
+                            // TODO: change preview image
+                        }
+                    }
+            );
+        }
+
+        private void setDefaultValuesForMissingConfigKeys(DataMap config) {
+            addIntKeyIfMissing(config, WatchFaceUtil.KEY_BACKGROUND_COLOR, WatchFaceUtil.COLOR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
+            addIntKeyIfMissing(config, WatchFaceUtil.KEY_FOREGROUND_COLOR, WatchFaceUtil.COLOR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
+        }
+
+        private void addIntKeyIfMissing(DataMap config, String key, String color) {
+            if (!config.containsKey(key)) {
+                config.putString(key, color);
+            }
+        }
+
+        @Override // DataApi.DataListener
+        public void onDataChanged(DataEventBuffer dataEvents) {
+            try {
+                for (DataEvent dataEvent : dataEvents) {
+                    if (dataEvent.getType() != DataEvent.TYPE_CHANGED) {
+                        continue;
+                    }
+
+                    DataItem dataItem = dataEvent.getDataItem();
+                    if (!dataItem.getUri().getPath().equals(WatchFaceUtil.DIGILOGUE_COLOURS)) {
+                        continue;
+                    }
+
+                    DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
+                    DataMap config = dataMapItem.getDataMap();
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "Config DataItem updated:" + config);
+                    }
+                    updateUiForConfigDataMap(config);
+                }
+            } finally {
+                dataEvents.close();
+            }
+        }
+
+        private void updateUiForConfigDataMap(final DataMap config) {
+            boolean uiUpdated = false;
+            for (String configKey : config.keySet()) {
+                if (!config.containsKey(configKey)) {
+                    continue;
+                }
+                String colourName = config.getString(configKey);
+
+                if (colourName == null || colourName.equals(""))
+                    colourName = getString(R.string.color_black).toLowerCase();
+
+                if (colourName.contains(" & ")) {
+                    int index = colourName.indexOf(" & ");
+                    mBackgroundColor = colourName.substring(0, index);
+                    mForegroundColor = colourName.substring(index + 4, colourName.length() - (index + 4));
+                    colourName = mBackgroundColor;
+                }
+
+                int color = Color.parseColor(colourName);
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Found watch face config key: " + configKey + " -> "
+                            + Integer.toHexString(color));
+                }
+                if (updateUiForKey(WatchFaceUtil.KEY_FOREGROUND_COLOR, mBackgroundColor)) {
+                    uiUpdated = true;
+                }
+                if (updateUiForKey(WatchFaceUtil.KEY_FOREGROUND_COLOR, mForegroundColor)) {
+                    uiUpdated = true;
+                }
+            }
+            if (uiUpdated) {
+                invalidate();
+            }
+        }
+
+        /**
+         * Updates the color of a UI item according to the given {@code configKey}. Does nothing if
+         * {@code configKey} isn't recognized.
+         *
+         * @return whether UI has been updated
+         */
+        private boolean updateUiForKey(String configKey, String color) {
+            if (configKey.equals(WatchFaceUtil.KEY_BACKGROUND_COLOR)) {
+                if (color == null || color.equals(""))
+                    color = getString(R.string.color_black).toLowerCase();
+
+                mBackgroundColor = color;
+                setBackgroundColor(color);
+            } else if (configKey.equals(WatchFaceUtil.KEY_FOREGROUND_COLOR)) {
+                if (color == null || color.equals(""))
+                    color = getString(R.string.color_black).toLowerCase();
+
+                mForegroundColor = color;
+                setForegroundColor(color);
+            } else {
+                Log.w(TAG, "Ignoring unknown config key: " + configKey);
+                return false;
+            }
+            return true;
+        }
+
+        @Override  // GoogleApiClient.ConnectionCallbacks
+        public void onConnected(Bundle connectionHint) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onConnected: " + connectionHint);
+            }
+            Wearable.DataApi.addListener(mGoogleApiClient, Engine.this);
+            Wearable.MessageApi.addListener(mGoogleApiClient, Engine.this);
+            updateConfigDataItemAndUiOnStartup();
+        }
+
+        @Override  // GoogleApiClient.ConnectionCallbacks
+        public void onConnectionSuspended(int cause) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onConnectionSuspended: " + cause);
+
+                Wearable.DataApi.removeListener(mGoogleApiClient, this);
+                Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+                mGoogleApiClient.disconnect();
+            }
+        }
+
+        @Override  // GoogleApiClient.OnConnectionFailedListener
+        public void onConnectionFailed(ConnectionResult result) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onConnectionFailed: " + result);
+
+                Wearable.DataApi.removeListener(mGoogleApiClient, this);
+                Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+                mGoogleApiClient.disconnect();
+            }
+        }
+
+        public void setInteractiveUpdateRateMs(long updateRateMs) {
+            if (updateRateMs == mInteractiveUpdateRateMs) {
+                return;
+            }
+            mInteractiveUpdateRateMs = updateRateMs;
+
+            // Stop and restart the timer so the new update rate takes effect immediately.
+            if (shouldTimerBeRunning()) {
+                updateTimer();
+            }
+        }
+
         private String formatTwoDigitNumber(int hour) {
             return String.format("%02d", hour);
+        }
+
+        @Override
+        public void onMessageReceived(MessageEvent messageEvent) {
+            if (messageEvent.getPath().equals(WatchFaceUtil.DIGILOGUE_COLOURS)) {
+                DataMap config = DataMap.fromByteArray(messageEvent.getData());
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Message received:" + config);
+                }
+                updateUiForConfigDataMap(config);
+            }
+
         }
     }
 }
