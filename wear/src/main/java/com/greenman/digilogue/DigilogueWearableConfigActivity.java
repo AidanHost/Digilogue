@@ -131,32 +131,54 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
     public void onCentralPositionChanged(int centralPosition) {
     }
 
-    private void updateConfigDataItem(final int backgroundColor) {
-        /*String foregroundColour = "white";
-        if (backgroundColor.toLowerCase().contains("blue")) {
-            foregroundColour = "red";
-        } else if (backgroundColor.toLowerCase().contains("navy")) {
-            foregroundColour = "green";
-        }*/
+    private void updateConfigDataItem(final String backgroundColour) {
+        String foregroundColour = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
+        String middleColour = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
+        String accentColour = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
 
-        String colour = "black";
-        if (backgroundColor == Color.parseColor("blue"))
-            colour = "blue";
-        else if (backgroundColor == Color.parseColor("gray"))
-            colour = "gray";
-        else if (backgroundColor == Color.parseColor("green"))
-            colour = "green";
-        else if (backgroundColor == Color.parseColor("navy"))
-            colour = "navy";
-        else if (backgroundColor == Color.parseColor("red"))
-            colour = "red";
-        else if (backgroundColor == Color.parseColor("white"))
-            colour = "white";
-
+        switch (backgroundColour) {
+            /*case "black":
+                foregroundColour = getString(R.string.color_white);
+                middleColour = getString(R.string.color_gray);
+                accentColour = getString(R.string.color_red);
+                break;*/
+            case "blue":
+                foregroundColour = getString(R.string.color_white);
+                /*middleColour = getString(R.string.color_gray);
+                accentColour = getString(R.string.color_red);*/
+                break;
+            case "gray":
+                foregroundColour = getString(R.string.color_black);
+                middleColour = getString(R.string.color_white);
+                //accentColour = getString(R.string.color_red);
+                break;
+            case "green":
+                foregroundColour = getString(R.string.color_black);
+                /*middleColour = getString(R.string.color_gray);
+                accentColour = getString(R.string.color_red);*/
+                break;
+            /*case "navy":
+                foregroundColour = getString(R.string.color_white);
+                middleColour = getString(R.string.color_gray);
+                accentColour = getString(R.string.color_red);
+                break;*/
+            case "red":
+                /*foregroundColour = getString(R.string.color_white);
+                middleColour = getString(R.string.color_gray);*/
+                accentColour = getString(R.string.color_black);
+                break;
+            case "white":
+                foregroundColour = getString(R.string.color_black);
+                /*middleColour = getString(R.string.color_gray);
+                accentColour = getString(R.string.color_red);*/
+                break;
+        }
 
         DataMap configKeysToOverwrite = new DataMap();
-        configKeysToOverwrite.putString(WatchFaceUtil.KEY_BACKGROUND_COLOUR, colour);
-        //configKeysToOverwrite.putString(WatchFaceUtil.KEY_FOREGROUND_COLOUR, foregroundColour);
+        configKeysToOverwrite.putString(WatchFaceUtil.KEY_BACKGROUND_COLOUR, backgroundColour);
+        configKeysToOverwrite.putString(WatchFaceUtil.KEY_MIDDLE_COLOUR, middleColour);
+        configKeysToOverwrite.putString(WatchFaceUtil.KEY_FOREGROUND_COLOUR, foregroundColour);
+        configKeysToOverwrite.putString(WatchFaceUtil.KEY_ACCENT_COLOUR, accentColour);
         WatchFaceUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
     }
 
@@ -285,8 +307,9 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
             mColor.setCircleColor(Color.parseColor(colorName));
         }
 
-        private int getColor() {
-            return mColor.getDefaultCircleColor();
+        private String getColor() {
+            return mLabel.getText().toString().toLowerCase();
+            //return mColor.getDefaultCircleColor();
         }
 
         // TODO: show colours in icon
