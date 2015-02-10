@@ -25,22 +25,4 @@
         <item>@string/color_white</item>
     </string-array>
 
-    <!--<string name="color_black">Black &amp; White</string>
-    <string name="color_blue">Blue &amp; Red</string>
-    &lt;!&ndash;<string name="color_gray">Gray</string>
-    <string name="color_green">Green</string>&ndash;&gt;
-    <string name="color_navy">Navy &amp; Green</string>
-    &lt;!&ndash;<string name="color_red">Red</string>
-    <string name="color_white">White</string>&ndash;&gt;
-
-    <string-array name="color_array">
-        <item>@string/color_black</item>
-        <item>@string/color_blue</item>
-        &lt;!&ndash;<item>@string/color_gray</item>
-        <item>@string/color_green</item>&ndash;&gt;
-        <item>@string/color_navy</item>
-        &lt;!&ndash;<item>@string/color_red</item>
-        <item>@string/color_white</item>&ndash;&gt;
-    </string-array>-->
-
 </resources>

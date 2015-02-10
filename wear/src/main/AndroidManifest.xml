@@ -19,9 +19,9 @@
             android:permission="android.permission.BIND_WALLPAPER"
             android:taskAffinity="" >
             <!-- companion configuration activity -->
-            <meta-data
+            <!--<meta-data
                 android:name="com.google.android.wearable.watchface.companionConfigurationAction"
-                android:value="com.greenman.digilogue.CONFIG_DIGITAL" />
+                android:value="com.greenman.digilogue.CONFIG_DIGITAL" />-->
             <!-- wearable configuration activity -->
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"

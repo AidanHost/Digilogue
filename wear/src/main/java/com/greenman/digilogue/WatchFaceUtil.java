@@ -1,6 +1,5 @@
 package com.greenman.digilogue;
 
-import android.graphics.Color;
 import android.net.Uri;
 import android.util.Log;
 
@@ -32,6 +31,7 @@ public class WatchFaceUtil {
     public static final String COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND = "white";
     public static final String COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT = "red";
 
+    private WatchFaceUtil() { }
 
     public interface FetchConfigDataMapCallback {
         void onConfigDataMapFetched(DataMap config);
@@ -125,6 +125,4 @@ public class WatchFaceUtil {
             }
         }
     }
-
-    private WatchFaceUtil() { }
 }

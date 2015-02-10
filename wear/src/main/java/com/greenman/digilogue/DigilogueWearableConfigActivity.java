@@ -26,8 +26,34 @@ import com.google.android.gms.wearable.Wearable;
 public class DigilogueWearableConfigActivity extends Activity implements WearableListView.ClickListener, WearableListView.OnScrollListener {
     private static final String TAG = "WearableConfigActivity";
 
-    private GoogleApiClient mGoogleApiClient;
     private TextView mHeaderBackground;
+
+    private GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
+            .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                @Override
+                public void onConnected(Bundle connectionHint) {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "onConnected: " + connectionHint);
+                    }
+                }
+
+                @Override
+                public void onConnectionSuspended(int cause) {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "onConnectionSuspended: " + cause);
+                    }
+                }
+            })
+            .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+                @Override
+                public void onConnectionFailed(ConnectionResult result) {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "onConnectionFailed: " + result);
+                    }
+                }
+            })
+            .addApi(Wearable.API)
+            .build();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,33 +84,6 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
 
         String[] colors = getResources().getStringArray(R.array.color_array);
         listView.setAdapter(new ColorListAdapter(colors));
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-                    @Override
-                    public void onConnected(Bundle connectionHint) {
-                        if (Log.isLoggable(TAG, Log.DEBUG)) {
-                            Log.d(TAG, "onConnected: " + connectionHint);
-                        }
-                    }
-
-                    @Override
-                    public void onConnectionSuspended(int cause) {
-                        if (Log.isLoggable(TAG, Log.DEBUG)) {
-                            Log.d(TAG, "onConnectionSuspended: " + cause);
-                        }
-                    }
-                })
-                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(ConnectionResult result) {
-                        if (Log.isLoggable(TAG, Log.DEBUG)) {
-                            Log.d(TAG, "onConnectionFailed: " + result);
-                        }
-                    }
-                })
-                .addApi(Wearable.API)
-                .build();
     }
 
     @Override
