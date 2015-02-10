@@ -28,37 +28,39 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
 
     private TextView mHeaderBackground;
 
-    private GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
-            .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-                @Override
-                public void onConnected(Bundle connectionHint) {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "onConnected: " + connectionHint);
-                    }
-                }
-
-                @Override
-                public void onConnectionSuspended(int cause) {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "onConnectionSuspended: " + cause);
-                    }
-                }
-            })
-            .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
-                @Override
-                public void onConnectionFailed(ConnectionResult result) {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "onConnectionFailed: " + result);
-                    }
-                }
-            })
-            .addApi(Wearable.API)
-            .build();
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_digilogue_wearable_config);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                    @Override
+                    public void onConnected(Bundle connectionHint) {
+                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, "onConnected: " + connectionHint);
+                        }
+                    }
+
+                    @Override
+                    public void onConnectionSuspended(int cause) {
+                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, "onConnectionSuspended: " + cause);
+                        }
+                    }
+                })
+                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(ConnectionResult result) {
+                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, "onConnectionFailed: " + result);
+                        }
+                    }
+                })
+                .addApi(Wearable.API)
+                .build();
 
         mHeaderBackground = (TextView) findViewById(R.id.background_header);
         WearableListView listView = (WearableListView) findViewById(R.id.background_color_picker);
