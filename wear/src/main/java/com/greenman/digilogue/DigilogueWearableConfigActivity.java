@@ -4,13 +4,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PixelFormat;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.wearable.view.BoxInsetLayout;
@@ -160,8 +154,8 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
 
 
         DataMap configKeysToOverwrite = new DataMap();
-        configKeysToOverwrite.putString(WatchFaceUtil.KEY_BACKGROUND_COLOR, colour);
-        //configKeysToOverwrite.putString(WatchFaceUtil.KEY_FOREGROUND_COLOR, foregroundColour);
+        configKeysToOverwrite.putString(WatchFaceUtil.KEY_BACKGROUND_COLOUR, colour);
+        //configKeysToOverwrite.putString(WatchFaceUtil.KEY_FOREGROUND_COLOUR, foregroundColour);
         WatchFaceUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
     }
 

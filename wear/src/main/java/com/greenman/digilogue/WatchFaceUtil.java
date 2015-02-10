@@ -5,72 +5,36 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataItem;
-import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
-import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
-import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
-
-import java.util.HashSet;
-import java.util.List;
 
 public class WatchFaceUtil {
     private static final String TAG = "DigitalWatchFaceUtil";
 
-    /**
-     * The {@link com.google.android.gms.wearable.DataMap} key for {@link WatchFaceUtil} background color name.
-     * The color name must be a {@link String} recognized by {@link android.graphics.Color#parseColor}.
-     */
-    public static final String KEY_BACKGROUND_COLOR = "com.greenman.digilogue.BACKGROUND_COLOR";
+    public static final String KEY_12HOUR_FORMAT = "com.greenman.digilogue.12HOUR_FORMAT";
+    public static final String KEY_BACKGROUND_COLOUR = "com.greenman.digilogue.BACKGROUND_COLOUR";
+    public static final String KEY_MIDDLE_COLOUR = "com.greenman.digilogue.MIDDLE_COLOUR";
+    public static final String KEY_FOREGROUND_COLOUR = "com.greenman.digilogue.FOREGROUND_COLOUR";
+    public static final String KEY_ACCENT_COLOUR = "com.greenman.digilogue.ACCENT_COLOUR";
 
-    /**
-     * The {@link com.google.android.gms.wearable.DataMap} key for {@link WatchFaceUtil} foreground color name.
-     * The color name must be a {@link String} recognized by {@link android.graphics.Color#parseColor}.
-     */
-    public static final String KEY_FOREGROUND_COLOR = "com.greenman.digilogue.FOREGROUND_COLOR";
-
-    /**
-     * The path for the {@link com.google.android.gms.wearable.DataItem} containing {@link WatchFaceUtil} configuration.
-     */
     public static final String DIGILOGUE_COLOURS = "/digilogue/colours";
 
-    /**
-     * Name of the default interactive mode background color and the ambient mode background color.
-     */
-    public static final String COLOR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND = "black";
-    public static final int COLOR_VALUE_DEFAULT_AND_AMBIENT_BACKGROUND = parseColor(COLOR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
+    public static final boolean CONFIG_12HOUR_DEFAULT = false;
 
-    /**
-     * Name of the default interactive mode foreground color and the ambient mode hour digits
-     * color.
-     */
-    public static final String COLOR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND = "white";
-    public static final int COLOR_VALUE_DEFAULT_AND_AMBIENT_FOREGROUND = parseColor(COLOR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
+    public static final String COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND = "black";
+    public static final String COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE = "gray";
+    public static final String COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND = "white";
+    public static final String COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT = "red";
 
-    public static final String COLOR_NAME_DEFAULT_ACCENT = "red";
-    public static final int COLOR_VALUE_DEFAULT_ACCENT = parseColor(COLOR_NAME_DEFAULT_ACCENT);
 
-    /**
-     * Callback interface to perform an action with the current config {@link com.google.android.gms.wearable.DataMap} for
-     * {@link WatchFaceUtil}.
-     */
     public interface FetchConfigDataMapCallback {
-        /**
-         * Callback invoked with the current config {@link com.google.android.gms.wearable.DataMap} for
-         * {@link WatchFaceUtil}.
-         */
         void onConfigDataMapFetched(DataMap config);
-    }
-
-    private static int parseColor(String colorName) {
-        return Color.parseColor(colorName.toLowerCase());
     }
 
     /**
