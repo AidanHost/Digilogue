@@ -9,6 +9,7 @@ import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
@@ -61,6 +62,26 @@ public class WatchFaceUtil {
                 }
         );
     }
+
+    /*public static void fetchConnectedConfigDataMap(final GoogleApiClient client, final FetchConfigDataMapCallback callback) {
+        Wearable.NodeApi.getConnectedNodes(client).setResultCallback(
+                new ResultCallback<NodeApi.GetConnectedNodesResult>() {
+                    @Override
+                    public void onResult(NodeApi.GetConnectedNodesResult getLocalNodeResult) {
+                        for (Node node : getLocalNodeResult.getNodes()) {
+                            String localNode = node.getId();
+                            Uri uri = new Uri.Builder()
+                                    .scheme("wear")
+                                    .path(WatchFaceUtil.PATH_DIGILOGUE_COLOURS)
+                                    .authority(localNode)
+                                    .build();
+                            Wearable.DataApi.getDataItem(client, uri)
+                                    .setResultCallback(new DataItemResultCallback(callback));
+                        }
+                    }
+                }
+        );
+    }*/
 
     /**
      * Overwrites (or sets, if not present) the keys in the current config {@link com.google.android.gms.wearable.DataItem} with

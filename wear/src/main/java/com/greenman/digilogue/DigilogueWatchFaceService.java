@@ -631,7 +631,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onMessageReceived(MessageEvent messageEvent) {
             if (messageEvent.getPath().equals(WatchFaceUtil.PATH_DIGILOGUE_COLOURS)) {
-                WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
+                if (!isInAmbientMode())
+                    WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
             }
         }
         //endregion
