@@ -1,3 +1,4 @@
+/*
 package com.greenman.digilogue;
 
 import android.app.Activity;
@@ -33,7 +34,7 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
     private static final String TAG = "DigilogueConfigActivity";
 
     private static final String KEY_BACKGROUND_COLOR = "com.greenman.digilogue.BACKGROUND_COLOR";
-    private static final String KEY_FOREGROUND_COLOR = "com.greenman.digilogue.FOREGROUND_COLOR";
+    //private static final String KEY_FOREGROUND_COLOR = "com.greenman.digilogue.FOREGROUND_COLOR";
     private static final String DIGILOGUE_COLOURS = "/digilogue/colours";
 
     private GoogleApiClient mGoogleApiClient;
@@ -51,9 +52,11 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
                 .addApi(Wearable.API)
                 .build();
 
-        /*ComponentName name = getIntent().getParcelableExtra(WatchFaceCompanion.EXTRA_WATCH_FACE_COMPONENT);
+        */
+/*ComponentName name = getIntent().getParcelableExtra(WatchFaceCompanion.EXTRA_WATCH_FACE_COMPONENT);
         TextView label = (TextView)findViewById(R.id.label);
-        label.setText(label.getText() + " (" + name.getClassName() + ")");*/
+        label.setText(label.getText() + " (" + name.getClassName() + ")");*//*
+
     }
 
     @Override
@@ -126,34 +129,40 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
         alert.show();
     }
 
-    /**
+    */
+/**
      * Sets up selected items for all pickers according to given {@code config} and sets up their
      * item selection listeners.
      *
-     * @param config the {@code DigitalWatchFaceService} config {@link DataMap}. If null, the
+     * @param config the {@code DigilogueWatchFaceService} config {@link DataMap}. If null, the
      *         default items are selected.
-     */
+     *//*
+
     private void setUpAllPickers(DataMap config) {
         String backgroundColour = getString(R.string.color_black);
-        String foregroundColour = getString(R.string.color_white);
+        //String foregroundColour = getString(R.string.color_white);
 
         if (config != null) {
             if (config.containsKey(KEY_BACKGROUND_COLOR))
                 backgroundColour = config.getString(KEY_BACKGROUND_COLOR);
 
-            if (config.containsKey(KEY_FOREGROUND_COLOR))
-                foregroundColour = config.getString(KEY_FOREGROUND_COLOR);
+            */
+/*if (config.containsKey(KEY_FOREGROUND_COLOR))
+                foregroundColour = config.getString(KEY_FOREGROUND_COLOR);*//*
+
         }
 
         setUpColorPickerSelection(R.id.background, KEY_BACKGROUND_COLOR, config, backgroundColour);
-        setUpColorPickerSelection(R.id.foreground, KEY_FOREGROUND_COLOR, config, foregroundColour);
+        //setUpColorPickerSelection(R.id.foreground, KEY_FOREGROUND_COLOR, config, foregroundColour);
 
         setUpColorPickerListener(R.id.background, KEY_BACKGROUND_COLOR);
-        setUpColorPickerListener(R.id.foreground, KEY_FOREGROUND_COLOR);
+        //setUpColorPickerListener(R.id.foreground, KEY_FOREGROUND_COLOR);
     }
 
     private void setUpColorPickerSelection(int spinnerId, final String configKey, DataMap config, String defaultColorName) {
-        /*String defaultColorName = getString(defaultColorNameResId);*/
+        */
+/*String defaultColorName = getString(defaultColorNameResId);*//*
+
         int defaultColor = Color.parseColor(defaultColorName);
         int color;
         if (config != null) {
@@ -172,7 +181,7 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
     }
 
     String mBackgroundColour = "black";
-    String mForegroundColour = "white";
+    //String mForegroundColour = "white";
 
     private void setUpColorPickerListener(int spinnerId, final String configKey) {
         Spinner spinner = (Spinner) findViewById(spinnerId);
@@ -180,14 +189,17 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
                 final String colorName = (String) adapterView.getItemAtPosition(pos);
-                int colour = Color.parseColor(colorName);
+                //int colour = Color.parseColor(colorName);
 
                 if (configKey.equals(KEY_BACKGROUND_COLOR))
                     mBackgroundColour = colorName;
-                else if (configKey.equals(KEY_FOREGROUND_COLOR))
-                    mForegroundColour = colorName;
+               */
+/* else if (configKey.equals(KEY_FOREGROUND_COLOR))
+                    mForegroundColour = colorName;*//*
 
-                sendConfigUpdateMessage(configKey, colour);
+
+                //sendConfigUpdateMessage(configKey, colour);
+                new DataTask().execute();
             }
 
             @Override
@@ -195,23 +207,22 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
         });
     }
 
-    private void sendConfigUpdateMessage(String configKey, int color) {
+    */
+/*private void sendConfigUpdateMessage(String configKey, int color) {
         if (mPeerId != null) {
             DataMap config = new DataMap();
             config.putString(KEY_BACKGROUND_COLOR, mBackgroundColour);
             config.putString(KEY_FOREGROUND_COLOR, mForegroundColour);
             byte[] rawData = config.toByteArray();
-            //Wearable.MessageApi.sendMessage(mGoogleApiClient, mPeerId, DIGILOGUE_COLOURS, rawData);
-
-            new DataTask().execute();
-
+            Wearable.MessageApi.sendMessage(mGoogleApiClient, mPeerId, DIGILOGUE_COLOURS, rawData);
 
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "Sent watch face config message: " + configKey + " -> "
                         + Integer.toHexString(color));
             }
         }
-    }
+    }*//*
+
 
     class DataTask  extends AsyncTask<Void, Void, Void> {
         public DataTask () {
@@ -222,7 +233,7 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
             PutDataMapRequest dataMap = PutDataMapRequest.create(DIGILOGUE_COLOURS);
 
             dataMap.getDataMap().putString(KEY_BACKGROUND_COLOR, mBackgroundColour);
-            dataMap.getDataMap().putString(KEY_FOREGROUND_COLOR, mForegroundColour);
+            //dataMap.getDataMap().putString(KEY_FOREGROUND_COLOR, mForegroundColour);
 
             PutDataRequest request = dataMap.asPutDataRequest();
 
@@ -232,3 +243,4 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
         }
     }
 }
+*/
