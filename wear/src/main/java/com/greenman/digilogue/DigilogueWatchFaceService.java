@@ -65,7 +65,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         return new Engine();
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine implements DataApi.DataListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener {
+    private class Engine extends CanvasWatchFaceService.Engine implements DataApi.DataListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener { //}, MessageApi.MessageListener {
         static final int MSG_UPDATE_TIME = 0;
         static final String COLON_STRING = ":";
 
@@ -295,11 +295,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mHourTickPaint.setAntiAlias(antiAlias);
             }
 
-            /*if (isInAmbientMode()) {
+            if (isInAmbientMode()) {
                 // TODO: possibly remove dimming on ambient or make it a user defined option
-                setBackgroundColor(WatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_BACKGROUND);
-                setForegroundColor(WatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_FOREGROUND);
-                setAccentColor(WatchFaceUtil.COLOR_VALUE_DEFAULT_ACCENT);
+                setBackgroundColor(WatchFaceUtil.COLOR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
+                ///setForegroundColor(WatchFaceUtil.COLOR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
+                //setAccentColor(WatchFaceUtil.COLOR_NAME_DEFAULT_ACCENT);
             } else {
                 WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient,
                         new WatchFaceUtil.FetchConfigDataMapCallback() {
@@ -312,13 +312,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
                                 updateUiForConfigDataMap(config);
 
-                                setBackgroundColor(config.getInt(WatchFaceUtil.KEY_BACKGROUND_COLOR));
-                                setForegroundColor(config.getInt(WatchFaceUtil.KEY_FOREGROUND_COLOR));
-                                setAccentColor(Color.parseColor("red"));
+                                setBackgroundColor(config.getString(WatchFaceUtil.KEY_BACKGROUND_COLOR));
+                                //setForegroundColor(config.getInt(WatchFaceUtil.KEY_FOREGROUND_COLOR));
+                                //setAccentColor(Color.parseColor("red"));
                             }
                         }
                 );
-            }*/
+            }
 
             invalidate();
 
@@ -362,6 +362,29 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void setBackgroundColor(String color) {
             mBackgroundColor = color;
             updatePaint(mBackgroundPaint, color, 255);
+
+            if (color.toLowerCase().equals(getString(R.string.color_black).toLowerCase()) ||
+                color.toLowerCase().equals(getString(R.string.color_blue).toLowerCase()) ||
+                color.toLowerCase().equals(getString(R.string.color_navy).toLowerCase()) ||
+                color.toLowerCase().equals(getString(R.string.color_red).toLowerCase())) {
+                setForegroundColor(getString(R.string.color_white));
+            } else if (color.toLowerCase().equals(getString(R.string.color_white).toLowerCase()) ||
+                color.toLowerCase().equals(getString(R.string.color_gray).toLowerCase()) ||
+                color.toLowerCase().equals(getString(R.string.color_green).toLowerCase())) {
+                setForegroundColor(getString(R.string.color_black));
+            }
+
+            if (color.toLowerCase().equals(getString(R.string.color_red).toLowerCase())) {
+                setAccentColor(getString(R.string.color_black));
+            } else {
+                setAccentColor(getString(R.string.color_red));
+            }
+
+            if (color.toLowerCase().equals(getString(R.string.color_gray).toLowerCase())) {
+                setMiddleColor(getString(R.string.color_white));
+            } else {
+                setMiddleColor(getString(R.string.color_gray));
+            }
         }
 
         private void setForegroundColor(String color) {
@@ -383,6 +406,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void setAccentColor(String color) {
             mAccentColor = color;
             updatePaint(mSecondPaint, color, accentOpacityLevel);
+        }
+
+        private void setMiddleColor(String color) {
+            mMiddleColor = color;
+            updatePaint(mColonPaint, color, 255);
+            updatePaint(mBatteryFullPaint, color, 255);
         }
 
         @Override
@@ -678,7 +707,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         private void setDefaultValuesForMissingConfigKeys(DataMap config) {
             addIntKeyIfMissing(config, WatchFaceUtil.KEY_BACKGROUND_COLOR, WatchFaceUtil.COLOR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
-            addIntKeyIfMissing(config, WatchFaceUtil.KEY_FOREGROUND_COLOR, WatchFaceUtil.COLOR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
+            //addIntKeyIfMissing(config, WatchFaceUtil.KEY_FOREGROUND_COLOR, WatchFaceUtil.COLOR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
         }
 
         private void addIntKeyIfMissing(DataMap config, String key, String color) {
@@ -723,24 +752,17 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 if (colourName == null || colourName.equals(""))
                     colourName = getString(R.string.color_black).toLowerCase();
 
-                if (colourName.contains(" & ")) {
-                    int index = colourName.indexOf(" & ");
-                    mBackgroundColor = colourName.substring(0, index);
-                    mForegroundColor = colourName.substring(index + 4, colourName.length() - (index + 4));
-                    colourName = mBackgroundColor;
-                }
-
                 int color = Color.parseColor(colourName);
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Found watch face config key: " + configKey + " -> "
                             + Integer.toHexString(color));
                 }
-                if (updateUiForKey(WatchFaceUtil.KEY_FOREGROUND_COLOR, mBackgroundColor)) {
+                if (updateUiForKey(WatchFaceUtil.KEY_BACKGROUND_COLOR, colourName)) {
                     uiUpdated = true;
                 }
-                if (updateUiForKey(WatchFaceUtil.KEY_FOREGROUND_COLOR, mForegroundColor)) {
+                /*if (updateUiForKey(WatchFaceUtil.KEY_FOREGROUND_COLOR, mForegroundColor)) {
                     uiUpdated = true;
-                }
+                }*/
             }
             if (uiUpdated) {
                 invalidate();
@@ -760,12 +782,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
                 mBackgroundColor = color;
                 setBackgroundColor(color);
-            } else if (configKey.equals(WatchFaceUtil.KEY_FOREGROUND_COLOR)) {
+            /*} else if (configKey.equals(WatchFaceUtil.KEY_FOREGROUND_COLOR)) {
                 if (color == null || color.equals(""))
                     color = getString(R.string.color_black).toLowerCase();
 
                 mForegroundColor = color;
-                setForegroundColor(color);
+                setForegroundColor(color);*/
             } else {
                 Log.w(TAG, "Ignoring unknown config key: " + configKey);
                 return false;
@@ -779,7 +801,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 Log.d(TAG, "onConnected: " + connectionHint);
             }
             Wearable.DataApi.addListener(mGoogleApiClient, Engine.this);
-            Wearable.MessageApi.addListener(mGoogleApiClient, Engine.this);
+            //Wearable.MessageApi.addListener(mGoogleApiClient, Engine.this);
             updateConfigDataItemAndUiOnStartup();
         }
 
@@ -789,7 +811,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 Log.d(TAG, "onConnectionSuspended: " + cause);
 
                 Wearable.DataApi.removeListener(mGoogleApiClient, this);
-                Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+                //Wearable.MessageApi.removeListener(mGoogleApiClient, this);
                 mGoogleApiClient.disconnect();
             }
         }
@@ -800,7 +822,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 Log.d(TAG, "onConnectionFailed: " + result);
 
                 Wearable.DataApi.removeListener(mGoogleApiClient, this);
-                Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+                //Wearable.MessageApi.removeListener(mGoogleApiClient, this);
                 mGoogleApiClient.disconnect();
             }
         }
@@ -821,7 +843,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             return String.format("%02d", hour);
         }
 
-        @Override
+        /*@Override
         public void onMessageReceived(MessageEvent messageEvent) {
             if (messageEvent.getPath().equals(WatchFaceUtil.DIGILOGUE_COLOURS)) {
                 DataMap config = DataMap.fromByteArray(messageEvent.getData());
@@ -831,6 +853,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 updateUiForConfigDataMap(config);
             }
 
-        }
+        }*/
     }
 }

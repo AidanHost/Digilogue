@@ -136,17 +136,32 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
     public void onCentralPositionChanged(int centralPosition) {
     }
 
-    private void updateConfigDataItem(final String backgroundColor) {
-        String alternateColour = "white";
+    private void updateConfigDataItem(final int backgroundColor) {
+        /*String foregroundColour = "white";
         if (backgroundColor.toLowerCase().contains("blue")) {
-            alternateColour = "red";
+            foregroundColour = "red";
         } else if (backgroundColor.toLowerCase().contains("navy")) {
-            alternateColour = "green";
-        }
+            foregroundColour = "green";
+        }*/
+
+        String colour = "black";
+        if (backgroundColor == Color.parseColor("blue"))
+            colour = "blue";
+        else if (backgroundColor == Color.parseColor("gray"))
+            colour = "gray";
+        else if (backgroundColor == Color.parseColor("green"))
+            colour = "green";
+        else if (backgroundColor == Color.parseColor("navy"))
+            colour = "navy";
+        else if (backgroundColor == Color.parseColor("red"))
+            colour = "red";
+        else if (backgroundColor == Color.parseColor("white"))
+            colour = "white";
+
 
         DataMap configKeysToOverwrite = new DataMap();
-        configKeysToOverwrite.putString(WatchFaceUtil.KEY_BACKGROUND_COLOR, backgroundColor);
-        configKeysToOverwrite.putString(WatchFaceUtil.KEY_FOREGROUND_COLOR, alternateColour);
+        configKeysToOverwrite.putString(WatchFaceUtil.KEY_BACKGROUND_COLOR, colour);
+        //configKeysToOverwrite.putString(WatchFaceUtil.KEY_FOREGROUND_COLOR, foregroundColour);
         WatchFaceUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
     }
 
@@ -272,14 +287,15 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
 
         private void setColor(String colorName) {
             mLabel.setText(colorName);
-            mColor.setImageDrawable(new DualColourDrawable(colorName));
+            mColor.setCircleColor(Color.parseColor(colorName));
         }
 
-        private String getColor() {
-            return "";// mColor.getDefaultCircleColor();
+        private int getColor() {
+            return mColor.getDefaultCircleColor();
         }
 
-        private class DualColourDrawable extends Drawable {
+        // TODO: show colours in icon
+        /*private class DualColourDrawable extends Drawable {
             private Paint mPaint, mPaintAlternate;
 
             public DualColourDrawable(String colorName) {
@@ -303,10 +319,10 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
 
             @Override
             public void draw(Canvas canvas) {
-                setBounds(0, 0, 50, 50);
+                //setBounds(0, 0, 50, 50);
 
-                canvas.drawLine(0, 0, 0, 50, mPaint);
-                canvas.drawLine(50, 0, 50, 50, mPaintAlternate);
+                canvas.drawColor(Color.parseColor("black"));
+                //canvas.drawLine(50, 0, 50, 50, mPaintAlternate);
             }
 
             @Override
@@ -323,7 +339,7 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
             public int getOpacity() {
                 return PixelFormat.TRANSLUCENT;
             }
-        }
+        }*/
     }
 
     private static class ColorItemViewHolder extends WearableListView.ViewHolder {

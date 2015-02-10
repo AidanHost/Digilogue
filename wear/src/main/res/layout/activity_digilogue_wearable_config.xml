@@ -20,7 +20,7 @@
         android:layout_marginTop="14dp"
         android:textSize="24sp"
         android:textColor="@color/config_activity_header_text_color"
-        android:text="@string/background_color"
+        android:text="@string/basic_color_choice"
         android:fontFamily="sans-serif-condensed-light"
         app:layout_box="left|top"/>
     <android.support.wearable.view.WearableListView
