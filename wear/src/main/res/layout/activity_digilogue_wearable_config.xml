@@ -16,7 +16,7 @@
         android:id="@+id/background_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/activity_vertical_margin"
+        android:layout_marginStart="@dimen/activity_vertical_margin"
         android:layout_marginTop="14dp"
         android:textSize="24sp"
         android:textColor="@color/config_activity_header_text_color"
@@ -29,5 +29,11 @@
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
         app:layout_box="left|right"/>
+    <!--<android.support.wearable.view.WearableListView
+        android:id="@+id/foreground_color_picker"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        app:layout_box="left|right"/>-->
 
 </android.support.wearable.view.BoxInsetLayout>

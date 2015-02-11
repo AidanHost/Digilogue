@@ -3,7 +3,7 @@
 
     <string name="app_name">Digilogue</string>
     <string name="title_activity_digilogue_wearable_config">DigilogueWearableConfigActivity</string>
-    <string name="basic_color_choice">Basic colour choice</string>
+    <string name="basic_color_choice">Select colour</string>
     <string name="digital_am">AM</string>
     <string name="digital_pm">PM</string>
 

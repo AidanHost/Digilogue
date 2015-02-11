@@ -84,8 +84,30 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
         listView.setClickListener(this);
         listView.addOnScrollListener(this);
 
-        String[] colors = getResources().getStringArray(R.array.color_array);
+        /*String[] colors = getResources().getStringArray(R.array.color_array);
         listView.setAdapter(new ColorListAdapter(colors));
+
+        WearableListView foregroundListView = (WearableListView) findViewById(R.id.foreground_color_picker);
+        // BoxInsetLayout adds padding by default on round devices. Add some on square devices.
+        content.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+                if (!insets.isRound()) {
+                    v.setPaddingRelative(
+                            (int) getResources().getDimensionPixelSize(R.dimen.content_padding_start),
+                            v.getPaddingTop(),
+                            v.getPaddingEnd(),
+                            v.getPaddingBottom());
+                }
+                return v.onApplyWindowInsets(insets);
+            }
+        });
+
+        foregroundListView.setHasFixedSize(true);
+        foregroundListView.setClickListener(this);
+        foregroundListView.addOnScrollListener(this);
+
+        foregroundListView.setAdapter(new ColorListAdapter(colors));*/
     }
 
     @Override
@@ -175,6 +197,7 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
         }
 
         DataMap configKeysToOverwrite = new DataMap();
+        configKeysToOverwrite.putBoolean(WatchFaceUtil.KEY_12HOUR_FORMAT, true); // TODO: checkbox
         configKeysToOverwrite.putString(WatchFaceUtil.KEY_BACKGROUND_COLOUR, backgroundColour);
         configKeysToOverwrite.putString(WatchFaceUtil.KEY_MIDDLE_COLOUR, middleColour);
         configKeysToOverwrite.putString(WatchFaceUtil.KEY_FOREGROUND_COLOUR, foregroundColour);
