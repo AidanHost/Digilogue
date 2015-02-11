@@ -25,7 +25,12 @@ import android.view.WindowInsets;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
@@ -60,7 +65,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         return new Engine();
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener {
+    private class Engine extends CanvasWatchFaceService.Engine implements DataApi.DataListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener { //, MessageApi.MessageListener {
         static final int MSG_UPDATE_TIME = 0;
         static final String COLON_STRING = ":";
 
@@ -161,17 +166,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private WatchFaceUtil.FetchConfigDataMapCallback fetchConfigCallback = new WatchFaceUtil.FetchConfigDataMapCallback() {
             @Override
             public void onConfigDataMapFetched(DataMap config) {
-                setDefaultValuesForMissingConfigKeys(config);
-
-                m12Hour = config.getBoolean(WatchFaceUtil.KEY_12HOUR_FORMAT);
-                setBackgroundColor(config.getString(WatchFaceUtil.KEY_BACKGROUND_COLOUR));
-                setMiddleColor(config.getString(WatchFaceUtil.KEY_MIDDLE_COLOUR));
-                setForegroundColor(config.getString(WatchFaceUtil.KEY_FOREGROUND_COLOUR));
-                setAccentColor(config.getString(WatchFaceUtil.KEY_ACCENT_COLOUR));
-
-                // TODO: change preview image??
-
-                invalidate();
+                updateUI(config);
             }
         };
         //endregion
@@ -583,8 +578,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 unregisterReceiver();
 
                 if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-                    //Wearable.DataApi.removeListener(mGoogleApiClient, this);
-                    Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+                    Wearable.DataApi.removeListener(mGoogleApiClient, this);
+                    //Wearable.MessageApi.removeListener(mGoogleApiClient, this);
                     mGoogleApiClient.disconnect();
                 }
             }
@@ -600,8 +595,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 Log.d(TAG, "onConnected: " + connectionHint);
             }
 
-            //Wearable.DataApi.addListener(mGoogleApiClient, Engine.this);
-            Wearable.MessageApi.addListener(mGoogleApiClient, Engine.this);
+            Wearable.DataApi.addListener(mGoogleApiClient, Engine.this);
+            //Wearable.MessageApi.addListener(mGoogleApiClient, Engine.this);
 
             WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
         }
@@ -612,8 +607,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 Log.d(TAG, "onConnectionSuspended: " + cause);
             }
 
-            //Wearable.DataApi.removeListener(mGoogleApiClient, this);
-            Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+            Wearable.DataApi.removeListener(mGoogleApiClient, this);
+            //Wearable.MessageApi.removeListener(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
         }
 
@@ -623,16 +618,34 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 Log.d(TAG, "onConnectionFailed: " + result);
             }
 
-            //Wearable.DataApi.removeListener(mGoogleApiClient, this);
-            Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+            Wearable.DataApi.removeListener(mGoogleApiClient, this);
+            //Wearable.MessageApi.removeListener(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
         }
 
         @Override
-        public void onMessageReceived(MessageEvent messageEvent) {
-            if (messageEvent.getPath().equals(WatchFaceUtil.PATH_DIGILOGUE_COLOURS)) {
-                if (!isInAmbientMode())
-                    WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
+        public void onDataChanged(DataEventBuffer dataEvents) {
+            try {
+                for (DataEvent dataEvent : dataEvents) {
+                    if (dataEvent.getType() != DataEvent.TYPE_CHANGED) {
+                        continue;
+                    }
+
+                    DataItem dataItem = dataEvent.getDataItem();
+                    if (!dataItem.getUri().getPath().equals(WatchFaceUtil.PATH_DIGILOGUE_COLOURS)) {
+                        continue;
+                    }
+
+                    DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
+                    DataMap config = dataMapItem.getDataMap();
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "Config DataItem updated:" + config);
+                    }
+                    updateUI(config);
+
+                }
+            } finally {
+                dataEvents.close();
             }
         }
         //endregion
@@ -653,6 +666,23 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mRegisteredTimeZoneReceiver = false;
             DigilogueWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
             DigilogueWatchFaceService.this.unregisterReceiver(mBatInfoReceiver);
+        }
+
+        private void updateUI(DataMap config) {
+            setDefaultValuesForMissingConfigKeys(config);
+
+            m12Hour = config.getBoolean(WatchFaceUtil.KEY_12HOUR_FORMAT);
+
+            if (!isInAmbientMode()) {
+                setBackgroundColor(config.getString(WatchFaceUtil.KEY_BACKGROUND_COLOUR));
+                setMiddleColor(config.getString(WatchFaceUtil.KEY_MIDDLE_COLOUR));
+                setForegroundColor(config.getString(WatchFaceUtil.KEY_FOREGROUND_COLOUR));
+                setAccentColor(config.getString(WatchFaceUtil.KEY_ACCENT_COLOUR));
+
+                // TODO: change preview image??
+            }
+
+            invalidate();
         }
 
         //region Timer methods
