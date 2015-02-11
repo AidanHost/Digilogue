@@ -84,10 +84,10 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
         listView.setClickListener(this);
         listView.addOnScrollListener(this);
 
-        /*String[] colors = getResources().getStringArray(R.array.color_array);
+        String[] colors = getResources().getStringArray(R.array.color_array);
         listView.setAdapter(new ColorListAdapter(colors));
 
-        WearableListView foregroundListView = (WearableListView) findViewById(R.id.foreground_color_picker);
+        /*WearableListView foregroundListView = (WearableListView) findViewById(R.id.foreground_color_picker);
         // BoxInsetLayout adds padding by default on round devices. Add some on square devices.
         content.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
             @Override
