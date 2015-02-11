@@ -46,7 +46,7 @@
         <activity
             android:name=".DigilogueWearableConfigActivity"
             android:label="@string/title_activity_digilogue_wearable_config"
-            android:launchMode="singleInstance">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="com.greenman.digilogue.CONFIG_DIGITAL" />
                 <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
