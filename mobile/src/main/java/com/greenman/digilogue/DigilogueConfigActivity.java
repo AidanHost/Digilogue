@@ -1,41 +1,39 @@
-/*
 package com.greenman.digilogue;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.support.wearable.companion.WatchFaceCompanion;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
-import com.google.android.gms.wearable.PutDataMapRequest;
-import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 
-public class DigilogueConfigActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataApi.DataItemResult> {
+public class DigilogueConfigActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataApi.DataItemResult> {
     private static final String TAG = "DigilogueConfigActivity";
 
-    private static final String KEY_BACKGROUND_COLOR = "com.greenman.digilogue.BACKGROUND_COLOR";
-    //private static final String KEY_FOREGROUND_COLOR = "com.greenman.digilogue.FOREGROUND_COLOR";
-    private static final String DIGILOGUE_COLOURS = "/digilogue/colours";
+    public static final String KEY_12HOUR_FORMAT = "com.greenman.digilogue.12HOUR_FORMAT";
+    public static final String KEY_BACKGROUND_COLOUR = "com.greenman.digilogue.BACKGROUND_COLOUR";
+    public static final String KEY_MIDDLE_COLOUR = "com.greenman.digilogue.MIDDLE_COLOUR";
+    public static final String KEY_FOREGROUND_COLOUR = "com.greenman.digilogue.FOREGROUND_COLOUR";
+    public static final String KEY_ACCENT_COLOUR = "com.greenman.digilogue.ACCENT_COLOUR";
+
+    private static final String PATH_DIGILOGUE_COLOURS = "/digilogue/colours";
 
     private GoogleApiClient mGoogleApiClient;
     private String mPeerId;
@@ -45,6 +43,8 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_digilogue_config);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         mPeerId = getIntent().getStringExtra(WatchFaceCompanion.EXTRA_PEER_ID);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -52,11 +52,18 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
                 .addApi(Wearable.API)
                 .build();
 
-        */
-/*ComponentName name = getIntent().getParcelableExtra(WatchFaceCompanion.EXTRA_WATCH_FACE_COMPONENT);
-        TextView label = (TextView)findViewById(R.id.label);
-        label.setText(label.getText() + " (" + name.getClassName() + ")");*//*
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                onBackPressed();
+
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -81,7 +88,7 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
 
         if (mPeerId != null) {
             Uri.Builder builder = new Uri.Builder();
-            Uri uri = builder.scheme("wear").path(DIGILOGUE_COLOURS).authority(mPeerId).build();
+            Uri uri = builder.scheme("wear").path(PATH_DIGILOGUE_COLOURS).authority(mPeerId).build();
             Wearable.DataApi.getDataItem(mGoogleApiClient, uri).setResultCallback(this);
         } else {
             displayNoConnectedDeviceDialog();
@@ -123,52 +130,56 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
         builder.setMessage(messageText)
                 .setCancelable(false)
                 .setPositiveButton(okText, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) { }
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
                 });
         AlertDialog alert = builder.create();
         alert.show();
     }
 
-    */
-/**
-     * Sets up selected items for all pickers according to given {@code config} and sets up their
-     * item selection listeners.
-     *
-     * @param config the {@code DigilogueWatchFaceService} config {@link DataMap}. If null, the
-     *         default items are selected.
-     *//*
-
     private void setUpAllPickers(DataMap config) {
         String backgroundColour = getString(R.string.color_black);
-        //String foregroundColour = getString(R.string.color_white);
+        String middleColour = getString(R.string.color_gray);
+        String foregroundColour = getString(R.string.color_white);
+        String accentColour = getString(R.string.color_red);
 
         if (config != null) {
-            if (config.containsKey(KEY_BACKGROUND_COLOR))
-                backgroundColour = config.getString(KEY_BACKGROUND_COLOR);
+            CheckBox checkBox = (CheckBox) findViewById(R.id.digital_format);
+            checkBox.setChecked(config.containsKey(KEY_12HOUR_FORMAT) && config.getBoolean(KEY_12HOUR_FORMAT, false));
 
-            */
-/*if (config.containsKey(KEY_FOREGROUND_COLOR))
-                foregroundColour = config.getString(KEY_FOREGROUND_COLOR);*//*
+            if (config.containsKey(KEY_BACKGROUND_COLOUR))
+                backgroundColour = config.getString(KEY_BACKGROUND_COLOUR);
 
+            if (config.containsKey(KEY_MIDDLE_COLOUR))
+                middleColour = config.getString(KEY_MIDDLE_COLOUR);
+
+            if (config.containsKey(KEY_FOREGROUND_COLOUR))
+                foregroundColour = config.getString(KEY_FOREGROUND_COLOUR);
+
+            if (config.containsKey(KEY_ACCENT_COLOUR))
+                accentColour = config.getString(KEY_ACCENT_COLOUR);
         }
 
-        setUpColorPickerSelection(R.id.background, KEY_BACKGROUND_COLOR, config, backgroundColour);
-        //setUpColorPickerSelection(R.id.foreground, KEY_FOREGROUND_COLOR, config, foregroundColour);
+        setUpColorPickerSelection(R.id.background, KEY_BACKGROUND_COLOUR, config, backgroundColour);
+        setUpColorPickerSelection(R.id.middle, KEY_MIDDLE_COLOUR, config, middleColour);
+        setUpColorPickerSelection(R.id.foreground, KEY_FOREGROUND_COLOUR, config, foregroundColour);
+        setUpColorPickerSelection(R.id.accent, KEY_ACCENT_COLOUR, config, accentColour);
 
-        setUpColorPickerListener(R.id.background, KEY_BACKGROUND_COLOR);
-        //setUpColorPickerListener(R.id.foreground, KEY_FOREGROUND_COLOR);
+        Button buttonUpdate = (Button) findViewById(R.id.button_update);
+        buttonUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendConfigUpdateMessage();
+            }
+        });
     }
 
     private void setUpColorPickerSelection(int spinnerId, final String configKey, DataMap config, String defaultColorName) {
-        */
-/*String defaultColorName = getString(defaultColorNameResId);*//*
-
-        int defaultColor = Color.parseColor(defaultColorName);
         int color;
         if (config != null) {
-            color = config.getInt(configKey, defaultColor);
+            color = Color.parseColor(config.getString(configKey, defaultColorName));
         } else {
-            color = defaultColor;
+            color = Color.parseColor(defaultColorName);
         }
         Spinner spinner = (Spinner) findViewById(spinnerId);
         String[] colorNames = getResources().getStringArray(R.array.color_array);
@@ -180,67 +191,26 @@ public class DigilogueConfigActivity extends Activity implements GoogleApiClient
         }
     }
 
-    String mBackgroundColour = "black";
-    //String mForegroundColour = "white";
-
-    private void setUpColorPickerListener(int spinnerId, final String configKey) {
-        Spinner spinner = (Spinner) findViewById(spinnerId);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
-                final String colorName = (String) adapterView.getItemAtPosition(pos);
-                //int colour = Color.parseColor(colorName);
-
-                if (configKey.equals(KEY_BACKGROUND_COLOR))
-                    mBackgroundColour = colorName;
-               */
-/* else if (configKey.equals(KEY_FOREGROUND_COLOR))
-                    mForegroundColour = colorName;*//*
-
-
-                //sendConfigUpdateMessage(configKey, colour);
-                new DataTask().execute();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) { }
-        });
-    }
-
-    */
-/*private void sendConfigUpdateMessage(String configKey, int color) {
+    private void sendConfigUpdateMessage() {
         if (mPeerId != null) {
+            CheckBox checkBox = (CheckBox) findViewById(R.id.digital_format);
+
+            Spinner backgroundSpinner = (Spinner) findViewById(R.id.background);
+            Spinner middleSpinner = (Spinner) findViewById(R.id.middle);
+            Spinner foregroundSpinner = (Spinner) findViewById(R.id.foreground);
+            Spinner accentSpinner = (Spinner) findViewById(R.id.accent);
+
+            String backgroundColour = backgroundSpinner.getSelectedItem().toString();
+
             DataMap config = new DataMap();
-            config.putString(KEY_BACKGROUND_COLOR, mBackgroundColour);
-            config.putString(KEY_FOREGROUND_COLOR, mForegroundColour);
+            config.putBoolean(KEY_12HOUR_FORMAT, checkBox.isChecked());
+            config.putString(KEY_BACKGROUND_COLOUR, backgroundColour);
+            config.putString(KEY_MIDDLE_COLOUR, middleSpinner.getSelectedItem().toString());
+            config.putString(KEY_FOREGROUND_COLOUR, foregroundSpinner.getSelectedItem().toString());
+            config.putString(KEY_ACCENT_COLOUR, accentSpinner.getSelectedItem().toString());
             byte[] rawData = config.toByteArray();
-            Wearable.MessageApi.sendMessage(mGoogleApiClient, mPeerId, DIGILOGUE_COLOURS, rawData);
 
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Sent watch face config message: " + configKey + " -> "
-                        + Integer.toHexString(color));
-            }
-        }
-    }*//*
-
-
-    class DataTask  extends AsyncTask<Void, Void, Void> {
-        public DataTask () {
-        }
-
-        @Override
-        protected Void doInBackground(Void... nodes) {
-            PutDataMapRequest dataMap = PutDataMapRequest.create(DIGILOGUE_COLOURS);
-
-            dataMap.getDataMap().putString(KEY_BACKGROUND_COLOR, mBackgroundColour);
-            //dataMap.getDataMap().putString(KEY_FOREGROUND_COLOR, mForegroundColour);
-
-            PutDataRequest request = dataMap.asPutDataRequest();
-
-            DataApi.DataItemResult dataItemResult = Wearable.DataApi.putDataItem(mGoogleApiClient, request).await();
-
-            return null;
+            Wearable.MessageApi.sendMessage(mGoogleApiClient, mPeerId, PATH_DIGILOGUE_COLOURS, rawData);
         }
     }
 }
-*/

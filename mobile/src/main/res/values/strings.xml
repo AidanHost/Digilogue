@@ -4,8 +4,8 @@
     <string name="app_name">Digilogue</string>
     <string name="digital_config_background">Background</string>
     <string name="digital_config_foreground">Foreground</string>
-    <string name="digital_config_text">Digilogue watch face configuration</string>
     <string name="title_activity_digilogue_config">DigilogueConfigActivity</string>
+    <string name="digital_config_format">12 Hour format</string>
 
     <string name="title_no_device_connected">No wearable device is currently connected.</string>
     <string name="ok_no_device_connected">OK</string>
@@ -17,6 +17,9 @@
     <string name="color_navy">Navy</string>
     <string name="color_red">Red</string>
     <string name="color_white">White</string>
+    <string name="digital_config_accent">Accent</string>
+    <string name="digital_config_middle">Middle</string>
+    <string name="update_watch">Update watchface</string>
 
     <string-array name="color_array">
         <item>@string/color_black</item>
