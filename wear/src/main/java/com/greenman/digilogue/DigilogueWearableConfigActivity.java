@@ -197,7 +197,7 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
         }
 
         DataMap configKeysToOverwrite = new DataMap();
-        configKeysToOverwrite.putBoolean(WatchFaceUtil.KEY_12HOUR_FORMAT, true); // TODO: checkbox
+        //configKeysToOverwrite.putBoolean(WatchFaceUtil.KEY_12HOUR_FORMAT, true); // TODO: checkbox
         configKeysToOverwrite.putString(WatchFaceUtil.KEY_BACKGROUND_COLOUR, backgroundColour);
         configKeysToOverwrite.putString(WatchFaceUtil.KEY_MIDDLE_COLOUR, middleColour);
         configKeysToOverwrite.putString(WatchFaceUtil.KEY_FOREGROUND_COLOUR, foregroundColour);

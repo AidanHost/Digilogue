@@ -29,6 +29,10 @@
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
         app:layout_box="left|right"/>
+    <!--<CheckBox
+        android:id="@+id/digital_format"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />-->
     <!--<android.support.wearable.view.WearableListView
         android:id="@+id/foreground_color_picker"
         android:layout_width="match_parent"
