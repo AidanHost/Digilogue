@@ -557,6 +557,9 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mElementPaint.setColor(Color.parseColor(mForegroundColor));
             mElementPaint.setAlpha(foregroundOpacityLevel);
             canvas.drawText(String.valueOf(batteryLevel), (centerX / 2f) - 20f, centerY + smallTextOffset, mElementPaint);
+
+            // Widgets
+            // TODO: weather widget
         }
 
         @Override
