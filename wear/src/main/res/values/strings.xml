@@ -1,7 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">Digilogue</string>
-    <string name="digital_background_color">Background color</string>
-    <string name="digital_config_name">Digital watch face configuration</string>
+    <string name="title_activity_digilogue_wearable_config">DigilogueWearableConfigActivity</string>
+    <string name="basic_color_choice">Select colour</string>
+    <string name="digital_am">AM</string>
+    <string name="digital_pm">PM</string>
 
     <string name="color_black">Black</string>
     <string name="color_blue">Blue</string>
@@ -20,4 +24,5 @@
         <item>@string/color_red</item>
         <item>@string/color_white</item>
     </string-array>
+
 </resources>
