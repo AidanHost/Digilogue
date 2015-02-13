@@ -28,6 +28,7 @@ public class WatchFaceUtil {
     public static final String KEY_WIDGET_WEATHER_FAHRENHEIT = "com.greenman.digilogue.FAHRENHEIT";
     public static final String KEY_WIDGET_WEATHER_LOCATION = "com.greenman.digilogue.LOCATION";
     public static final String KEY_WIDGET_WEATHER_UPDATE_FREQUENCY = "com.greenman.digilogue.UPDATE_FREQUENCY";
+    public static final String KEY_WIDGET_WEATHER_DATA_TEMPERATURE = "com.greenman.digilogue.WEATHER_TEMPERATURE";
 
     public static final String PATH_DIGILOGUE_SETTINGS = "/digilogue/settings";
     public static final String PATH_DIGILOGUE_WEATHER_DATA = "/digilogue/weather_data";

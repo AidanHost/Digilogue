@@ -62,6 +62,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 .addApi(Wearable.API)
                 .build();
 
+        // TODO: Bind message listener service
     }
 
     @Override

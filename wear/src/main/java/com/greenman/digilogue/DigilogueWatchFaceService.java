@@ -27,12 +27,15 @@ import android.view.WindowInsets;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 import java.text.SimpleDateFormat;
@@ -72,7 +75,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         static final String COLON_STRING = ":";
         long REFRESH_WEATHER_DELAY_HOURS = WatchFaceUtil.CONFIG_WIDGET_WEATHER_UPDATE_FREQUENCY_DEFAULT;
 
-        private AsyncTask<Void, Void, Void> mRefreshWeatherTask;
+        private RefreshWeatherTask mRefreshWeatherTask;
 
 
         /** How often {@link #mUpdateHandler} ticks in milliseconds. */
@@ -603,13 +606,18 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mTextElementPaint.setAlpha(foregroundOpacityLevel);
                 canvas.drawText(String.valueOf(temperature) + getString(R.string.degrees), centerX + 3f, centerY * 0.6f, mTextElementPaint);
 
+
                 // TODO: Draw icon based on conditions
                 mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
                 mWidgetWeatherPaint.setAlpha(255);
+                mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+                mWidgetWeatherPaint.setStrokeWidth(2f);
                 canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
 
                 mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
                 mWidgetWeatherPaint.setAlpha(foregroundOpacityLevel);
+                mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+                mWidgetWeatherPaint.setStrokeWidth(1f);
                 canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
             }
         }
@@ -902,7 +910,18 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DigilogueWakeLock");
                 mWakeLock.acquire();
 
-                // TODO: get weather data
+                // get weather data
+                //Wearable.MessageApi.sendMessage(mGoogleApiClient, peerId, WatchFaceUtil.PATH_DIGILOGUE_WEATHER_DATA, null);
+
+                Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(
+                        new ResultCallback<NodeApi.GetConnectedNodesResult>() {
+                            @Override
+                            public void onResult(NodeApi.GetConnectedNodesResult result) {
+                                for (Node node : result.getNodes()) {
+                                    Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), WatchFaceUtil.PATH_DIGILOGUE_WEATHER_DATA, null);
+                                }
+                            }
+                        });
 
                 return null;
             }
