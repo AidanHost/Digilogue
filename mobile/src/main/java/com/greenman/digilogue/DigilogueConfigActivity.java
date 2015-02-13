@@ -2,17 +2,22 @@ package com.greenman.digilogue;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.wearable.companion.WatchFaceCompanion;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -32,11 +37,30 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     public static final String KEY_MIDDLE_COLOUR = "com.greenman.digilogue.MIDDLE_COLOUR";
     public static final String KEY_FOREGROUND_COLOUR = "com.greenman.digilogue.FOREGROUND_COLOUR";
     public static final String KEY_ACCENT_COLOUR = "com.greenman.digilogue.ACCENT_COLOUR";
+    private static final String KEY_WIDGET_WEATHER_AUTO_LOCATION = "com.greenman.digilogue.AUTO_LOCATION";
+    private static final String KEY_WIDGET_SHOW_WEATHER = "com.greenman.digilogue.SHOW_WEATHER";
+    private static final String KEY_WIDGET_WEATHER_FAHRENHEIT = "com.greenman.digilogue.FAHRENHEIT";
+    private static final String KEY_WIDGET_WEATHER_LOCATION = "com.greenman.digilogue.LOCATION";
+    public static final String KEY_WIDGET_WEATHER_UPDATE_FREQUENCY = "com.greenman.digilogue.UPDATE_FREQUENCY";
 
-    private static final String PATH_DIGILOGUE_COLOURS = "/digilogue/colours";
+    private static final String PATH_DIGILOGUE_SETTINGS = "/digilogue/settings";
 
     private GoogleApiClient mGoogleApiClient;
     private String mPeerId;
+
+    Spinner background;
+    Spinner middle;
+    Spinner foreground;
+    Spinner accent;
+
+    EditText widget_weather_text_location;
+
+    CheckBox digital_format;
+    CheckBox widget_show_weather;
+    CheckBox widget_weather_fahrenheit;
+    CheckBox widget_weather_auto_location;
+
+    SeekBar widget_weather_frequency;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +76,12 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 .addApi(Wearable.API)
                 .build();
 
+    }@Override
+     public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -61,6 +91,9 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             case android.R.id.home:
                 onBackPressed();
 
+                return true;
+            case R.id.button_update:
+                sendConfigUpdateMessage();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -88,7 +121,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         if (mPeerId != null) {
             Uri.Builder builder = new Uri.Builder();
-            Uri uri = builder.scheme("wear").path(PATH_DIGILOGUE_COLOURS).authority(mPeerId).build();
+            Uri uri = builder.scheme("wear").path(PATH_DIGILOGUE_SETTINGS).authority(mPeerId).build();
             Wearable.DataApi.getDataItem(mGoogleApiClient, uri).setResultCallback(this);
         } else {
             displayNoConnectedDeviceDialog();
@@ -143,10 +176,96 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         String foregroundColour = getString(R.string.color_white);
         String accentColour = getString(R.string.color_red);
 
-        if (config != null) {
-            CheckBox checkBox = (CheckBox) findViewById(R.id.digital_format);
-            checkBox.setChecked(config.containsKey(KEY_12HOUR_FORMAT) && config.getBoolean(KEY_12HOUR_FORMAT, false));
+        background = (Spinner) findViewById(R.id.background);
+        middle = (Spinner) findViewById(R.id.middle);
+        foreground = (Spinner) findViewById(R.id.foreground);
+        accent = (Spinner) findViewById(R.id.accent);
 
+        digital_format = (CheckBox) findViewById(R.id.digital_format);
+        widget_show_weather = (CheckBox)findViewById(R.id.widget_show_weather);
+        widget_weather_fahrenheit = (CheckBox) findViewById(R.id.widget_weather_fahrenheit);
+        widget_weather_auto_location = (CheckBox) findViewById(R.id.widget_weather_auto_location);
+
+        widget_weather_text_location = (EditText) findViewById(R.id.widget_weather_text_location);
+
+        widget_weather_frequency = (SeekBar) findViewById(R.id.widget_weather_frequency);
+
+        final LinearLayout widget_weather_group = (LinearLayout) findViewById(R.id.widget_weather_group);
+        final LinearLayout location = (LinearLayout) findViewById(R.id.location);
+        final TextView text_frequency = (TextView) findViewById(R.id.text_frequency);
+        boolean autoLocation = true;
+
+        widget_show_weather.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    widget_weather_group.setVisibility(View.VISIBLE);
+                } else {
+                    widget_weather_group.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        widget_weather_auto_location.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                    location.setVisibility(View.GONE);
+                else
+                    location.setVisibility(View.VISIBLE);
+            }
+        });
+
+        widget_weather_frequency.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (progress < 1) {
+                    progress = 1;
+                    seekBar.setProgress(progress);
+                }
+
+                text_frequency.setText(String.format(getString(R.string.widget_weather_frequency), progress));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        if (config != null) {
+            // Toggles
+            digital_format.setChecked(config.containsKey(KEY_12HOUR_FORMAT) && config.getBoolean(KEY_12HOUR_FORMAT, false));
+
+            boolean showWeather = config.containsKey(KEY_WIDGET_SHOW_WEATHER) && config.getBoolean(KEY_WIDGET_SHOW_WEATHER, false);
+            autoLocation = (config.containsKey(KEY_WIDGET_WEATHER_AUTO_LOCATION) && config.getBoolean(KEY_WIDGET_WEATHER_AUTO_LOCATION, true) || !config.containsKey(KEY_WIDGET_WEATHER_AUTO_LOCATION));
+
+            widget_show_weather.setChecked(showWeather);
+            if (showWeather)
+                widget_weather_group.setVisibility(View.VISIBLE);
+
+            widget_weather_fahrenheit.setChecked(config.containsKey(KEY_WIDGET_WEATHER_FAHRENHEIT) && config.getBoolean(KEY_WIDGET_WEATHER_FAHRENHEIT, false));
+
+            if (config.containsKey(KEY_WIDGET_WEATHER_UPDATE_FREQUENCY))
+                widget_weather_frequency.setProgress((int)config.getLong(KEY_WIDGET_WEATHER_UPDATE_FREQUENCY));
+            else {
+                widget_weather_frequency.setProgress(3);
+                text_frequency.setText(String.format(getString(R.string.widget_weather_frequency), 3));
+            }
+
+            if (!autoLocation) {
+                location.setVisibility(View.VISIBLE);
+
+                if (config.containsKey(KEY_WIDGET_WEATHER_LOCATION))
+                    widget_weather_text_location.setText(config.getString(KEY_WIDGET_WEATHER_LOCATION));
+            }
+
+            // Colours
             if (config.containsKey(KEY_BACKGROUND_COLOUR))
                 backgroundColour = config.getString(KEY_BACKGROUND_COLOUR);
 
@@ -160,31 +279,25 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 accentColour = config.getString(KEY_ACCENT_COLOUR);
         }
 
+        widget_weather_auto_location.setChecked(autoLocation);
+
         setUpColorPickerSelection(R.id.background, KEY_BACKGROUND_COLOUR, config, backgroundColour);
         setUpColorPickerSelection(R.id.middle, KEY_MIDDLE_COLOUR, config, middleColour);
         setUpColorPickerSelection(R.id.foreground, KEY_FOREGROUND_COLOUR, config, foregroundColour);
         setUpColorPickerSelection(R.id.accent, KEY_ACCENT_COLOUR, config, accentColour);
-
-        Button buttonUpdate = (Button) findViewById(R.id.button_update);
-        buttonUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendConfigUpdateMessage();
-            }
-        });
     }
 
     private void setUpColorPickerSelection(int spinnerId, final String configKey, DataMap config, String defaultColorName) {
-        int color;
+        String color;
         if (config != null) {
-            color = Color.parseColor(config.getString(configKey, defaultColorName));
+            color = config.getString(configKey, defaultColorName);
         } else {
-            color = Color.parseColor(defaultColorName);
+            color = defaultColorName;
         }
         Spinner spinner = (Spinner) findViewById(spinnerId);
         String[] colorNames = getResources().getStringArray(R.array.color_array);
         for (int i = 0; i < colorNames.length; i++) {
-            if (Color.parseColor(colorNames[i]) == color) {
+            if (colorNames[i].toLowerCase().equals(color.toLowerCase())) {
                 spinner.setSelection(i);
                 break;
             }
@@ -193,24 +306,26 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
     private void sendConfigUpdateMessage() {
         if (mPeerId != null) {
-            CheckBox checkBox = (CheckBox) findViewById(R.id.digital_format);
-
-            Spinner backgroundSpinner = (Spinner) findViewById(R.id.background);
-            Spinner middleSpinner = (Spinner) findViewById(R.id.middle);
-            Spinner foregroundSpinner = (Spinner) findViewById(R.id.foreground);
-            Spinner accentSpinner = (Spinner) findViewById(R.id.accent);
-
-            String backgroundColour = backgroundSpinner.getSelectedItem().toString();
-
             DataMap config = new DataMap();
-            config.putBoolean(KEY_12HOUR_FORMAT, checkBox.isChecked());
-            config.putString(KEY_BACKGROUND_COLOUR, backgroundColour);
-            config.putString(KEY_MIDDLE_COLOUR, middleSpinner.getSelectedItem().toString());
-            config.putString(KEY_FOREGROUND_COLOUR, foregroundSpinner.getSelectedItem().toString());
-            config.putString(KEY_ACCENT_COLOUR, accentSpinner.getSelectedItem().toString());
+            config.putBoolean(KEY_12HOUR_FORMAT, digital_format.isChecked());
+            config.putString(KEY_BACKGROUND_COLOUR, background.getSelectedItem().toString());
+            config.putString(KEY_MIDDLE_COLOUR, middle.getSelectedItem().toString());
+            config.putString(KEY_FOREGROUND_COLOUR, foreground.getSelectedItem().toString());
+            config.putString(KEY_ACCENT_COLOUR, accent.getSelectedItem().toString());
+            config.putString(KEY_WIDGET_WEATHER_LOCATION, widget_weather_text_location.getText().toString());
+            config.putBoolean(KEY_WIDGET_SHOW_WEATHER, widget_show_weather.isChecked());
+            config.putBoolean(KEY_WIDGET_WEATHER_FAHRENHEIT, widget_weather_fahrenheit.isChecked());
+            config.putBoolean(KEY_WIDGET_WEATHER_AUTO_LOCATION, widget_weather_auto_location.isChecked());
+
+            int frequency = widget_weather_frequency.getProgress();
+
+            if (frequency < 1)
+                frequency = 1;
+
+            config.putLong(KEY_WIDGET_WEATHER_UPDATE_FREQUENCY, frequency);
             byte[] rawData = config.toByteArray();
 
-            Wearable.MessageApi.sendMessage(mGoogleApiClient, mPeerId, PATH_DIGILOGUE_COLOURS, rawData);
+            Wearable.MessageApi.sendMessage(mGoogleApiClient, mPeerId, PATH_DIGILOGUE_SETTINGS, rawData);
         }
     }
 }

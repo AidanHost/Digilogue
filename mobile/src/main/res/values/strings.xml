@@ -20,6 +20,14 @@
     <string name="digital_config_accent">Accent</string>
     <string name="digital_config_middle">Middle</string>
     <string name="update_watch">Update watchface</string>
+    <string name="header_colours">Colours</string>
+    <string name="header_toggles">Toggles</string>
+    <string name="weather_location">Location</string>
+    <string name="widget_weather_auto_location">Auto detect</string>
+    <string name="widget_show_weather">Weather</string>
+    <string name="location_hint">Country Code, City (Eg. ZA, Cape Town)</string>
+    <string name="fahrenheit">Fahrenheit</string>
+    <string name="widget_weather_frequency">Update weather every %02d hours</string>
 
     <string-array name="color_array">
         <item>@string/color_black</item>
