@@ -16,7 +16,7 @@ import com.google.android.gms.wearable.Wearable;
 import java.util.concurrent.TimeUnit;
 
 public class WatchFaceUtil {
-    private static final String TAG = "DigitalWatchFaceUtil";
+    private static final String TAG = "WatchFaceUtil";
 
     public static final String KEY_12HOUR_FORMAT = "com.greenman.digilogue.12HOUR_FORMAT";
     public static final String KEY_BACKGROUND_COLOUR = "com.greenman.digilogue.BACKGROUND_COLOUR";
@@ -30,6 +30,7 @@ public class WatchFaceUtil {
     public static final String KEY_WIDGET_WEATHER_UPDATE_FREQUENCY = "com.greenman.digilogue.UPDATE_FREQUENCY";
 
     public static final String PATH_DIGILOGUE_SETTINGS = "/digilogue/settings";
+    public static final String PATH_DIGILOGUE_WEATHER_DATA = "/digilogue/weather_data";
 
     public static final boolean CONFIG_12HOUR_DEFAULT = false;
     // TODO: false
