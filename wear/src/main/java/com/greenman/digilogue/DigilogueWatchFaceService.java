@@ -20,6 +20,7 @@ import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
@@ -46,7 +47,6 @@ import java.util.concurrent.TimeUnit;
 public class DigilogueWatchFaceService extends CanvasWatchFaceService {
     private static final String TAG = "WatchFaceService";
 
-    private static final Typeface BOLD_TYPEFACE = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
     private static final Typeface NORMAL_TYPEFACE = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
 
     /**
@@ -183,6 +183,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setViewProtection(WatchFaceStyle.PROTECT_HOTWORD_INDICATOR | WatchFaceStyle.PROTECT_STATUS_BAR)
+                    .setHotwordIndicatorGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL)
                     .setShowSystemUiTime(false)
                     .build());
 
@@ -232,7 +233,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(Color.parseColor(mBackgroundColor));
 
-            mDigitalHourPaint = createTextPaint(Color.parseColor(mForegroundColor), BOLD_TYPEFACE);
+            mDigitalHourPaint = createTextPaint(Color.parseColor(mForegroundColor));
             mDigitalMinutePaint = createTextPaint(Color.parseColor(mForegroundColor));
             mDigitalAmPmPaint = createTextPaint(Color.parseColor(mForegroundColor));
             mElementPaint = createTextPaint(Color.parseColor(mForegroundColor));
@@ -240,8 +241,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mTime = new Time();
 
-            foregroundOpacityLevel = mMute ? 100 : 255;
-            accentOpacityLevel = mMute ? 80 : 255;
+            foregroundOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
+            accentOpacityLevel = mMute || isInAmbientMode() ? 80 : 255;
         }
 
         @Override
@@ -278,8 +279,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             super.onPropertiesChanged(properties);
 
             boolean burnInProtection = properties.getBoolean(PROPERTY_BURN_IN_PROTECTION, false);
-            mDigitalHourPaint.setTypeface(burnInProtection ? NORMAL_TYPEFACE : BOLD_TYPEFACE);
-
             mLowBitAmbient = properties.getBoolean(PROPERTY_LOW_BIT_AMBIENT, false);
 
             if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -312,6 +311,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mHourTickPaint.setAntiAlias(antiAlias);
             }
 
+            // Dim all elements on screen
+            foregroundOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
+            accentOpacityLevel = mMute || isInAmbientMode() ? 80 : 255;
+
             if (isInAmbientMode()) {
                 setBackgroundColor(WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
                 setMiddleColor(WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE);
@@ -335,8 +338,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             setInteractiveUpdateRateMs(inMuteMode ? MUTE_UPDATE_RATE_MS : INTERACTIVE_UPDATE_RATE_MS);
 
             // Dim all elements on screen
-            foregroundOpacityLevel = inMuteMode ? 100 : 255;
-            accentOpacityLevel = inMuteMode ? 80 : 255;
+            foregroundOpacityLevel = inMuteMode || isInAmbientMode() ? 100 : 255;
+            accentOpacityLevel = inMuteMode || isInAmbientMode() ? 80 : 255;
 
             if (mMute != inMuteMode) {
                 mMute = inMuteMode;
@@ -382,7 +385,9 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 float innerY = (float) -Math.cos(tickRot) * innerTickRadius;
                 float outerX = (float) Math.sin(tickRot) * outerTickRadius;
                 float outerY = (float) -Math.cos(tickRot) * outerTickRadius;
-                canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mHourTickPaint);
+
+                if (!isInAmbientMode())
+                    canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mHourTickPaint);
 
                 float innerShortX = (float) Math.sin(tickRot) * innerShortTickRadius;
                 float innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius;
@@ -392,15 +397,17 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
 
             // Draw the minute ticks.
-            float innerMinuteTickRadius = centerX - 7;
-            float outerMinuteTickRadius = centerX;
-            for (int tickIndex = 0; tickIndex < 60; tickIndex++) {
-                float tickRot = (float) (tickIndex * Math.PI * 2 / 60);
-                float innerX = (float) Math.sin(tickRot) * innerMinuteTickRadius;
-                float innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius;
-                float outerX = (float) Math.sin(tickRot) * outerMinuteTickRadius;
-                float outerY = (float) -Math.cos(tickRot) * outerMinuteTickRadius;
-                canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mMinuteTickPaint);
+            if (!isInAmbientMode()) {
+                float innerMinuteTickRadius = centerX - 7;
+                float outerMinuteTickRadius = centerX;
+                for (int tickIndex = 0; tickIndex < 60; tickIndex++) {
+                    float tickRot = (float) (tickIndex * Math.PI * 2 / 60);
+                    float innerX = (float) Math.sin(tickRot) * innerMinuteTickRadius;
+                    float innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius;
+                    float outerX = (float) Math.sin(tickRot) * outerMinuteTickRadius;
+                    float outerY = (float) -Math.cos(tickRot) * outerMinuteTickRadius;
+                    canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mMinuteTickPaint);
+                }
             }
 
             float secRot = mTime.second / 30f * (float) Math.PI;
@@ -409,8 +416,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             float hrRot = ((mTime.hour + (minutes / 60f)) / 6f) * (float) Math.PI;
 
             float secLength = centerX - 20;
-            float minLength = centerX - 40;
-            float hrLength = centerX - 80;
+            float minLength = centerX - 35;
+            float hrLength = centerX - 75;
             float offset = centerX / 4;
 
             if (!isInAmbientMode()) {
@@ -418,6 +425,15 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 float secY = (float) -Math.cos(secRot) * secLength;
                 float secStartX = (float) Math.sin(secRot) * offset;
                 float secStartY = (float) -Math.cos(secRot) * offset;
+
+                mSecondPaint.setStyle(Paint.Style.STROKE);
+                mSecondPaint.setColor(Color.parseColor(mBackgroundColor));
+                mSecondPaint.setAlpha(255);
+                canvas.drawLine(centerX + secStartX, centerY + secStartY, centerX + secX, centerY + secY, mSecondPaint);
+
+                mSecondPaint.setStyle(Paint.Style.FILL);
+                mSecondPaint.setColor(Color.parseColor(mAccentColor));
+                mSecondPaint.setAlpha(foregroundOpacityLevel);
                 canvas.drawLine(centerX + secStartX, centerY + secStartY, centerX + secX, centerY + secY, mSecondPaint);
             }
 
@@ -425,12 +441,30 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             float minY = (float) -Math.cos(minRot) * minLength;
             float minStartX = (float) Math.sin(minRot) * offset;
             float minStartY = (float) -Math.cos(minRot) * offset;
+
+            mMinutePaint.setStyle(Paint.Style.STROKE);
+            mMinutePaint.setColor(Color.parseColor(mBackgroundColor));
+            mMinutePaint.setAlpha(255);
+            canvas.drawLine(centerX + minStartX, centerY + minStartY, centerX + minX, centerY + minY, mMinutePaint);
+
+            mMinutePaint.setStyle(Paint.Style.FILL);
+            mMinutePaint.setColor(Color.parseColor(mForegroundColor));
+            mMinutePaint.setAlpha(foregroundOpacityLevel);
             canvas.drawLine(centerX + minStartX, centerY + minStartY, centerX + minX, centerY + minY, mMinutePaint);
 
             float hrX = (float) Math.sin(hrRot) * hrLength;
             float hrY = (float) -Math.cos(hrRot) * hrLength;
             float hrStartX = (float) Math.sin(hrRot) * offset;
             float hrStartY = (float) -Math.cos(hrRot) * offset;
+
+            mHourPaint.setStyle(Paint.Style.STROKE);
+            mHourPaint.setColor(Color.parseColor(mBackgroundColor));
+            mHourPaint.setAlpha(255);
+            canvas.drawLine(centerX + hrStartX, centerY + hrStartY, centerX + hrX, centerY + hrY, mHourPaint);
+
+            mHourPaint.setStyle(Paint.Style.FILL);
+            mHourPaint.setColor(Color.parseColor(mForegroundColor));
+            mHourPaint.setAlpha(foregroundOpacityLevel);
             canvas.drawLine(centerX + hrStartX, centerY + hrStartY, centerX + hrX, centerY + hrY, mHourPaint);
 
             // Digital
@@ -439,25 +473,25 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             String hourString = formatTwoDigitNumber(mTime.hour);
 
             mDigitalHourPaint.setStyle(Paint.Style.STROKE);
-            mDigitalHourPaint.setColor(Color.parseColor(mBackgroundColor));
-            mDigitalHourPaint.setAlpha(255);
+            mDigitalHourPaint.setColor(isInAmbientMode() ? Color.parseColor(mForegroundColor) : Color.parseColor(mBackgroundColor));
+            mDigitalHourPaint.setAlpha(isInAmbientMode() ? foregroundOpacityLevel : 255);
             canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
 
             mDigitalHourPaint.setStyle(Paint.Style.FILL);
-            mDigitalHourPaint.setColor(Color.parseColor(mForegroundColor));
-            mDigitalHourPaint.setAlpha(foregroundOpacityLevel);
+            mDigitalHourPaint.setColor(isInAmbientMode() ? Color.parseColor(mBackgroundColor) : Color.parseColor(mForegroundColor));
+            mDigitalHourPaint.setAlpha(isInAmbientMode() ? 255 : foregroundOpacityLevel);
             canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
 
             x += mDigitalHourPaint.measureText(hourString);
 
             mColonPaint.setStyle(Paint.Style.STROKE);
-            mColonPaint.setColor(Color.parseColor(mBackgroundColor));
-            mColonPaint.setAlpha(255);
+            mColonPaint.setColor(isInAmbientMode() ? Color.parseColor(mMiddleColor) : Color.parseColor(mBackgroundColor));
+            mColonPaint.setAlpha(isInAmbientMode() ? foregroundOpacityLevel : 255);
             canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
 
             mColonPaint.setStyle(Paint.Style.FILL);
-            mColonPaint.setColor(Color.parseColor(mMiddleColor));
-            mColonPaint.setAlpha(foregroundOpacityLevel);
+            mColonPaint.setColor(isInAmbientMode() ? Color.parseColor(mBackgroundColor) : Color.parseColor(mMiddleColor));
+            mColonPaint.setAlpha(isInAmbientMode() ? 255 : foregroundOpacityLevel);
             canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
 
             x += mColonWidth;
@@ -466,18 +500,18 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             String minuteString = formatTwoDigitNumber(mTime.minute);
 
             mDigitalMinutePaint.setStyle(Paint.Style.STROKE);
-            mDigitalMinutePaint.setColor(Color.parseColor(mBackgroundColor));
-            mDigitalMinutePaint.setAlpha(255);
+            mDigitalMinutePaint.setColor(isInAmbientMode() ? Color.parseColor(mForegroundColor) : Color.parseColor(mBackgroundColor));
+            mDigitalMinutePaint.setAlpha(isInAmbientMode() ? foregroundOpacityLevel : 255);
             canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
 
             mDigitalMinutePaint.setStyle(Paint.Style.FILL);
-            mDigitalMinutePaint.setColor(Color.parseColor(mForegroundColor));
-            mDigitalMinutePaint.setAlpha(foregroundOpacityLevel);
+            mDigitalMinutePaint.setColor(isInAmbientMode() ? Color.parseColor(mBackgroundColor) : Color.parseColor(mForegroundColor));
+            mDigitalMinutePaint.setAlpha(isInAmbientMode() ? 255 : foregroundOpacityLevel);
             canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
 
             // Draw AM/PM indicator
             if (m12Hour) {
-                x += mDigitalHourPaint.measureText(minuteString);
+                x += mDigitalMinutePaint.measureText(minuteString);
 
                 mDigitalAmPmPaint.setStyle(Paint.Style.STROKE);
                 mDigitalAmPmPaint.setColor(Color.parseColor(mBackgroundColor));
@@ -726,6 +760,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             paint.setColor(Color.parseColor(colour));
             paint.setAlpha(opacityLevel);
         }
+        private void updatePaint(Paint paint, String colour, int opacityLevel, float strokeWidth) {
+            updatePaint(paint, colour, opacityLevel);
+            paint.setStrokeWidth(isInAmbientMode() ? 2f : strokeWidth);
+        }
 
         private void setBackgroundColor(String color) {
             mBackgroundColor = color;
@@ -735,8 +773,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void setForegroundColor(String color) {
             mForegroundColor = color;
 
-            updatePaint(mHourPaint, color, foregroundOpacityLevel);
-            updatePaint(mMinutePaint, color, foregroundOpacityLevel);
+            updatePaint(mHourPaint, color, foregroundOpacityLevel, 3f);
+            updatePaint(mMinutePaint, color, foregroundOpacityLevel, 3f);
 
             updatePaint(mDigitalHourPaint, color, foregroundOpacityLevel);
             updatePaint(mDigitalMinutePaint, color, foregroundOpacityLevel);
@@ -750,26 +788,22 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         private void setAccentColor(String color) {
             mAccentColor = color;
-            updatePaint(mSecondPaint, color, accentOpacityLevel);
+            updatePaint(mSecondPaint, color, accentOpacityLevel, 2f);
         }
 
         private void setMiddleColor(String color) {
             mMiddleColor = color;
-            updatePaint(mColonPaint, color, 255);
-            updatePaint(mBatteryFullPaint, color, 255);
+            updatePaint(mColonPaint, color, foregroundOpacityLevel);
+            updatePaint(mBatteryFullPaint, color, foregroundOpacityLevel);
         }
 
-        private Paint createTextPaint(int defaultInteractiveColor) {
-            return createTextPaint(defaultInteractiveColor, NORMAL_TYPEFACE);
-        }
-
-        private Paint createTextPaint(int defaultInteractiveColour, Typeface typeface) {
+        private Paint createTextPaint(int defaultInteractiveColour) {
             Paint paint = new Paint();
             paint.setColor(defaultInteractiveColour);
-            paint.setTypeface(typeface);
+            paint.setTypeface(NORMAL_TYPEFACE);
             paint.setAntiAlias(true);
-            paint.setStrokeJoin(Paint.Join.BEVEL);
-            paint.setStrokeWidth(3);
+            paint.setStrokeJoin(Paint.Join.MITER);
+            paint.setStrokeWidth(2f);
             return paint;
         }
         //endregion
