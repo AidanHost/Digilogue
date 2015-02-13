@@ -19,7 +19,7 @@ public class DigilogueConfigListenerService extends WearableListenerService impl
 
     @Override // WearableListenerService
     public void onMessageReceived(MessageEvent messageEvent) {
-        if (!messageEvent.getPath().equals(WatchFaceUtil.PATH_DIGILOGUE_COLOURS)) {
+        if (!messageEvent.getPath().equals(WatchFaceUtil.PATH_DIGILOGUE_SETTINGS)) {
             return;
         }
 

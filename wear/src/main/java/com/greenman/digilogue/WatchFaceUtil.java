@@ -9,10 +9,11 @@ import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
-import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
+
+import java.util.concurrent.TimeUnit;
 
 public class WatchFaceUtil {
     private static final String TAG = "DigitalWatchFaceUtil";
@@ -22,10 +23,21 @@ public class WatchFaceUtil {
     public static final String KEY_MIDDLE_COLOUR = "com.greenman.digilogue.MIDDLE_COLOUR";
     public static final String KEY_FOREGROUND_COLOUR = "com.greenman.digilogue.FOREGROUND_COLOUR";
     public static final String KEY_ACCENT_COLOUR = "com.greenman.digilogue.ACCENT_COLOUR";
+    public static final String KEY_WIDGET_WEATHER_AUTO_LOCATION = "com.greenman.digilogue.AUTO_LOCATION";
+    public static final String KEY_WIDGET_SHOW_WEATHER = "com.greenman.digilogue.SHOW_WEATHER";
+    public static final String KEY_WIDGET_WEATHER_FAHRENHEIT = "com.greenman.digilogue.FAHRENHEIT";
+    public static final String KEY_WIDGET_WEATHER_LOCATION = "com.greenman.digilogue.LOCATION";
+    public static final String KEY_WIDGET_WEATHER_UPDATE_FREQUENCY = "com.greenman.digilogue.UPDATE_FREQUENCY";
 
-    public static final String PATH_DIGILOGUE_COLOURS = "/digilogue/colours";
+    public static final String PATH_DIGILOGUE_SETTINGS = "/digilogue/settings";
 
     public static final boolean CONFIG_12HOUR_DEFAULT = false;
+    // TODO: false
+    public static final boolean CONFIG_WIDGET_SHOW_WEATHER_DEFAULT = true;
+    public static final boolean CONFIG_WIDGET_FAHRENHEIT_DEFAULT = false;
+    public static final boolean CONFIG_AUTO_LOCATION_DEFAULT = true;
+    public static final String CONFIG_LOCATION_DEFAULT = "";
+    public static long CONFIG_WIDGET_WEATHER_UPDATE_FREQUENCY_DEFAULT = 3;
 
     public static final String COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND = "black";
     public static final String COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE = "gray";
@@ -53,7 +65,7 @@ public class WatchFaceUtil {
                         String localNode = getLocalNodeResult.getNode().getId();
                         Uri uri = new Uri.Builder()
                                 .scheme("wear")
-                                .path(WatchFaceUtil.PATH_DIGILOGUE_COLOURS)
+                                .path(WatchFaceUtil.PATH_DIGILOGUE_SETTINGS)
                                 .authority(localNode)
                                 .build();
                         Wearable.DataApi.getDataItem(client, uri)
@@ -72,7 +84,7 @@ public class WatchFaceUtil {
                             String localNode = node.getId();
                             Uri uri = new Uri.Builder()
                                     .scheme("wear")
-                                    .path(WatchFaceUtil.PATH_DIGILOGUE_COLOURS)
+                                    .path(WatchFaceUtil.PATH_DIGILOGUE_SETTINGS)
                                     .authority(localNode)
                                     .build();
                             Wearable.DataApi.getDataItem(client, uri)
@@ -110,7 +122,7 @@ public class WatchFaceUtil {
      * If the config DataItem doesn't exist, it's created.
      */
     public static void putConfigDataItem(GoogleApiClient googleApiClient, DataMap newConfig) {
-        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(PATH_DIGILOGUE_COLOURS);
+        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(PATH_DIGILOGUE_SETTINGS);
         DataMap configToPut = putDataMapRequest.getDataMap();
         configToPut.putAll(newConfig);
         Wearable.DataApi.putDataItem(googleApiClient, putDataMapRequest.asPutDataRequest())
