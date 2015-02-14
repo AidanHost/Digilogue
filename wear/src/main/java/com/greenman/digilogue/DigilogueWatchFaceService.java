@@ -241,8 +241,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mTime = new Time();
 
-            foregroundOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
-            accentOpacityLevel = mMute || isInAmbientMode() ? 80 : 255;
+            foregroundOpacityLevel = mMute || isInAmbientMode() ? 125 : 255;
+            accentOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
         }
 
         @Override
@@ -312,8 +312,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
 
             // Dim all elements on screen
-            foregroundOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
-            accentOpacityLevel = mMute || isInAmbientMode() ? 80 : 255;
+            foregroundOpacityLevel = mMute || isInAmbientMode() ? 125 : 255;
+            accentOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
 
             if (isInAmbientMode()) {
                 setBackgroundColor(WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
@@ -338,8 +338,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             setInteractiveUpdateRateMs(inMuteMode ? MUTE_UPDATE_RATE_MS : INTERACTIVE_UPDATE_RATE_MS);
 
             // Dim all elements on screen
-            foregroundOpacityLevel = inMuteMode || isInAmbientMode() ? 100 : 255;
-            accentOpacityLevel = inMuteMode || isInAmbientMode() ? 80 : 255;
+            foregroundOpacityLevel = inMuteMode || isInAmbientMode() ? 125 : 255;
+            accentOpacityLevel = inMuteMode || isInAmbientMode() ? 100 : 255;
 
             if (mMute != inMuteMode) {
                 mMute = inMuteMode;
@@ -470,7 +470,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // Digital
             // Draw the hours.
             float x = centerX - mXOffset;
-            String hourString = formatTwoDigitNumber(mTime.hour);
+            String hourString = formatTwoDigitHourNumber(mTime.hour);
 
             mDigitalHourPaint.setStyle(Paint.Style.STROKE);
             mDigitalHourPaint.setColor(isInAmbientMode() ? Color.parseColor(mForegroundColor) : Color.parseColor(mBackgroundColor));
@@ -802,7 +802,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             paint.setColor(defaultInteractiveColour);
             paint.setTypeface(NORMAL_TYPEFACE);
             paint.setAntiAlias(true);
-            paint.setStrokeJoin(Paint.Join.MITER);
+            paint.setStrokeJoin(Paint.Join.BEVEL);
             paint.setStrokeWidth(2f);
             return paint;
         }
@@ -831,7 +831,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         //endregion
 
         //region String methods
-        private String formatTwoDigitNumber(int hour) {
+        private String formatTwoDigitNumber(int number) {
+            return String.format("%02d", number);
+        }
+
+        private String formatTwoDigitHourNumber(int hour) {
             if (m12Hour)
                 return String.format("%02d", convertTo12Hour(hour));
             else
