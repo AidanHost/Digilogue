@@ -107,7 +107,7 @@ public class WeatherService extends WearableListenerService implements GoogleApi
 
                 // TODO: get weather from service (use async task?)
                 try {
-                    String apiURL = "http://api.worldweatheronline.com/free/v2/weather.ashx?key=30566152af44998e55196aeacb2e1&format=json&fx=no&q=";
+                    String apiURL = "http://api.worldweatheronline.com/free/v2/weather.ashx?key=30566152af44998e55196aeacb2e1&format=json&fx=no&extra=isDayTime&q=";
                     con = (HttpURLConnection) (new URL(apiURL + location)).openConnection();
                     con.setRequestMethod("GET");
                     con.setDoInput(true);
@@ -161,6 +161,7 @@ public class WeatherService extends WearableListenerService implements GoogleApi
         config.putInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F, weatherData.getTemperatureF());
         config.putInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE, weatherData.getCode());
         config.putString(Utility.KEY_WIDGET_WEATHER_LOCATION, weatherData.getLocation());
+        config.putBoolean(Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME, weatherData.isDayTime());
 
         if (mGoogleApiClient.isConnected()) {
             byte[] rawData = config.toByteArray();

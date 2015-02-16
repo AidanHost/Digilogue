@@ -12,21 +12,22 @@ public class WeatherData {
     private int temperatureF = -999;
     private int code = Utility.WeatherCodes.UNKNOWN;
     private String location = "";
+    private boolean dayTime = true;
 
     public int getTemperatureC() {
         return temperatureC;
     }
-
     public int getTemperatureF() {
         return temperatureF;
     }
-
     public int getCode() {
         return code;
     }
-
     public String getLocation() {
         return location;
+    }
+    public boolean isDayTime() {
+        return dayTime;
     }
 
     public WeatherData(String jsonString) throws JSONException {
@@ -39,6 +40,7 @@ public class WeatherData {
             temperatureC = Integer.parseInt(currentConditionObj.getString("temp_C"));
             temperatureF = Integer.parseInt(currentConditionObj.getString("temp_F"));
             code = Integer.parseInt(currentConditionObj.getString("weatherCode"));
+            dayTime = currentConditionObj.getString("isdaytime").equals("yes");
 
             JSONObject requestObj = (JSONObject) dataObj.getJSONArray("request").get(0);
             location = requestObj.getString("query");
