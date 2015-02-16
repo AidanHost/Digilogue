@@ -26,6 +26,7 @@ import com.google.android.gms.wearable.Wearable;
 public class DigilogueWearableConfigActivity extends Activity implements WearableListView.ClickListener, WearableListView.OnScrollListener {
     private static final String TAG = "WearableConfigActivity";
 
+    DataMap existingConfig;
     private TextView mHeaderBackground;
 
     private GoogleApiClient mGoogleApiClient;
@@ -42,6 +43,13 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
                             Log.d(TAG, "onConnected: " + connectionHint);
                         }
+
+                        WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, new WatchFaceUtil.FetchConfigDataMapCallback() {
+                            @Override
+                            public void onConfigDataMapFetched(DataMap config) {
+                                existingConfig = config;
+                            }
+                        });
                     }
 
                     @Override
@@ -196,12 +204,17 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
                 break;
         }
 
-        DataMap configKeysToOverwrite = new DataMap();
+        DataMap configKeysToOverwrite = existingConfig;
+
+        if (configKeysToOverwrite == null)
+            configKeysToOverwrite = new DataMap();
+
         //configKeysToOverwrite.putBoolean(WatchFaceUtil.KEY_12HOUR_FORMAT, true); // TODO: checkbox
         configKeysToOverwrite.putString(WatchFaceUtil.KEY_BACKGROUND_COLOUR, backgroundColour);
         configKeysToOverwrite.putString(WatchFaceUtil.KEY_MIDDLE_COLOUR, middleColour);
         configKeysToOverwrite.putString(WatchFaceUtil.KEY_FOREGROUND_COLOUR, foregroundColour);
         configKeysToOverwrite.putString(WatchFaceUtil.KEY_ACCENT_COLOUR, accentColour);
+
         WatchFaceUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
     }
 

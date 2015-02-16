@@ -73,10 +73,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         static final int MSG_REFRESH_WEATHER = 1;
 
         static final String COLON_STRING = ":";
-        long REFRESH_WEATHER_DELAY_HOURS = WatchFaceUtil.CONFIG_WIDGET_WEATHER_UPDATE_FREQUENCY_DEFAULT;
+        int REFRESH_WEATHER_DELAY_HOURS = 3;
 
         private RefreshWeatherTask mRefreshWeatherTask;
 
+        private DataMap config;
 
         /** How often {@link #mUpdateHandler} ticks in milliseconds. */
         long mInteractiveUpdateRateMs = INTERACTIVE_UPDATE_RATE_MS;
@@ -90,6 +91,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         boolean mRegisteredTimeZoneReceiver = false;
         boolean m12Hour = WatchFaceUtil.CONFIG_12HOUR_DEFAULT;
         boolean mShowWeather = WatchFaceUtil.CONFIG_WIDGET_SHOW_WEATHER_DEFAULT;
+        boolean mFahrenheit = WatchFaceUtil.CONFIG_WIDGET_FAHRENHEIT_DEFAULT;
 
         Time mTime;
 
@@ -102,7 +104,9 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         int foregroundOpacityLevel;
         int accentOpacityLevel;
 
-        int temperature = 23;
+        int temperatureC = WatchFaceUtil.WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT;
+        int temperatureF = WatchFaceUtil.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT;
+        int code = WatchFaceUtil.WIDGET_WEATHER_DATA_CODE_DEFAULT;
 
         String mAmString;
         String mPmString;
@@ -185,17 +189,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private WatchFaceUtil.FetchConfigDataMapCallback fetchConfigCallback = new WatchFaceUtil.FetchConfigDataMapCallback() {
             @Override
             public void onConfigDataMapFetched(DataMap config) {
+                DigilogueWatchFaceService.Engine.this.config = config;
                 updateUI(config);
             }
         };
 
         private void onWeatherRefreshed() {
-            temperature = mTime.second;
-
-            invalidate();
-
             mUpdateHandler.sendEmptyMessageDelayed(MSG_REFRESH_WEATHER, TimeUnit.HOURS.toMillis(REFRESH_WEATHER_DELAY_HOURS));
-
         }
         //endregion
 
@@ -629,30 +629,89 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // Widgets
             // weather widget
             if (mShowWeather) {
-                // Draw temperature
-                mTextElementPaint.setStyle(Paint.Style.STROKE);
-                mTextElementPaint.setColor(Color.parseColor(mBackgroundColor));
-                mTextElementPaint.setAlpha(255);
-                canvas.drawText(String.valueOf(temperature) + getString(R.string.degrees), centerX + 3f, centerY * 0.6f, mTextElementPaint);
+                if (temperatureC != -999 && temperatureF != -999 && code != WatchFaceUtil.WeatherCodes.UNKNOWN) {
+                    // Draw temperature
+                    mTextElementPaint.setStyle(Paint.Style.STROKE);
+                    mTextElementPaint.setColor(Color.parseColor(mBackgroundColor));
+                    mTextElementPaint.setAlpha(255);
+                    canvas.drawText(String.valueOf(mFahrenheit ? temperatureF : temperatureC) + getString(R.string.degrees), centerX + 3f, centerY * 0.6f, mTextElementPaint);
 
-                mTextElementPaint.setStyle(Paint.Style.FILL);
-                mTextElementPaint.setColor(Color.parseColor(mForegroundColor));
-                mTextElementPaint.setAlpha(foregroundOpacityLevel);
-                canvas.drawText(String.valueOf(temperature) + getString(R.string.degrees), centerX + 3f, centerY * 0.6f, mTextElementPaint);
+                    mTextElementPaint.setStyle(Paint.Style.FILL);
+                    mTextElementPaint.setColor(Color.parseColor(mForegroundColor));
+                    mTextElementPaint.setAlpha(foregroundOpacityLevel);
+                    canvas.drawText(String.valueOf(mFahrenheit ? temperatureF : temperatureC) + getString(R.string.degrees), centerX + 3f, centerY * 0.6f, mTextElementPaint);
 
+                    // Draw icon based on conditions
+                    switch (code) {
+                        case WatchFaceUtil.WeatherCodes.SUNNY:
+                            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+                            mWidgetWeatherPaint.setAlpha(255);
+                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+                            mWidgetWeatherPaint.setStrokeWidth(2f);
+                            canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
 
-                // TODO: Draw icon based on conditions
-                mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
-                mWidgetWeatherPaint.setAlpha(255);
-                mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                mWidgetWeatherPaint.setStrokeWidth(2f);
-                canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
+                            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+                            mWidgetWeatherPaint.setAlpha(foregroundOpacityLevel);
+                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+                            mWidgetWeatherPaint.setStrokeWidth(1f);
+                            canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
+                            break;
+                        case WatchFaceUtil.WeatherCodes.PARTLY_CLOUDY:
+                            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+                            mWidgetWeatherPaint.setAlpha(255);
+                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+                            mWidgetWeatherPaint.setStrokeWidth(2f);
+                            canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
 
-                mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
-                mWidgetWeatherPaint.setAlpha(foregroundOpacityLevel);
-                mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                mWidgetWeatherPaint.setStrokeWidth(1f);
-                canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
+                            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+                            mWidgetWeatherPaint.setAlpha(foregroundOpacityLevel);
+                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+                            mWidgetWeatherPaint.setStrokeWidth(1f);
+                            canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
+
+                            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+                            mWidgetWeatherPaint.setAlpha(255);
+                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+                            mWidgetWeatherPaint.setStrokeWidth(2f);
+                            canvas.drawLine(centerX - 25f, (centerY * 0.6f) - 8, centerX - 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
+
+                            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+                            mWidgetWeatherPaint.setAlpha(foregroundOpacityLevel);
+                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+                            mWidgetWeatherPaint.setStrokeWidth(1f);
+                            canvas.drawLine(centerX - 25f, (centerY * 0.6f) - 8, centerX - 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
+                            break;
+
+                        // TODO: other condition icons
+
+                        default:
+                            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+                            mWidgetWeatherPaint.setAlpha(255);
+                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+                            mWidgetWeatherPaint.setStrokeWidth(2f);
+                            canvas.drawLine(centerX - 5f, (centerY * 0.6f) - 8, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
+
+                            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+                            mWidgetWeatherPaint.setAlpha(foregroundOpacityLevel);
+                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+                            mWidgetWeatherPaint.setStrokeWidth(1f);
+                            canvas.drawLine(centerX - 5f, (centerY * 0.6f) - 8, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
+                            break;
+                    }
+                } else {
+                    // No weather data to display
+                    mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+                    mWidgetWeatherPaint.setAlpha(255);
+                    mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+                    mWidgetWeatherPaint.setStrokeWidth(2f);
+                    canvas.drawLine(centerX - 5f, (centerY * 0.6f) - 8, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
+
+                    mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+                    mWidgetWeatherPaint.setAlpha(foregroundOpacityLevel);
+                    mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
+                    mWidgetWeatherPaint.setStrokeWidth(1f);
+                    canvas.drawLine(centerX - 5f, (centerY * 0.6f) - 8, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
+                }
             }
         }
 
@@ -697,7 +756,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
 
-            // TODO: check this
             mUpdateHandler.sendEmptyMessage(MSG_REFRESH_WEATHER);
         }
 
@@ -732,17 +790,18 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     }
 
                     DataItem dataItem = dataEvent.getDataItem();
-                    if (!dataItem.getUri().getPath().equals(WatchFaceUtil.PATH_DIGILOGUE_SETTINGS)) {
-                        continue;
-                    }
-
                     DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
                     DataMap config = dataMapItem.getDataMap();
+                    this.config = config;
+
+                    if (config.getBoolean(WatchFaceUtil.KEY_WIDGET_SHOW_WEATHER) && config.getInt(WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_CODE) == WatchFaceUtil.WeatherCodes.UNKNOWN)
+                        mUpdateHandler.sendEmptyMessage(MSG_REFRESH_WEATHER);
+
+                    updateUI(config);
+
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, "Config DataItem updated:" + config);
                     }
-                    updateUI(config);
-
                 }
             } finally {
                 dataEvents.close();
@@ -773,7 +832,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             m12Hour = config.getBoolean(WatchFaceUtil.KEY_12HOUR_FORMAT);
             mShowWeather = config.getBoolean(WatchFaceUtil.KEY_WIDGET_SHOW_WEATHER);
-            REFRESH_WEATHER_DELAY_HOURS = config.getLong(WatchFaceUtil.KEY_WIDGET_WEATHER_UPDATE_FREQUENCY);
+            mFahrenheit = config.getBoolean(WatchFaceUtil.KEY_WIDGET_WEATHER_FAHRENHEIT);
+
+            temperatureC = config.getInt(WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C);
+            temperatureF = config.getInt(WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F);
+            code = config.getInt(WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_CODE);
 
             if (!isInAmbientMode()) {
                 setBackgroundColor(config.getString(WatchFaceUtil.KEY_BACKGROUND_COLOUR));
@@ -895,7 +958,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             addStringKeyIfMissing(config, WatchFaceUtil.KEY_ACCENT_COLOUR, WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT);
             addStringKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_LOCATION, WatchFaceUtil.CONFIG_LOCATION_DEFAULT);
 
-            addLongKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_UPDATE_FREQUENCY, WatchFaceUtil.CONFIG_WIDGET_WEATHER_UPDATE_FREQUENCY_DEFAULT);
+            addIntKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C, WatchFaceUtil.WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT);
+            addIntKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F, WatchFaceUtil.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT);
+            addIntKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_CODE, WatchFaceUtil.WIDGET_WEATHER_DATA_CODE_DEFAULT);
+
+            addLongKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_DATETIME, 0);
         }
 
         private void addBooleanKeyIfMissing(DataMap config, String key, boolean value) {
@@ -913,6 +980,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void addLongKeyIfMissing(DataMap config, String key, long value) {
             if (!config.containsKey(key)) {
                 config.putLong(key, value);
+            }
+        }
+
+        private void addIntKeyIfMissing(DataMap config, String key, int value) {
+            if (!config.containsKey(key)) {
+                config.putInt(key, value);
             }
         }
         //endregion
@@ -949,14 +1022,14 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mWakeLock.acquire();
 
                 // get weather data
-                //Wearable.MessageApi.sendMessage(mGoogleApiClient, peerId, WatchFaceUtil.PATH_DIGILOGUE_WEATHER_DATA, null);
-
                 Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(
                         new ResultCallback<NodeApi.GetConnectedNodesResult>() {
                             @Override
                             public void onResult(NodeApi.GetConnectedNodesResult result) {
+                                byte[] rawData = config.toByteArray();
                                 for (Node node : result.getNodes()) {
-                                    Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), WatchFaceUtil.PATH_DIGILOGUE_WEATHER_DATA, null);
+                                    String nodeId = node.getId();
+                                    Wearable.MessageApi.sendMessage(mGoogleApiClient, nodeId, WatchFaceUtil.PATH_DIGILOGUE_SETTINGS, rawData);
                                 }
                             }
                         });
