@@ -14,7 +14,7 @@
     <string name="weather_location">Location</string>
     <string name="widget_weather_auto_location">Auto detect</string>
     <string name="widget_show_weather">Weather</string>
-    <string name="location_hint">City, Country (Eg. Cape Town, ZA) OR view Play Store page</string>
+    <string name="location_hint">City, Country (Eg. Cape Town, ZA)</string>
     <string name="fahrenheit">Fahrenheit</string>
     <string name="widget_weather_frequency">Update weather every %02d hours</string>
 
@@ -29,6 +29,7 @@
     <string name="color_red">Red</string>
     <string name="color_white">White</string>
     <string name="weather_api_credit">Powered by World Weather Online</string>
+    <string name="play_store_description_instruction">Alternatively you can view the Google Doc that is linked in the Play Store description.</string>
 
     <string-array name="color_array">
         <item>@string/color_black</item>
