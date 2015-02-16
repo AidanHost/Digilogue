@@ -31,6 +31,8 @@ import com.google.android.gms.wearable.Wearable;
 public class DigilogueConfigActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataApi.DataItemResult> {
     private static final String TAG = "DigilogueConfigActivity";
 
+    DataMap config;
+
     private GoogleApiClient mGoogleApiClient;
     private String mPeerId;
 
@@ -46,8 +48,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     CheckBox widget_weather_fahrenheit;
     CheckBox widget_weather_auto_location;
 
-    SeekBar widget_weather_frequency;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,8 +61,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 .addOnConnectionFailedListener(this)
                 .addApi(Wearable.API)
                 .build();
-
-        // TODO: Bind message listener service
     }
 
     @Override
@@ -123,6 +121,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             DataItem configDataItem = dataItemResult.getDataItem();
             DataMapItem dataMapItem = DataMapItem.fromDataItem(configDataItem);
             DataMap config = dataMapItem.getDataMap();
+            this.config = config;
             setUpAllPickers(config);
         } else {
             // If DataItem with the current config can't be retrieved, select the default items on
@@ -177,11 +176,9 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         widget_weather_text_location = (EditText) findViewById(R.id.widget_weather_text_location);
 
-        widget_weather_frequency = (SeekBar) findViewById(R.id.widget_weather_frequency);
-
         final LinearLayout widget_weather_group = (LinearLayout) findViewById(R.id.widget_weather_group);
         final LinearLayout location = (LinearLayout) findViewById(R.id.location);
-        final TextView text_frequency = (TextView) findViewById(R.id.text_frequency);
+
         boolean autoLocation = true;
 
         widget_show_weather.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -205,28 +202,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             }
         });
 
-        widget_weather_frequency.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (progress < 1) {
-                    progress = 1;
-                    seekBar.setProgress(progress);
-                }
-
-                text_frequency.setText(String.format(getString(R.string.widget_weather_frequency), progress));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
         if (config != null) {
             // Toggles
             digital_format.setChecked(config.containsKey(CompanionUtil.KEY_12HOUR_FORMAT) && config.getBoolean(CompanionUtil.KEY_12HOUR_FORMAT, false));
@@ -239,13 +214,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 widget_weather_group.setVisibility(View.VISIBLE);
 
             widget_weather_fahrenheit.setChecked(config.containsKey(CompanionUtil.KEY_WIDGET_WEATHER_FAHRENHEIT) && config.getBoolean(CompanionUtil.KEY_WIDGET_WEATHER_FAHRENHEIT, false));
-
-            if (config.containsKey(CompanionUtil.KEY_WIDGET_WEATHER_UPDATE_FREQUENCY))
-                widget_weather_frequency.setProgress((int)config.getLong(CompanionUtil.KEY_WIDGET_WEATHER_UPDATE_FREQUENCY));
-            else {
-                widget_weather_frequency.setProgress(3);
-                text_frequency.setText(String.format(getString(R.string.widget_weather_frequency), 3));
-            }
 
             if (!autoLocation) {
                 location.setVisibility(View.VISIBLE);
@@ -295,23 +263,24 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
     private void sendConfigUpdateMessage() {
         if (mPeerId != null) {
-            DataMap config = new DataMap();
+            if (config == null)
+                config = new DataMap();
+
             config.putBoolean(CompanionUtil.KEY_12HOUR_FORMAT, digital_format.isChecked());
             config.putString(CompanionUtil.KEY_BACKGROUND_COLOUR, background.getSelectedItem().toString());
             config.putString(CompanionUtil.KEY_MIDDLE_COLOUR, middle.getSelectedItem().toString());
             config.putString(CompanionUtil.KEY_FOREGROUND_COLOUR, foreground.getSelectedItem().toString());
             config.putString(CompanionUtil.KEY_ACCENT_COLOUR, accent.getSelectedItem().toString());
-            config.putString(CompanionUtil.KEY_WIDGET_WEATHER_LOCATION, widget_weather_text_location.getText().toString());
+
+            String manualLocation = widget_weather_text_location.getText().toString();
+            int length = manualLocation.length();
+            if (length > 0 && !widget_weather_auto_location.isChecked())
+                config.putString(CompanionUtil.KEY_WIDGET_WEATHER_LOCATION, manualLocation);
+
             config.putBoolean(CompanionUtil.KEY_WIDGET_SHOW_WEATHER, widget_show_weather.isChecked());
             config.putBoolean(CompanionUtil.KEY_WIDGET_WEATHER_FAHRENHEIT, widget_weather_fahrenheit.isChecked());
             config.putBoolean(CompanionUtil.KEY_WIDGET_WEATHER_AUTO_LOCATION, widget_weather_auto_location.isChecked());
 
-            int frequency = widget_weather_frequency.getProgress();
-
-            if (frequency < 1)
-                frequency = 1;
-
-            config.putLong(CompanionUtil.KEY_WIDGET_WEATHER_UPDATE_FREQUENCY, frequency);
             byte[] rawData = config.toByteArray();
 
             Wearable.MessageApi.sendMessage(mGoogleApiClient, mPeerId, CompanionUtil.PATH_DIGILOGUE_SETTINGS, rawData);

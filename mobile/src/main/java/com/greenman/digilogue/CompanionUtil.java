@@ -10,10 +10,16 @@ public class CompanionUtil {
     public static final String KEY_WIDGET_SHOW_WEATHER = "com.greenman.digilogue.SHOW_WEATHER";
     public static final String KEY_WIDGET_WEATHER_FAHRENHEIT = "com.greenman.digilogue.FAHRENHEIT";
     public static final String KEY_WIDGET_WEATHER_LOCATION = "com.greenman.digilogue.LOCATION";
-    public static final String KEY_WIDGET_WEATHER_UPDATE_FREQUENCY = "com.greenman.digilogue.UPDATE_FREQUENCY";
-    public static final String KEY_WIDGET_WEATHER_DATA_TEMPERATURE = "com.greenman.digilogue.WEATHER_TEMPERATURE";
+    public static final String KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C = "com.greenman.digilogue.WEATHER_TEMPERATURE_C";
+    public static final String KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F = "com.greenman.digilogue.WEATHER_TEMPERATURE_F";
     public static final String KEY_WIDGET_WEATHER_DATA_CODE = "com.greenman.digilogue.WEATHER_CODE";
+    public static final String KEY_WIDGET_WEATHER_DATA_DATETIME = "com.greenman.digilogue.WEATHER_DATETIME";
 
-    public static final String PATH_DIGILOGUE_SETTINGS = "/digilogue/settings";
-    public static final String PATH_DIGILOGUE_WEATHER_DATA = "/digilogue/weather_data";
+    public static final String PATH_DIGILOGUE_SETTINGS = "/digilogue/colours";
+
+    public static class WeatherCodes {
+        public static final int UNKNOWN = -1;
+        public static final int SUNNY = 113;
+        public static final int PARTLY_CLOUDY = 116;
+    }
 }

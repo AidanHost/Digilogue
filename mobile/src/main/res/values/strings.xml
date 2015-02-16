@@ -14,7 +14,7 @@
     <string name="weather_location">Location</string>
     <string name="widget_weather_auto_location">Auto detect</string>
     <string name="widget_show_weather">Weather</string>
-    <string name="location_hint">City, Country Code (Eg. Cape Town, ZA)</string>
+    <string name="location_hint">City, Country (Eg. Cape Town, ZA) OR view Play Store page</string>
     <string name="fahrenheit">Fahrenheit</string>
     <string name="widget_weather_frequency">Update weather every %02d hours</string>
 
