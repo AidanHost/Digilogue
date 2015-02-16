@@ -38,6 +38,7 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
+import com.greenman.common.Utility;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -89,9 +90,9 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         boolean mLowBitAmbient;
         boolean mMute;
         boolean mRegisteredTimeZoneReceiver = false;
-        boolean m12Hour = WatchFaceUtil.CONFIG_12HOUR_DEFAULT;
-        boolean mShowWeather = WatchFaceUtil.CONFIG_WIDGET_SHOW_WEATHER_DEFAULT;
-        boolean mFahrenheit = WatchFaceUtil.CONFIG_WIDGET_FAHRENHEIT_DEFAULT;
+        boolean m12Hour = Utility.CONFIG_12HOUR_DEFAULT;
+        boolean mShowWeather = Utility.CONFIG_WIDGET_SHOW_WEATHER_DEFAULT;
+        boolean mFahrenheit = Utility.CONFIG_WIDGET_FAHRENHEIT_DEFAULT;
 
         Time mTime;
 
@@ -104,17 +105,17 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         int foregroundOpacityLevel;
         int accentOpacityLevel;
 
-        int temperatureC = WatchFaceUtil.WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT;
-        int temperatureF = WatchFaceUtil.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT;
-        int code = WatchFaceUtil.WIDGET_WEATHER_DATA_CODE_DEFAULT;
+        int temperatureC = Utility.WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT;
+        int temperatureF = Utility.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT;
+        int code = Utility.WIDGET_WEATHER_DATA_CODE_DEFAULT;
 
         String mAmString;
         String mPmString;
 
-        String mBackgroundColor = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND;
-        String mMiddleColor = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
-        String mForegroundColor = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
-        String mAccentColor = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
+        String mBackgroundColor = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND;
+        String mMiddleColor = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
+        String mForegroundColor = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
+        String mAccentColor = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
 
         // Face
         Paint mBackgroundPaint;
@@ -350,10 +351,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             accentOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
 
             if (isInAmbientMode()) {
-                setBackgroundColor(WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
-                setMiddleColor(WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE);
-                setForegroundColor(WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
-                setAccentColor(WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT);
+                setBackgroundColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
+                setMiddleColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE);
+                setForegroundColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
+                setAccentColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT);
                 invalidate();
             } else {
                 WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
@@ -629,7 +630,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // Widgets
             // weather widget
             if (mShowWeather) {
-                if (temperatureC != -999 && temperatureF != -999 && code != WatchFaceUtil.WeatherCodes.UNKNOWN) {
+                if (temperatureC != -999 && temperatureF != -999 && code != Utility.WeatherCodes.UNKNOWN) {
                     // Draw temperature
                     mTextElementPaint.setStyle(Paint.Style.STROKE);
                     mTextElementPaint.setColor(Color.parseColor(mBackgroundColor));
@@ -643,7 +644,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
                     // Draw icon based on conditions
                     switch (code) {
-                        case WatchFaceUtil.WeatherCodes.SUNNY:
+                        case Utility.WeatherCodes.SUNNY:
                             mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
                             mWidgetWeatherPaint.setAlpha(255);
                             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
@@ -656,7 +657,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                             mWidgetWeatherPaint.setStrokeWidth(1f);
                             canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
                             break;
-                        case WatchFaceUtil.WeatherCodes.PARTLY_CLOUDY:
+                        case Utility.WeatherCodes.PARTLY_CLOUDY:
                             mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
                             mWidgetWeatherPaint.setAlpha(255);
                             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
@@ -794,7 +795,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     DataMap config = dataMapItem.getDataMap();
                     this.config = config;
 
-                    if (config.getBoolean(WatchFaceUtil.KEY_WIDGET_SHOW_WEATHER) && config.getInt(WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_CODE) == WatchFaceUtil.WeatherCodes.UNKNOWN)
+                    if (config.getBoolean(Utility.KEY_WIDGET_SHOW_WEATHER) && config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE) == Utility.WeatherCodes.UNKNOWN)
                         mUpdateHandler.sendEmptyMessage(MSG_REFRESH_WEATHER);
 
                     updateUI(config);
@@ -830,19 +831,19 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void updateUI(DataMap config) {
             setDefaultValuesForMissingConfigKeys(config);
 
-            m12Hour = config.getBoolean(WatchFaceUtil.KEY_12HOUR_FORMAT);
-            mShowWeather = config.getBoolean(WatchFaceUtil.KEY_WIDGET_SHOW_WEATHER);
-            mFahrenheit = config.getBoolean(WatchFaceUtil.KEY_WIDGET_WEATHER_FAHRENHEIT);
+            m12Hour = config.getBoolean(Utility.KEY_12HOUR_FORMAT);
+            mShowWeather = config.getBoolean(Utility.KEY_WIDGET_SHOW_WEATHER);
+            mFahrenheit = config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT);
 
-            temperatureC = config.getInt(WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C);
-            temperatureF = config.getInt(WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F);
-            code = config.getInt(WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_CODE);
+            temperatureC = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C);
+            temperatureF = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F);
+            code = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE);
 
             if (!isInAmbientMode()) {
-                setBackgroundColor(config.getString(WatchFaceUtil.KEY_BACKGROUND_COLOUR));
-                setMiddleColor(config.getString(WatchFaceUtil.KEY_MIDDLE_COLOUR));
-                setForegroundColor(config.getString(WatchFaceUtil.KEY_FOREGROUND_COLOUR));
-                setAccentColor(config.getString(WatchFaceUtil.KEY_ACCENT_COLOUR));
+                setBackgroundColor(config.getString(Utility.KEY_BACKGROUND_COLOUR));
+                setMiddleColor(config.getString(Utility.KEY_MIDDLE_COLOUR));
+                setForegroundColor(config.getString(Utility.KEY_FOREGROUND_COLOUR));
+                setAccentColor(config.getString(Utility.KEY_ACCENT_COLOUR));
 
                 // TODO: change preview image??
             }
@@ -947,22 +948,22 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         //region Config Data methods
         private void setDefaultValuesForMissingConfigKeys(DataMap config) {
-            addBooleanKeyIfMissing(config, WatchFaceUtil.KEY_12HOUR_FORMAT, WatchFaceUtil.CONFIG_12HOUR_DEFAULT);
-            addBooleanKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_SHOW_WEATHER, WatchFaceUtil.CONFIG_WIDGET_SHOW_WEATHER_DEFAULT);
-            addBooleanKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_FAHRENHEIT, WatchFaceUtil.CONFIG_WIDGET_FAHRENHEIT_DEFAULT);
-            addBooleanKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_AUTO_LOCATION, WatchFaceUtil.CONFIG_AUTO_LOCATION_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_12HOUR_FORMAT, Utility.CONFIG_12HOUR_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_SHOW_WEATHER, Utility.CONFIG_WIDGET_SHOW_WEATHER_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, Utility.CONFIG_WIDGET_FAHRENHEIT_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, Utility.CONFIG_AUTO_LOCATION_DEFAULT);
 
-            addStringKeyIfMissing(config, WatchFaceUtil.KEY_BACKGROUND_COLOUR, WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
-            addStringKeyIfMissing(config, WatchFaceUtil.KEY_MIDDLE_COLOUR, WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE);
-            addStringKeyIfMissing(config, WatchFaceUtil.KEY_FOREGROUND_COLOUR, WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
-            addStringKeyIfMissing(config, WatchFaceUtil.KEY_ACCENT_COLOUR, WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT);
-            addStringKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_LOCATION, WatchFaceUtil.CONFIG_LOCATION_DEFAULT);
+            addStringKeyIfMissing(config, Utility.KEY_BACKGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
+            addStringKeyIfMissing(config, Utility.KEY_MIDDLE_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE);
+            addStringKeyIfMissing(config, Utility.KEY_FOREGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
+            addStringKeyIfMissing(config, Utility.KEY_ACCENT_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT);
+            addStringKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_LOCATION, Utility.CONFIG_LOCATION_DEFAULT);
 
-            addIntKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C, WatchFaceUtil.WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT);
-            addIntKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F, WatchFaceUtil.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT);
-            addIntKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_CODE, WatchFaceUtil.WIDGET_WEATHER_DATA_CODE_DEFAULT);
+            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C, Utility.WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT);
+            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F, Utility.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT);
+            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_CODE, Utility.WIDGET_WEATHER_DATA_CODE_DEFAULT);
 
-            addLongKeyIfMissing(config, WatchFaceUtil.KEY_WIDGET_WEATHER_DATA_DATETIME, 0);
+            addLongKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_DATETIME, 0);
         }
 
         private void addBooleanKeyIfMissing(DataMap config, String key, boolean value) {
@@ -1029,7 +1030,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                                 byte[] rawData = config.toByteArray();
                                 for (Node node : result.getNodes()) {
                                     String nodeId = node.getId();
-                                    Wearable.MessageApi.sendMessage(mGoogleApiClient, nodeId, WatchFaceUtil.PATH_DIGILOGUE_SETTINGS, rawData);
+                                    Wearable.MessageApi.sendMessage(mGoogleApiClient, nodeId, Utility.PATH_DIGILOGUE_SETTINGS, rawData);
                                 }
                             }
                         });

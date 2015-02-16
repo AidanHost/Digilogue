@@ -20,6 +20,7 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
+import com.greenman.common.Utility;
 
 import org.json.JSONException;
 
@@ -50,7 +51,7 @@ public class WeatherService extends WearableListenerService implements GoogleApi
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
-        if (messageEvent.getPath().equals(CompanionUtil.PATH_DIGILOGUE_SETTINGS)) {
+        if (messageEvent.getPath().equals(Utility.PATH_DIGILOGUE_SETTINGS)) {
             byte[] rawData = messageEvent.getData();
             DataMap config = DataMap.fromByteArray(rawData);
 
@@ -69,14 +70,14 @@ public class WeatherService extends WearableListenerService implements GoogleApi
             if (mLastLocation == null)
                 mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-            boolean autoLocation = config.getBoolean(CompanionUtil.KEY_WIDGET_WEATHER_AUTO_LOCATION);
-            String location = config.getString(CompanionUtil.KEY_WIDGET_WEATHER_LOCATION, "");
+            boolean autoLocation = config.getBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION);
+            String location = config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION, "");
 
             Time currentTime = new Time();
             currentTime.setToNow();
 
             Time lastTime = new Time();
-            lastTime.set(config.getLong(CompanionUtil.KEY_WIDGET_WEATHER_DATA_DATETIME));
+            lastTime.set(config.getLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME));
 
             long hours = TimeUnit.HOURS.toMillis(3);
             long lastHours = lastTime.toMillis(true) + hours;
@@ -137,7 +138,7 @@ public class WeatherService extends WearableListenerService implements GoogleApi
                     }
                 }
 
-                config.putLong(CompanionUtil.KEY_WIDGET_WEATHER_DATA_DATETIME, currentTime.toMillis(true));
+                config.putLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME, currentTime.toMillis(true));
 
                 // send data to message function
                 try {
@@ -156,14 +157,14 @@ public class WeatherService extends WearableListenerService implements GoogleApi
     }
 
     private void sendWeatherDataMessage(String nodeId, final DataMap config, WeatherData weatherData) {
-        config.putInt(CompanionUtil.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C, weatherData.getTemperatureC());
-        config.putInt(CompanionUtil.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F, weatherData.getTemperatureF());
-        config.putInt(CompanionUtil.KEY_WIDGET_WEATHER_DATA_CODE, weatherData.getCode());
-        config.putString(CompanionUtil.KEY_WIDGET_WEATHER_LOCATION, weatherData.getLocation());
+        config.putInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C, weatherData.getTemperatureC());
+        config.putInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F, weatherData.getTemperatureF());
+        config.putInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE, weatherData.getCode());
+        config.putString(Utility.KEY_WIDGET_WEATHER_LOCATION, weatherData.getLocation());
 
         if (mGoogleApiClient.isConnected()) {
             byte[] rawData = config.toByteArray();
-            Wearable.MessageApi.sendMessage(mGoogleApiClient, nodeId, CompanionUtil.PATH_DIGILOGUE_SETTINGS, rawData);
+            Wearable.MessageApi.sendMessage(mGoogleApiClient, nodeId, Utility.PATH_DIGILOGUE_SETTINGS, rawData);
         }
     }
 

@@ -27,6 +27,7 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
+import com.greenman.common.Utility;
 
 public class DigilogueConfigActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataApi.DataItemResult> {
     private static final String TAG = "DigilogueConfigActivity";
@@ -108,7 +109,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         if (mPeerId != null) {
             Uri.Builder builder = new Uri.Builder();
-            Uri uri = builder.scheme("wear").path(CompanionUtil.PATH_DIGILOGUE_SETTINGS).authority(mPeerId).build();
+            Uri uri = builder.scheme("wear").path(Utility.PATH_DIGILOGUE_SETTINGS).authority(mPeerId).build();
             Wearable.DataApi.getDataItem(mGoogleApiClient, uri).setResultCallback(this);
         } else {
             displayNoConnectedDeviceDialog();
@@ -204,44 +205,44 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         if (config != null) {
             // Toggles
-            digital_format.setChecked(config.containsKey(CompanionUtil.KEY_12HOUR_FORMAT) && config.getBoolean(CompanionUtil.KEY_12HOUR_FORMAT, false));
+            digital_format.setChecked(config.containsKey(Utility.KEY_12HOUR_FORMAT) && config.getBoolean(Utility.KEY_12HOUR_FORMAT, false));
 
-            boolean showWeather = config.containsKey(CompanionUtil.KEY_WIDGET_SHOW_WEATHER) && config.getBoolean(CompanionUtil.KEY_WIDGET_SHOW_WEATHER, false);
-            autoLocation = (config.containsKey(CompanionUtil.KEY_WIDGET_WEATHER_AUTO_LOCATION) && config.getBoolean(CompanionUtil.KEY_WIDGET_WEATHER_AUTO_LOCATION, true) || !config.containsKey(CompanionUtil.KEY_WIDGET_WEATHER_AUTO_LOCATION));
+            boolean showWeather = config.containsKey(Utility.KEY_WIDGET_SHOW_WEATHER) && config.getBoolean(Utility.KEY_WIDGET_SHOW_WEATHER, false);
+            autoLocation = (config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, true) || !config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION));
 
             widget_show_weather.setChecked(showWeather);
             if (showWeather)
                 widget_weather_group.setVisibility(View.VISIBLE);
 
-            widget_weather_fahrenheit.setChecked(config.containsKey(CompanionUtil.KEY_WIDGET_WEATHER_FAHRENHEIT) && config.getBoolean(CompanionUtil.KEY_WIDGET_WEATHER_FAHRENHEIT, false));
+            widget_weather_fahrenheit.setChecked(config.containsKey(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, false));
 
             if (!autoLocation) {
                 location.setVisibility(View.VISIBLE);
 
-                if (config.containsKey(CompanionUtil.KEY_WIDGET_WEATHER_LOCATION))
-                    widget_weather_text_location.setText(config.getString(CompanionUtil.KEY_WIDGET_WEATHER_LOCATION));
+                if (config.containsKey(Utility.KEY_WIDGET_WEATHER_LOCATION))
+                    widget_weather_text_location.setText(config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION));
             }
 
             // Colours
-            if (config.containsKey(CompanionUtil.KEY_BACKGROUND_COLOUR))
-                backgroundColour = config.getString(CompanionUtil.KEY_BACKGROUND_COLOUR);
+            if (config.containsKey(Utility.KEY_BACKGROUND_COLOUR))
+                backgroundColour = config.getString(Utility.KEY_BACKGROUND_COLOUR);
 
-            if (config.containsKey(CompanionUtil.KEY_MIDDLE_COLOUR))
-                middleColour = config.getString(CompanionUtil.KEY_MIDDLE_COLOUR);
+            if (config.containsKey(Utility.KEY_MIDDLE_COLOUR))
+                middleColour = config.getString(Utility.KEY_MIDDLE_COLOUR);
 
-            if (config.containsKey(CompanionUtil.KEY_FOREGROUND_COLOUR))
-                foregroundColour = config.getString(CompanionUtil.KEY_FOREGROUND_COLOUR);
+            if (config.containsKey(Utility.KEY_FOREGROUND_COLOUR))
+                foregroundColour = config.getString(Utility.KEY_FOREGROUND_COLOUR);
 
-            if (config.containsKey(CompanionUtil.KEY_ACCENT_COLOUR))
-                accentColour = config.getString(CompanionUtil.KEY_ACCENT_COLOUR);
+            if (config.containsKey(Utility.KEY_ACCENT_COLOUR))
+                accentColour = config.getString(Utility.KEY_ACCENT_COLOUR);
         }
 
         widget_weather_auto_location.setChecked(autoLocation);
 
-        setUpColorPickerSelection(R.id.background, CompanionUtil.KEY_BACKGROUND_COLOUR, config, backgroundColour);
-        setUpColorPickerSelection(R.id.middle, CompanionUtil.KEY_MIDDLE_COLOUR, config, middleColour);
-        setUpColorPickerSelection(R.id.foreground, CompanionUtil.KEY_FOREGROUND_COLOUR, config, foregroundColour);
-        setUpColorPickerSelection(R.id.accent, CompanionUtil.KEY_ACCENT_COLOUR, config, accentColour);
+        setUpColorPickerSelection(R.id.background, Utility.KEY_BACKGROUND_COLOUR, config, backgroundColour);
+        setUpColorPickerSelection(R.id.middle, Utility.KEY_MIDDLE_COLOUR, config, middleColour);
+        setUpColorPickerSelection(R.id.foreground, Utility.KEY_FOREGROUND_COLOUR, config, foregroundColour);
+        setUpColorPickerSelection(R.id.accent, Utility.KEY_ACCENT_COLOUR, config, accentColour);
     }
 
     private void setUpColorPickerSelection(int spinnerId, final String configKey, DataMap config, String defaultColorName) {
@@ -266,24 +267,24 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             if (config == null)
                 config = new DataMap();
 
-            config.putBoolean(CompanionUtil.KEY_12HOUR_FORMAT, digital_format.isChecked());
-            config.putString(CompanionUtil.KEY_BACKGROUND_COLOUR, background.getSelectedItem().toString());
-            config.putString(CompanionUtil.KEY_MIDDLE_COLOUR, middle.getSelectedItem().toString());
-            config.putString(CompanionUtil.KEY_FOREGROUND_COLOUR, foreground.getSelectedItem().toString());
-            config.putString(CompanionUtil.KEY_ACCENT_COLOUR, accent.getSelectedItem().toString());
+            config.putBoolean(Utility.KEY_12HOUR_FORMAT, digital_format.isChecked());
+            config.putString(Utility.KEY_BACKGROUND_COLOUR, background.getSelectedItem().toString());
+            config.putString(Utility.KEY_MIDDLE_COLOUR, middle.getSelectedItem().toString());
+            config.putString(Utility.KEY_FOREGROUND_COLOUR, foreground.getSelectedItem().toString());
+            config.putString(Utility.KEY_ACCENT_COLOUR, accent.getSelectedItem().toString());
 
             String manualLocation = widget_weather_text_location.getText().toString();
             int length = manualLocation.length();
             if (length > 0 && !widget_weather_auto_location.isChecked())
-                config.putString(CompanionUtil.KEY_WIDGET_WEATHER_LOCATION, manualLocation);
+                config.putString(Utility.KEY_WIDGET_WEATHER_LOCATION, manualLocation);
 
-            config.putBoolean(CompanionUtil.KEY_WIDGET_SHOW_WEATHER, widget_show_weather.isChecked());
-            config.putBoolean(CompanionUtil.KEY_WIDGET_WEATHER_FAHRENHEIT, widget_weather_fahrenheit.isChecked());
-            config.putBoolean(CompanionUtil.KEY_WIDGET_WEATHER_AUTO_LOCATION, widget_weather_auto_location.isChecked());
+            config.putBoolean(Utility.KEY_WIDGET_SHOW_WEATHER, widget_show_weather.isChecked());
+            config.putBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, widget_weather_fahrenheit.isChecked());
+            config.putBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, widget_weather_auto_location.isChecked());
 
             byte[] rawData = config.toByteArray();
 
-            Wearable.MessageApi.sendMessage(mGoogleApiClient, mPeerId, CompanionUtil.PATH_DIGILOGUE_SETTINGS, rawData);
+            Wearable.MessageApi.sendMessage(mGoogleApiClient, mPeerId, Utility.PATH_DIGILOGUE_SETTINGS, rawData);
         }
     }
 }

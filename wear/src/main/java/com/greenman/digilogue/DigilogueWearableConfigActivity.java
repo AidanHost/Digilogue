@@ -21,6 +21,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
+import com.greenman.common.Utility;
 
 
 public class DigilogueWearableConfigActivity extends Activity implements WearableListView.ClickListener, WearableListView.OnScrollListener {
@@ -162,9 +163,9 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
     }
 
     private void updateConfigDataItem(final String backgroundColour) {
-        String foregroundColour = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
-        String middleColour = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
-        String accentColour = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
+        String foregroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
+        String middleColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
+        String accentColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
 
         switch (backgroundColour) {
             /*case "black":
@@ -210,10 +211,10 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
             configKeysToOverwrite = new DataMap();
 
         //configKeysToOverwrite.putBoolean(WatchFaceUtil.KEY_12HOUR_FORMAT, true); // TODO: checkbox
-        configKeysToOverwrite.putString(WatchFaceUtil.KEY_BACKGROUND_COLOUR, backgroundColour);
-        configKeysToOverwrite.putString(WatchFaceUtil.KEY_MIDDLE_COLOUR, middleColour);
-        configKeysToOverwrite.putString(WatchFaceUtil.KEY_FOREGROUND_COLOUR, foregroundColour);
-        configKeysToOverwrite.putString(WatchFaceUtil.KEY_ACCENT_COLOUR, accentColour);
+        configKeysToOverwrite.putString(Utility.KEY_BACKGROUND_COLOUR, backgroundColour);
+        configKeysToOverwrite.putString(Utility.KEY_MIDDLE_COLOUR, middleColour);
+        configKeysToOverwrite.putString(Utility.KEY_FOREGROUND_COLOUR, foregroundColour);
+        configKeysToOverwrite.putString(Utility.KEY_ACCENT_COLOUR, accentColour);
 
         WatchFaceUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
     }

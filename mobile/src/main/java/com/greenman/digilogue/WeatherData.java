@@ -1,6 +1,8 @@
 package com.greenman.digilogue;
 
 
+import com.greenman.common.Utility;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -8,7 +10,7 @@ public class WeatherData {
     // Defaults
     private int temperatureC = -999;
     private int temperatureF = -999;
-    private int code = CompanionUtil.WeatherCodes.UNKNOWN;
+    private int code = Utility.WeatherCodes.UNKNOWN;
     private String location = "";
 
     public int getTemperatureC() {
