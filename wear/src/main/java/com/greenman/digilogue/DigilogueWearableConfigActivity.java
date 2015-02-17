@@ -37,6 +37,8 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_digilogue_wearable_config);
 
+        // TODO: figure out why this activity sometimes crashes
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                     @Override
@@ -80,7 +82,7 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
             public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
                 if (!insets.isRound()) {
                     v.setPaddingRelative(
-                            (int) getResources().getDimensionPixelSize(R.dimen.content_padding_start),
+                            getResources().getDimensionPixelSize(R.dimen.content_padding_start),
                             v.getPaddingTop(),
                             v.getPaddingEnd(),
                             v.getPaddingBottom());
