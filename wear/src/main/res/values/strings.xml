@@ -6,6 +6,7 @@
     <string name="basic_color_choice">Select colour</string>
     <string name="digital_am">AM</string>
     <string name="digital_pm">PM</string>
+    <string name="degrees">°</string>
 
     <string name="color_black">Black</string>
     <string name="color_blue">Blue</string>

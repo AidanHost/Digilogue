@@ -21,11 +21,13 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
+import com.greenman.common.Utility;
 
 
 public class DigilogueWearableConfigActivity extends Activity implements WearableListView.ClickListener, WearableListView.OnScrollListener {
     private static final String TAG = "WearableConfigActivity";
 
+    DataMap existingConfig;
     private TextView mHeaderBackground;
 
     private GoogleApiClient mGoogleApiClient;
@@ -35,6 +37,8 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_digilogue_wearable_config);
 
+        // TODO: figure out why this activity sometimes crashes
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                     @Override
@@ -42,6 +46,13 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
                         if (Log.isLoggable(TAG, Log.DEBUG)) {
                             Log.d(TAG, "onConnected: " + connectionHint);
                         }
+
+                        WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, new WatchFaceUtil.FetchConfigDataMapCallback() {
+                            @Override
+                            public void onConfigDataMapFetched(DataMap config) {
+                                existingConfig = config;
+                            }
+                        });
                     }
 
                     @Override
@@ -71,7 +82,7 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
             public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
                 if (!insets.isRound()) {
                     v.setPaddingRelative(
-                            (int) getResources().getDimensionPixelSize(R.dimen.content_padding_start),
+                            getResources().getDimensionPixelSize(R.dimen.content_padding_start),
                             v.getPaddingTop(),
                             v.getPaddingEnd(),
                             v.getPaddingBottom());
@@ -154,9 +165,9 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
     }
 
     private void updateConfigDataItem(final String backgroundColour) {
-        String foregroundColour = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
-        String middleColour = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
-        String accentColour = WatchFaceUtil.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
+        String foregroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
+        String middleColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
+        String accentColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
 
         switch (backgroundColour) {
             /*case "black":
@@ -196,12 +207,17 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
                 break;
         }
 
-        DataMap configKeysToOverwrite = new DataMap();
+        DataMap configKeysToOverwrite = existingConfig;
+
+        if (configKeysToOverwrite == null)
+            configKeysToOverwrite = new DataMap();
+
         //configKeysToOverwrite.putBoolean(WatchFaceUtil.KEY_12HOUR_FORMAT, true); // TODO: checkbox
-        configKeysToOverwrite.putString(WatchFaceUtil.KEY_BACKGROUND_COLOUR, backgroundColour);
-        configKeysToOverwrite.putString(WatchFaceUtil.KEY_MIDDLE_COLOUR, middleColour);
-        configKeysToOverwrite.putString(WatchFaceUtil.KEY_FOREGROUND_COLOUR, foregroundColour);
-        configKeysToOverwrite.putString(WatchFaceUtil.KEY_ACCENT_COLOUR, accentColour);
+        configKeysToOverwrite.putString(Utility.KEY_BACKGROUND_COLOUR, backgroundColour);
+        configKeysToOverwrite.putString(Utility.KEY_MIDDLE_COLOUR, middleColour);
+        configKeysToOverwrite.putString(Utility.KEY_FOREGROUND_COLOUR, foregroundColour);
+        configKeysToOverwrite.putString(Utility.KEY_ACCENT_COLOUR, accentColour);
+
         WatchFaceUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
     }
 
