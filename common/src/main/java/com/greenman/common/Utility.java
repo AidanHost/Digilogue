@@ -81,7 +81,7 @@ public class Utility {
         public static final int PATCHY_LIGHT_SNOW = 323;
         public static final int LIGHT_SNOW = 326;
         public static final int PATCHY_MODERATE_SNOW = 329;
-        public static final int MODERATE_SNOW = 329;
+        public static final int MODERATE_SNOW = 332;
         public static final int PATCHY_HEAVY_SNOW = 335;
         public static final int HEAVY_SNOW = 338;
         public static final int ICE_PELLETS = 350;
