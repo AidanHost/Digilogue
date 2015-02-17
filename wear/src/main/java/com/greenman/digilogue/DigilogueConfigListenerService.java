@@ -19,13 +19,6 @@ public class DigilogueConfigListenerService extends WearableListenerService impl
 
     @Override // WearableListenerService
     public void onMessageReceived(MessageEvent messageEvent) {
-        if (!messageEvent.getPath().equals(WatchFaceUtil.PATH_DIGILOGUE_COLOURS)) {
-            return;
-        }
-
-        byte[] rawData = messageEvent.getData();
-        DataMap configKeysToOverwrite = DataMap.fromByteArray(rawData);
-
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -42,6 +35,8 @@ public class DigilogueConfigListenerService extends WearableListenerService impl
             }
         }
 
+        byte[] rawData = messageEvent.getData();
+        DataMap configKeysToOverwrite = DataMap.fromByteArray(rawData);
         WatchFaceUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
     }
 
