@@ -2,6 +2,7 @@ package com.greenman.common;
 
 public class Utility {
     public static final String PATH_DIGILOGUE_SETTINGS = "/digilogue/colours";
+    public static final int REFRESH_WEATHER_DELAY_HOURS = 3;
 
     // boolean keys
     public static final String KEY_12HOUR_FORMAT = "com.greenman.digilogue.12HOUR_FORMAT";
@@ -44,9 +45,12 @@ public class Utility {
     public static int WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT = -999;
     public static int WIDGET_WEATHER_DATA_CODE_DEFAULT = Utility.WeatherCodes.UNKNOWN;
 
+    // long defaults
+    public static long WIDGET_WEATHER_DATA_DATETIME_DEFAULT = 0;
+
     public static class WeatherCodes {
         public static final int UNKNOWN = -1;
-        public static final int SUNNY = 113;
+        public static final int CLEAR = 113;
         public static final int PARTLY_CLOUDY = 116;
         public static final int CLOUDY = 119;
         public static final int OVERCAST = 122;

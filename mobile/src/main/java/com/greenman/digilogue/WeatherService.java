@@ -79,11 +79,6 @@ public class WeatherService extends WearableListenerService implements GoogleApi
             Time lastTime = new Time();
             lastTime.set(config.getLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME));
 
-            long hours = TimeUnit.HOURS.toMillis(3);
-            long lastHours = lastTime.toMillis(true) + hours;
-
-            boolean timeToUpdate = currentTime.toMillis(true) >= lastHours;
-
             String dataString = "";
 
             if (autoLocation && mLastLocation != null) {
@@ -100,12 +95,11 @@ public class WeatherService extends WearableListenerService implements GoogleApi
                     location = builder.subSequence(0, builder.length() - 1).toString();
             }
 
-            if (!location.isEmpty() && timeToUpdate) {
+            if (!location.isEmpty() && (currentTime.toMillis(true) >= lastTime.toMillis(true) + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS))) {
                 // Call API endpoint with apiURL
                 HttpURLConnection con = null;
                 InputStream is = null;
 
-                // TODO: get weather from service (use async task?)
                 try {
                     String apiURL = "http://api.worldweatheronline.com/free/v2/weather.ashx?key=30566152af44998e55196aeacb2e1&format=json&fx=no&extra=isDayTime&q=";
                     con = (HttpURLConnection) (new URL(apiURL + location)).openConnection();
@@ -140,7 +134,6 @@ public class WeatherService extends WearableListenerService implements GoogleApi
 
                 config.putLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME, currentTime.toMillis(true));
 
-                // send data to message function
                 try {
                     sendWeatherDataMessage(messageEvent.getSourceNodeId(), config, new WeatherData(dataString));
                 } catch (JSONException e) {
@@ -156,7 +149,7 @@ public class WeatherService extends WearableListenerService implements GoogleApi
         super.onDestroy();
     }
 
-    private void sendWeatherDataMessage(String nodeId, final DataMap config, WeatherData weatherData) {
+    private void sendWeatherDataMessage(String nodeId, DataMap config, WeatherData weatherData) {
         config.putInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C, weatherData.getTemperatureC());
         config.putInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F, weatherData.getTemperatureF());
         config.putInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE, weatherData.getCode());

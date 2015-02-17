@@ -37,8 +37,10 @@ public class WeatherData {
 
             JSONObject dataObj = jObj.getJSONObject("data");
             JSONObject currentConditionObj = (JSONObject) dataObj.getJSONArray("current_condition").get(0);
-            temperatureC = Integer.parseInt(currentConditionObj.getString("temp_C"));
-            temperatureF = Integer.parseInt(currentConditionObj.getString("temp_F"));
+            /*temperatureC = Integer.parseInt(currentConditionObj.getString("temp_C"));
+            temperatureF = Integer.parseInt(currentConditionObj.getString("temp_F"));*/
+            temperatureC = Integer.parseInt(currentConditionObj.getString("FeelsLikeC"));
+            temperatureF = Integer.parseInt(currentConditionObj.getString("FeelsLikeF"));
             code = Integer.parseInt(currentConditionObj.getString("weatherCode"));
             dayTime = currentConditionObj.getString("isdaytime").equals("yes");
 
