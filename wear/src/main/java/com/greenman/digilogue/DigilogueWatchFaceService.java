@@ -92,6 +92,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         boolean m12Hour = Utility.CONFIG_12HOUR_DEFAULT;
         boolean mShowWeather = Utility.CONFIG_WIDGET_SHOW_WEATHER_DEFAULT;
         boolean mFahrenheit = Utility.CONFIG_WIDGET_FAHRENHEIT_DEFAULT;
+        boolean mIsDayTime = Utility.CONFIG_WIDGET_WEATHER_DAYTIME_DEFAULT;
         private boolean mRunWeather;
 
         Time mTime;
@@ -955,6 +956,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_SHOW_WEATHER, Utility.CONFIG_WIDGET_SHOW_WEATHER_DEFAULT);
             addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, Utility.CONFIG_WIDGET_FAHRENHEIT_DEFAULT);
             addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, Utility.CONFIG_AUTO_LOCATION_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME, Utility.CONFIG_WIDGET_WEATHER_DAYTIME_DEFAULT);
 
             addStringKeyIfMissing(config, Utility.KEY_BACKGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
             addStringKeyIfMissing(config, Utility.KEY_MIDDLE_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE);
