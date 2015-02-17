@@ -74,11 +74,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         static final int MSG_REFRESH_WEATHER = 1;
 
         static final String COLON_STRING = ":";
-        int REFRESH_WEATHER_DELAY_HOURS = 3;
 
         private RefreshWeatherTask mRefreshWeatherTask;
 
-        private DataMap config;
+        private DataMap mConfig;
 
         /** How often {@link #mUpdateHandler} ticks in milliseconds. */
         long mInteractiveUpdateRateMs = INTERACTIVE_UPDATE_RATE_MS;
@@ -93,21 +92,23 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         boolean m12Hour = Utility.CONFIG_12HOUR_DEFAULT;
         boolean mShowWeather = Utility.CONFIG_WIDGET_SHOW_WEATHER_DEFAULT;
         boolean mFahrenheit = Utility.CONFIG_WIDGET_FAHRENHEIT_DEFAULT;
+        private boolean mRunWeather;
 
         Time mTime;
 
         float mXOffset;
         float mYOffset;
-        float smallTextOffset;
+        float mSmallTextOffset;
         float mColonWidth;
 
-        int batteryLevel = 100;
-        int foregroundOpacityLevel;
-        int accentOpacityLevel;
+        int mBatteryLevel = 100;
+        int mForegroundOpacityLevel;
+        int mAccentOpacityLevel;
 
-        int temperatureC = Utility.WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT;
-        int temperatureF = Utility.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT;
-        int code = Utility.WIDGET_WEATHER_DATA_CODE_DEFAULT;
+        int mTemperatureC = Utility.WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT;
+        int mTemperatureF = Utility.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT;
+        int mCode = Utility.WIDGET_WEATHER_DATA_CODE_DEFAULT;
+        long mLastTime = Utility.WIDGET_WEATHER_DATA_DATETIME_DEFAULT;
 
         String mAmString;
         String mPmString;
@@ -183,21 +184,17 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
             @Override
             public void onReceive(Context arg0, Intent intent) {
-                batteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+                mBatteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
             }
         };
 
         private WatchFaceUtil.FetchConfigDataMapCallback fetchConfigCallback = new WatchFaceUtil.FetchConfigDataMapCallback() {
             @Override
             public void onConfigDataMapFetched(DataMap config) {
-                DigilogueWatchFaceService.Engine.this.config = config;
+                DigilogueWatchFaceService.Engine.this.mConfig = config;
                 updateUI(config);
             }
         };
-
-        private void onWeatherRefreshed() {
-            mUpdateHandler.sendEmptyMessageDelayed(MSG_REFRESH_WEATHER, TimeUnit.HOURS.toMillis(REFRESH_WEATHER_DELAY_HOURS));
-        }
         //endregion
 
         //region Overrides
@@ -257,7 +254,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mWidgetWeatherPaint = new Paint();
             mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
-            mWidgetWeatherPaint.setStrokeWidth(1f);
+            mWidgetWeatherPaint.setStrokeWidth(2f);
 
             mBatteryPaint = new Paint();
             mBatteryPaint.setColor(Color.parseColor(mForegroundColor));
@@ -274,8 +271,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mTime = new Time();
 
-            foregroundOpacityLevel = mMute || isInAmbientMode() ? 125 : 255;
-            accentOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
+            mForegroundOpacityLevel = mMute || isInAmbientMode() ? 125 : 255;
+            mAccentOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
         }
 
         @Override
@@ -306,7 +303,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mColonWidth = mColonPaint.measureText(COLON_STRING);
 
-            smallTextOffset = textSize / 4f;
+            mSmallTextOffset = textSize / 4f;
         }
 
         @Override
@@ -329,6 +326,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 Log.d(TAG, "onTimeTick: ambient = " + isInAmbientMode());
             }
             invalidate();
+
+            if (mShowWeather && mTime.toMillis(true) >= mLastTime + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS) && mRunWeather) {
+                mUpdateHandler.sendEmptyMessage(MSG_REFRESH_WEATHER);
+                mRunWeather = false;
+            }
         }
 
         @Override
@@ -347,8 +349,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
 
             // Dim all elements on screen
-            foregroundOpacityLevel = mMute || isInAmbientMode() ? 125 : 255;
-            accentOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
+            mForegroundOpacityLevel = mMute || isInAmbientMode() ? 125 : 255;
+            mAccentOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
 
             if (isInAmbientMode()) {
                 setBackgroundColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
@@ -373,21 +375,21 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             setInteractiveUpdateRateMs(inMuteMode ? MUTE_UPDATE_RATE_MS : INTERACTIVE_UPDATE_RATE_MS);
 
             // Dim all elements on screen
-            foregroundOpacityLevel = inMuteMode || isInAmbientMode() ? 125 : 255;
-            accentOpacityLevel = inMuteMode || isInAmbientMode() ? 100 : 255;
+            mForegroundOpacityLevel = inMuteMode || isInAmbientMode() ? 125 : 255;
+            mAccentOpacityLevel = inMuteMode || isInAmbientMode() ? 100 : 255;
 
             if (mMute != inMuteMode) {
                 mMute = inMuteMode;
-                mHourPaint.setAlpha(foregroundOpacityLevel);
-                mMinutePaint.setAlpha(foregroundOpacityLevel);
-                mSecondPaint.setAlpha(accentOpacityLevel);
+                mHourPaint.setAlpha(mForegroundOpacityLevel);
+                mMinutePaint.setAlpha(mForegroundOpacityLevel);
+                mSecondPaint.setAlpha(mAccentOpacityLevel);
 
-                mDigitalHourPaint.setAlpha(foregroundOpacityLevel);
-                mDigitalMinutePaint.setAlpha(foregroundOpacityLevel);
+                mDigitalHourPaint.setAlpha(mForegroundOpacityLevel);
+                mDigitalMinutePaint.setAlpha(mForegroundOpacityLevel);
 
-                mTextElementPaint.setAlpha(foregroundOpacityLevel);
-                mBatteryFullPaint.setAlpha(foregroundOpacityLevel);
-                mBatteryPaint.setAlpha(foregroundOpacityLevel);
+                mTextElementPaint.setAlpha(mForegroundOpacityLevel);
+                mBatteryFullPaint.setAlpha(mForegroundOpacityLevel);
+                mBatteryPaint.setAlpha(mForegroundOpacityLevel);
 
                 invalidate();
             }
@@ -468,7 +470,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
                 mSecondPaint.setStyle(Paint.Style.FILL);
                 mSecondPaint.setColor(Color.parseColor(mAccentColor));
-                mSecondPaint.setAlpha(foregroundOpacityLevel);
+                mSecondPaint.setAlpha(mForegroundOpacityLevel);
                 canvas.drawLine(centerX + secStartX, centerY + secStartY, centerX + secX, centerY + secY, mSecondPaint);
             }
 
@@ -484,7 +486,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mMinutePaint.setStyle(Paint.Style.FILL);
             mMinutePaint.setColor(Color.parseColor(mForegroundColor));
-            mMinutePaint.setAlpha(foregroundOpacityLevel);
+            mMinutePaint.setAlpha(mForegroundOpacityLevel);
             canvas.drawLine(centerX + minStartX, centerY + minStartY, centerX + minX, centerY + minY, mMinutePaint);
 
             float hrX = (float) Math.sin(hrRot) * hrLength;
@@ -499,7 +501,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mHourPaint.setStyle(Paint.Style.FILL);
             mHourPaint.setColor(Color.parseColor(mForegroundColor));
-            mHourPaint.setAlpha(foregroundOpacityLevel);
+            mHourPaint.setAlpha(mForegroundOpacityLevel);
             canvas.drawLine(centerX + hrStartX, centerY + hrStartY, centerX + hrX, centerY + hrY, mHourPaint);
 
             // Digital
@@ -509,24 +511,24 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mDigitalHourPaint.setStyle(Paint.Style.STROKE);
             mDigitalHourPaint.setColor(isInAmbientMode() ? Color.parseColor(mForegroundColor) : Color.parseColor(mBackgroundColor));
-            mDigitalHourPaint.setAlpha(isInAmbientMode() ? foregroundOpacityLevel : 255);
+            mDigitalHourPaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
             canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
 
             mDigitalHourPaint.setStyle(Paint.Style.FILL);
             mDigitalHourPaint.setColor(isInAmbientMode() ? Color.parseColor(mBackgroundColor) : Color.parseColor(mForegroundColor));
-            mDigitalHourPaint.setAlpha(isInAmbientMode() ? 255 : foregroundOpacityLevel);
+            mDigitalHourPaint.setAlpha(isInAmbientMode() ? 255 : mForegroundOpacityLevel);
             canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
 
             x += mDigitalHourPaint.measureText(hourString);
 
             mColonPaint.setStyle(Paint.Style.STROKE);
             mColonPaint.setColor(isInAmbientMode() ? Color.parseColor(mMiddleColor) : Color.parseColor(mBackgroundColor));
-            mColonPaint.setAlpha(isInAmbientMode() ? foregroundOpacityLevel : 255);
+            mColonPaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
             canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
 
             mColonPaint.setStyle(Paint.Style.FILL);
             mColonPaint.setColor(isInAmbientMode() ? Color.parseColor(mBackgroundColor) : Color.parseColor(mMiddleColor));
-            mColonPaint.setAlpha(isInAmbientMode() ? 255 : foregroundOpacityLevel);
+            mColonPaint.setAlpha(isInAmbientMode() ? 255 : mForegroundOpacityLevel);
             canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
 
             x += mColonWidth;
@@ -536,12 +538,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mDigitalMinutePaint.setStyle(Paint.Style.STROKE);
             mDigitalMinutePaint.setColor(isInAmbientMode() ? Color.parseColor(mForegroundColor) : Color.parseColor(mBackgroundColor));
-            mDigitalMinutePaint.setAlpha(isInAmbientMode() ? foregroundOpacityLevel : 255);
+            mDigitalMinutePaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
             canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
 
             mDigitalMinutePaint.setStyle(Paint.Style.FILL);
             mDigitalMinutePaint.setColor(isInAmbientMode() ? Color.parseColor(mBackgroundColor) : Color.parseColor(mForegroundColor));
-            mDigitalMinutePaint.setAlpha(isInAmbientMode() ? 255 : foregroundOpacityLevel);
+            mDigitalMinutePaint.setAlpha(isInAmbientMode() ? 255 : mForegroundOpacityLevel);
             canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
 
             // Draw AM/PM indicator
@@ -555,7 +557,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
                 mDigitalAmPmPaint.setStyle(Paint.Style.FILL);
                 mDigitalAmPmPaint.setColor(Color.parseColor(mForegroundColor));
-                mDigitalAmPmPaint.setAlpha(foregroundOpacityLevel);
+                mDigitalAmPmPaint.setAlpha(mForegroundOpacityLevel);
                 canvas.drawText(getAmPmString(mTime.hour), x, centerY + mYOffset, mDigitalAmPmPaint);
             }
 
@@ -566,16 +568,16 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mTextElementPaint.setStyle(Paint.Style.STROKE);
             mTextElementPaint.setColor(Color.parseColor(mBackgroundColor));
             mTextElementPaint.setAlpha(255);
-            canvas.drawText(dayString, (centerX * 1.5f) - 5, centerY + smallTextOffset, mTextElementPaint);
+            canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextOffset, mTextElementPaint);
 
             mTextElementPaint.setStyle(Paint.Style.FILL);
             mTextElementPaint.setColor(Color.parseColor(mForegroundColor));
-            mTextElementPaint.setAlpha(foregroundOpacityLevel);
-            canvas.drawText(dayString, (centerX * 1.5f) - 5, centerY + smallTextOffset, mTextElementPaint);
+            mTextElementPaint.setAlpha(mForegroundOpacityLevel);
+            canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextOffset, mTextElementPaint);
 
             // Draw Battery icon
             Path batteryIcon = new Path();
-            batteryIcon.moveTo((centerX / 2f) - 35f, centerY + smallTextOffset);
+            batteryIcon.moveTo((centerX / 2f) - 35f, centerY + mSmallTextOffset);
             batteryIcon.rLineTo(0, -13);
             batteryIcon.rLineTo(2, 0);
             batteryIcon.rLineTo(0, -2);
@@ -590,13 +592,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             canvas.drawPath(batteryIcon, mBatteryFullPaint);
 
             mBatteryFullPaint.setColor(Color.parseColor(mMiddleColor));
-            mBatteryFullPaint.setAlpha(foregroundOpacityLevel);
+            mBatteryFullPaint.setAlpha(mForegroundOpacityLevel);
             canvas.drawPath(batteryIcon, mBatteryFullPaint);
 
-            float batteryHeight = (float)Math.ceil(15f * batteryLevel / 100f);
+            float batteryHeight = (float)Math.ceil(15f * mBatteryLevel / 100f);
 
             Path batteryIconLevel = new Path();
-            batteryIconLevel.moveTo((centerX / 2f) - 35f, centerY + smallTextOffset);
+            batteryIconLevel.moveTo((centerX / 2f) - 35f, centerY + mSmallTextOffset);
 
             if (batteryHeight >= 13) {
                 batteryIconLevel.rLineTo(0, -13);
@@ -620,12 +622,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mTextElementPaint.setStyle(Paint.Style.STROKE);
             mTextElementPaint.setColor(Color.parseColor(mBackgroundColor));
             mTextElementPaint.setAlpha(255);
-            canvas.drawText(String.valueOf(batteryLevel), (centerX / 2f) - 20f, centerY + smallTextOffset, mTextElementPaint);
+            canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextOffset, mTextElementPaint);
 
             mTextElementPaint.setStyle(Paint.Style.FILL);
             mTextElementPaint.setColor(Color.parseColor(mForegroundColor));
-            mTextElementPaint.setAlpha(foregroundOpacityLevel);
-            canvas.drawText(String.valueOf(batteryLevel), (centerX / 2f) - 20f, centerY + smallTextOffset, mTextElementPaint);
+            mTextElementPaint.setAlpha(mForegroundOpacityLevel);
+            canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextOffset, mTextElementPaint);
 
             // Widgets
             // weather widget
@@ -635,12 +637,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     mTextElementPaint.setStyle(Paint.Style.STROKE);
                     mTextElementPaint.setColor(Color.parseColor(mBackgroundColor));
                     mTextElementPaint.setAlpha(255);
-                    canvas.drawText(String.valueOf(mFahrenheit ? temperatureF : temperatureC) + getString(R.string.degrees), centerX + 3f, centerY * 0.6f, mTextElementPaint);
+                    canvas.drawText(String.valueOf(mFahrenheit ? mTemperatureF : mTemperatureC) + getString(R.string.degrees), centerX + 3f, centerY * 0.6f, mTextElementPaint);
 
                     mTextElementPaint.setStyle(Paint.Style.FILL);
                     mTextElementPaint.setColor(Color.parseColor(mForegroundColor));
-                    mTextElementPaint.setAlpha(foregroundOpacityLevel);
-                    canvas.drawText(String.valueOf(mFahrenheit ? temperatureF : temperatureC) + getString(R.string.degrees), centerX + 3f, centerY * 0.6f, mTextElementPaint);
+                    mTextElementPaint.setAlpha(mForegroundOpacityLevel);
+                    canvas.drawText(String.valueOf(mFahrenheit ? mTemperatureF : mTemperatureC) + getString(R.string.degrees), centerX + 3f, centerY * 0.6f, mTextElementPaint);
 
                     // Draw icon based on conditions
                     switch (code) {
@@ -708,7 +710,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     canvas.drawLine(centerX - 5f, (centerY * 0.6f) - 8, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
 
                     mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
-                    mWidgetWeatherPaint.setAlpha(foregroundOpacityLevel);
+                    mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
                     mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
                     mWidgetWeatherPaint.setStrokeWidth(1f);
                     canvas.drawLine(centerX - 5f, (centerY * 0.6f) - 8, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
@@ -756,8 +758,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             //Wearable.MessageApi.addListener(mGoogleApiClient, Engine.this);
 
             WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
-
-            mUpdateHandler.sendEmptyMessage(MSG_REFRESH_WEATHER);
         }
 
         @Override  // GoogleApiClient.ConnectionCallbacks
@@ -793,10 +793,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     DataItem dataItem = dataEvent.getDataItem();
                     DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
                     DataMap config = dataMapItem.getDataMap();
-                    this.config = config;
-
-                    if (config.getBoolean(Utility.KEY_WIDGET_SHOW_WEATHER) && config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE) == Utility.WeatherCodes.UNKNOWN)
-                        mUpdateHandler.sendEmptyMessage(MSG_REFRESH_WEATHER);
+                    this.mConfig = config;
 
                     updateUI(config);
 
@@ -835,9 +832,15 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mShowWeather = config.getBoolean(Utility.KEY_WIDGET_SHOW_WEATHER);
             mFahrenheit = config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT);
 
-            temperatureC = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C);
-            temperatureF = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F);
-            code = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE);
+            mTemperatureC = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C);
+            mTemperatureF = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F);
+            mCode = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE);
+            mIsDayTime = config.getBoolean(Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME);
+
+            long oldTime = mLastTime;
+            mLastTime = config.getLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME);
+            if (mLastTime != oldTime)
+                mRunWeather = true;
 
             if (!isInAmbientMode()) {
                 setBackgroundColor(config.getString(Utility.KEY_BACKGROUND_COLOUR));
@@ -911,14 +914,14 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void setForegroundColor(String color) {
             mForegroundColor = color;
 
-            updatePaint(mHourPaint, color, foregroundOpacityLevel, 3f);
-            updatePaint(mMinutePaint, color, foregroundOpacityLevel, 3f);
+            updatePaint(mHourPaint, color, mForegroundOpacityLevel, 3f);
+            updatePaint(mMinutePaint, color, mForegroundOpacityLevel, 3f);
 
-            updatePaint(mDigitalHourPaint, color, foregroundOpacityLevel);
-            updatePaint(mDigitalMinutePaint, color, foregroundOpacityLevel);
+            updatePaint(mDigitalHourPaint, color, mForegroundOpacityLevel);
+            updatePaint(mDigitalMinutePaint, color, mForegroundOpacityLevel);
 
-            updatePaint(mTextElementPaint, color, foregroundOpacityLevel);
-            updatePaint(mBatteryPaint, color, foregroundOpacityLevel);
+            updatePaint(mTextElementPaint, color, mForegroundOpacityLevel);
+            updatePaint(mBatteryPaint, color, mForegroundOpacityLevel);
 
             updatePaint(mHourTickPaint, color, 100);
             updatePaint(mMinuteTickPaint, color, 100);
@@ -926,13 +929,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         private void setAccentColor(String color) {
             mAccentColor = color;
-            updatePaint(mSecondPaint, color, accentOpacityLevel, 2f);
+            updatePaint(mSecondPaint, color, mAccentOpacityLevel, 2f);
         }
 
         private void setMiddleColor(String color) {
             mMiddleColor = color;
-            updatePaint(mColonPaint, color, foregroundOpacityLevel);
-            updatePaint(mBatteryFullPaint, color, foregroundOpacityLevel);
+            updatePaint(mColonPaint, color, mForegroundOpacityLevel);
+            updatePaint(mBatteryFullPaint, color, mForegroundOpacityLevel);
         }
 
         private Paint createTextPaint(int defaultInteractiveColour) {
@@ -1027,10 +1030,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                         new ResultCallback<NodeApi.GetConnectedNodesResult>() {
                             @Override
                             public void onResult(NodeApi.GetConnectedNodesResult result) {
-                                byte[] rawData = config.toByteArray();
-                                for (Node node : result.getNodes()) {
-                                    String nodeId = node.getId();
-                                    Wearable.MessageApi.sendMessage(mGoogleApiClient, nodeId, Utility.PATH_DIGILOGUE_SETTINGS, rawData);
+                                if (mConfig != null) {
+                                    byte[] rawData = mConfig.toByteArray();
+                                    for (Node node : result.getNodes()) {
+                                        String nodeId = node.getId();
+                                        Wearable.MessageApi.sendMessage(mGoogleApiClient, nodeId, Utility.PATH_DIGILOGUE_SETTINGS, rawData);
+                                    }
                                 }
                             }
                         });
@@ -1041,7 +1046,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             @Override
             protected void onPostExecute(Void temp) {
                 releaseWakeLock();
-                onWeatherRefreshed();
             }
 
             @Override
