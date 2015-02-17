@@ -69,7 +69,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         return new Engine();
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine implements DataApi.DataListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener { //, MessageApi.MessageListener {
+    private class Engine extends CanvasWatchFaceService.Engine implements DataApi.DataListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
         static final int MSG_UPDATE_TIME = 0;
         static final int MSG_REFRESH_WEATHER = 1;
 
@@ -398,7 +398,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
+            // for new preview time
+            //mTime.set(35, 10, 10, 5, 8, 2014);
             mTime.setToNow();
+
+            // TODO: refactor assignments out of draw method
 
             int width = bounds.width();
             int height = bounds.height();
@@ -633,7 +637,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // Widgets
             // weather widget
             if (mShowWeather) {
-                if (temperatureC != -999 && temperatureF != -999 && code != Utility.WeatherCodes.UNKNOWN) {
+                float weatherIconCenterX = centerX - 15f;
+                float weatherIconCenterY = (centerY * 0.6f) - 8;
+
+                if (mTemperatureC != -999 && mTemperatureF != -999 && mCode != Utility.WeatherCodes.UNKNOWN) {
                     // Draw temperature
                     mTextElementPaint.setStyle(Paint.Style.STROKE);
                     mTextElementPaint.setColor(Color.parseColor(mBackgroundColor));
@@ -646,60 +653,156 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     canvas.drawText(String.valueOf(mFahrenheit ? mTemperatureF : mTemperatureC) + getString(R.string.degrees), centerX + 3f, centerY * 0.6f, mTextElementPaint);
 
                     // Draw icon based on conditions
-                    switch (code) {
-                        case Utility.WeatherCodes.SUNNY:
-                            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
-                            mWidgetWeatherPaint.setAlpha(255);
-                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                            mWidgetWeatherPaint.setStrokeWidth(2f);
-                            canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
-
-                            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
-                            mWidgetWeatherPaint.setAlpha(foregroundOpacityLevel);
-                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                            mWidgetWeatherPaint.setStrokeWidth(1f);
-                            canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
+                    switch (mCode) {
+                        case Utility.WeatherCodes.CLEAR: // sun or moon
+                            if (mIsDayTime)
+                                drawSun(canvas, weatherIconCenterX, weatherIconCenterY);
+                            else
+                                drawMoon(canvas, weatherIconCenterX, weatherIconCenterY);
                             break;
                         case Utility.WeatherCodes.PARTLY_CLOUDY:
-                            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
-                            mWidgetWeatherPaint.setAlpha(255);
-                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                            mWidgetWeatherPaint.setStrokeWidth(2f);
-                            canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
+                            if (mIsDayTime)
+                                drawSun(canvas, weatherIconCenterX, weatherIconCenterY - 2f);
+                            else
+                                drawMoon(canvas, weatherIconCenterX, weatherIconCenterY - 2f);
 
-                            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
-                            mWidgetWeatherPaint.setAlpha(foregroundOpacityLevel);
-                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                            mWidgetWeatherPaint.setStrokeWidth(1f);
-                            canvas.drawCircle(centerX - 15f, (centerY * 0.6f) - 8, 10, mWidgetWeatherPaint);
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 2f);
+                            break;
+                        case Utility.WeatherCodes.CLOUDY:
+                        case Utility.WeatherCodes.OVERCAST:
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            break;
+                        case Utility.WeatherCodes.MIST:
+                        case Utility.WeatherCodes.FOG:
+                        case Utility.WeatherCodes.FREEZING_FOG:
+                            drawFog(canvas, weatherIconCenterX, weatherIconCenterY);
+                            break;
+                        case Utility.WeatherCodes.PATCHY_RAIN_NEARBY:
+                        case Utility.WeatherCodes.PATCHY_LIGHT_DRIZZLE:
+                        case Utility.WeatherCodes.LIGHT_RAIN_SHOWER:
+                            if (mIsDayTime)
+                                drawSun(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            else
+                                drawMoon(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
 
-                            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
-                            mWidgetWeatherPaint.setAlpha(255);
-                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                            mWidgetWeatherPaint.setStrokeWidth(2f);
-                            canvas.drawLine(centerX - 25f, (centerY * 0.6f) - 8, centerX - 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            drawRainLine(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            break;
+                        case Utility.WeatherCodes.PATCHY_SNOW_NEARBY:
+                        case Utility.WeatherCodes.LIGHT_SLEET_SHOWERS:
+                        case Utility.WeatherCodes.MODERATE_OR_HEAVY_SLEET_SHOWERS:
+                        case Utility.WeatherCodes.LIGHT_SHOWERS_OF_ICE_PELLETS:
+                            if (mIsDayTime)
+                                drawSun(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            else
+                                drawMoon(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
 
-                            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
-                            mWidgetWeatherPaint.setAlpha(foregroundOpacityLevel);
-                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                            mWidgetWeatherPaint.setStrokeWidth(1f);
-                            canvas.drawLine(centerX - 25f, (centerY * 0.6f) - 8, centerX - 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            drawRainLine(canvas, weatherIconCenterX - 4f, weatherIconCenterY - 6f);
+                            drawSnowFlake(canvas, weatherIconCenterX + 4f, weatherIconCenterY - 6f);
+                            break;
+                        case Utility.WeatherCodes.PATCHY_SLEET_NEARBY:
+                        case Utility.WeatherCodes.PATCHY_FREEZING_DRIZZLE_NEARBY:
+                        case Utility.WeatherCodes.FREEZING_DRIZZLE:
+                        case Utility.WeatherCodes.HEAVY_FREEZING_DRIZZLE:
+                        case Utility.WeatherCodes.LIGHT_FREEZING_RAIN:
+                        case Utility.WeatherCodes.MODERATE_OR_HEAVY_FREEZING_RAIN:
+                        case Utility.WeatherCodes.LIGHT_SLEET:
+                        case Utility.WeatherCodes.ICE_PELLETS:
+                        case Utility.WeatherCodes.MODERATE_OR_HEAVY_SHOWERS_OF_ICE_PELLETS:
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 8f);
+                            drawRainLine(canvas, weatherIconCenterX - 4f, weatherIconCenterY - 8f);
+                            drawSnowFlake(canvas, weatherIconCenterX + 4f, weatherIconCenterY - 8f);
+                            break;
+                        case Utility.WeatherCodes.THUNDERY_OUTBREAKS:
+                        case Utility.WeatherCodes.PATCHY_LIGHT_RAIN_IN_AREA_WITH_THUNDER:
+                        case Utility.WeatherCodes.PATCHY_LIGHT_SNOW_IN_AREA_WITH_THUNDER:
+                            if (mIsDayTime)
+                                drawSun(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            else
+                                drawMoon(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            drawLightning(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+
+                            break;
+                        case Utility.WeatherCodes.BLOWING_SNOW:
+                        case Utility.WeatherCodes.MODERATE_OR_HEAVY_SLEET:
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 8f);
+                            drawSnowFlake(canvas, weatherIconCenterX, weatherIconCenterY - 8f);
+                            break;
+                        case Utility.WeatherCodes.BLIZZARD:
+                        case Utility.WeatherCodes.PATCHY_MODERATE_SNOW:
+                        case Utility.WeatherCodes.MODERATE_SNOW:
+                        case Utility.WeatherCodes.HEAVY_SNOW:
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 8f);
+                            drawSnowFlake(canvas, weatherIconCenterX - 4f, weatherIconCenterY - 8f);
+                            drawSnowFlake(canvas, weatherIconCenterX + 4f, weatherIconCenterY - 8f);
+                            break;
+                        case Utility.WeatherCodes.LIGHT_DRIZZLE:
+                        case Utility.WeatherCodes.PATCHY_LIGHT_RAIN:
+                        case Utility.WeatherCodes.LIGHT_RAIN:
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 8f);
+                            drawRainLine(canvas, weatherIconCenterX, weatherIconCenterY - 8f);
+                            break;
+                        case Utility.WeatherCodes.MODERATE_RAIN_AT_TIMES:
+                        case Utility.WeatherCodes.HEAVY_RAIN_AT_TIMES:
+                        case Utility.WeatherCodes.MODERATE_OR_HEAVY_RAIN_SHOWER:
+                            if (mIsDayTime)
+                                drawSun(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            else
+                                drawMoon(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            drawRainLine(canvas, weatherIconCenterX - 4f, weatherIconCenterY - 6f);
+                            drawRainLine(canvas, weatherIconCenterX + 4f, weatherIconCenterY - 6f);
+                            break;
+                        case Utility.WeatherCodes.MODERATE_RAIN:
+                        case Utility.WeatherCodes.HEAVY_RAIN:
+                        case Utility.WeatherCodes.TORRENTIAL_RAIN_SHOWER:
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 8f);
+                            drawRainLine(canvas, weatherIconCenterX - 4f, weatherIconCenterY - 8f);
+                            drawRainLine(canvas, weatherIconCenterX + 4f, weatherIconCenterY - 8f);
+                            break;
+                        case Utility.WeatherCodes.PATCHY_LIGHT_SNOW:
+                        case Utility.WeatherCodes.LIGHT_SNOW:
+                        case Utility.WeatherCodes.LIGHT_SNOW_SHOWERS:
+                            if (mIsDayTime)
+                                drawSun(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            else
+                                drawMoon(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            drawSnowFlake(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            break;
+                        case Utility.WeatherCodes.PATCHY_HEAVY_SNOW:
+                        case Utility.WeatherCodes.MODERATE_OR_HEAVY_SNOW_SHOWERS:
+                        case Utility.WeatherCodes.MODERATE_OR_HEAVY_SNOW_IN_AREA_WITH_THUNDER:
+                            if (mIsDayTime)
+                                drawSun(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            else
+                                drawMoon(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 6f);
+                            drawSnowFlake(canvas, weatherIconCenterX - 4f, weatherIconCenterY - 6f);
+                            drawSnowFlake(canvas, weatherIconCenterX + 4f, weatherIconCenterY - 6f);
+                            break;
+                        case Utility.WeatherCodes.MODERATE_OR_HEAVY_RAIN_IN_AREA_WITH_THUNDER:
+                            drawCloud(canvas, weatherIconCenterX, weatherIconCenterY - 8);
+                            drawRainLine(canvas, weatherIconCenterX - 4f, weatherIconCenterY - 8);
+                            drawLightning(canvas, weatherIconCenterX + 5f, weatherIconCenterY - 8);
                             break;
 
-                        // TODO: other condition icons
-
-                        default:
+                        default: // line
                             mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
                             mWidgetWeatherPaint.setAlpha(255);
                             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                            mWidgetWeatherPaint.setStrokeWidth(2f);
-                            canvas.drawLine(centerX - 5f, (centerY * 0.6f) - 8, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
+                            canvas.drawLine(centerX - 5f, weatherIconCenterY, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
 
                             mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
-                            mWidgetWeatherPaint.setAlpha(foregroundOpacityLevel);
-                            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                            mWidgetWeatherPaint.setStrokeWidth(1f);
-                            canvas.drawLine(centerX - 5f, (centerY * 0.6f) - 8, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
+                            mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
+                            mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
+                            canvas.drawLine(centerX - 5f, weatherIconCenterY, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
                             break;
                     }
                 } else {
@@ -707,14 +810,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
                     mWidgetWeatherPaint.setAlpha(255);
                     mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                    mWidgetWeatherPaint.setStrokeWidth(2f);
-                    canvas.drawLine(centerX - 5f, (centerY * 0.6f) - 8, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
+                    canvas.drawLine(centerX - 5f, weatherIconCenterY, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
 
                     mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
                     mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
                     mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
-                    mWidgetWeatherPaint.setStrokeWidth(1f);
-                    canvas.drawLine(centerX - 5f, (centerY * 0.6f) - 8, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
+                    canvas.drawLine(centerX - 5f, weatherIconCenterY, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
                 }
             }
         }
@@ -808,6 +909,196 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
         //endregion
 
+        //region Drawing icon methods
+        private void drawSun(Canvas canvas, float x, float y) {
+            for (int beam = 0; beam < 8; beam++) {
+                float beamRot = (float) (beam * Math.PI * 2 / 8);
+                float innerX = (float) Math.sin(beamRot) * 8;
+                float innerY = (float) -Math.cos(beamRot) * 8;
+                float outerX = (float) Math.sin(beamRot) * 12;
+                float outerY = (float) -Math.cos(beamRot) * 12;
+
+                mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+                mWidgetWeatherPaint.setAlpha(255);
+                mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+                canvas.drawLine(x + innerX, y + innerY, x + outerX, y + outerY, mWidgetWeatherPaint);
+
+                mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+                mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
+                mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
+                canvas.drawLine(x + innerX, y + innerY, x + outerX, y + outerY, mWidgetWeatherPaint);
+            }
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
+            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+            canvas.drawCircle(x, y, 6, mWidgetWeatherPaint);
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setAlpha(255);
+            mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
+            canvas.drawCircle(x, y, 6, mWidgetWeatherPaint);
+        }
+
+        private void drawMoon(Canvas canvas, float x, float y) {
+            Path moonPath = new Path();
+            moonPath.moveTo(x, y - 8f);
+            moonPath.arcTo(x - 8f, y - 8f, x + 8f, y + 8f, 270, -270, false);
+            moonPath.arcTo(x - 4f, y - 8f, x + 8f, y + 4f, 0, 270, false);
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
+            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+            canvas.drawPath(moonPath, mWidgetWeatherPaint);
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setAlpha(255);
+            mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
+            canvas.drawPath(moonPath, mWidgetWeatherPaint);
+        }
+
+        private void drawCloud(Canvas canvas, float x, float y) {
+            /// TODO: redo these arcs correctly
+            Path cloudPath = new Path();
+            cloudPath.moveTo(x - 8f, y + 16f);
+            cloudPath.arcTo(x, y + 6f, x + 10f, y + 16f, 90, -250, false);
+            cloudPath.arcTo(x - 8f, y, x + 4f, y + 9f, 0, -210, false);
+            cloudPath.arcTo(x - 14f, y + 8f, x - 6f, y + 16f, 340, -230, false);
+            cloudPath.close();
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
+            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+            canvas.drawPath(cloudPath, mWidgetWeatherPaint);
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setAlpha(255);
+            mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
+            canvas.drawPath(cloudPath, mWidgetWeatherPaint);
+        }
+
+        /*private void drawDrop(Canvas canvas, float x, float y) {
+            *//*Path dropPath = new Path();
+            dropPath.moveTo(x - 2f, y + 20f);
+            dropPath.rLineTo(-2f, 6f);
+            dropPath.arcTo(x - 4f, y + 24f, x, y + 26f, 180, -180, true);
+            dropPath.rLineTo(-2f, -6f);
+            dropPath.close();
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
+            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+            canvas.drawPath(dropPath, mWidgetWeatherPaint);
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setAlpha(255);
+            mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
+            canvas.drawPath(dropPath, mWidgetWeatherPaint);*//*
+            drawRainLine(canvas, x, y);
+        }*/
+
+        private void drawRainLine(Canvas canvas, float x, float y) {
+            Path linePath = new Path();
+            linePath.moveTo(x - 4f, y + 14f);
+            linePath.rLineTo(-1f, 5f);
+            linePath.rMoveTo(0f, 2f);
+            linePath.rLineTo(-1f, 5f);
+            linePath.rMoveTo(6f, -12f);
+            linePath.rLineTo(-1f, 5f);
+            linePath.rMoveTo(0f, 2f);
+            linePath.rLineTo(-1f, 5f);
+            linePath.close();
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
+            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+            canvas.drawPath(linePath, mWidgetWeatherPaint);
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setAlpha(255);
+            mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
+            canvas.drawPath(linePath, mWidgetWeatherPaint);
+        }
+
+        private void drawSnowFlake(Canvas canvas, float x, float y) {
+            Path flakePath = new Path();
+            flakePath.moveTo(x - 2f, y + 19f);
+            flakePath.rMoveTo(-2f, 4f);
+            flakePath.rLineTo(6f, 0);
+            flakePath.rMoveTo(-5f, -4f);
+            flakePath.rLineTo(4f, 8f);
+            flakePath.rMoveTo(0, -8f);
+            flakePath.rLineTo(-4f, 8f);
+            flakePath.close();
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
+            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+            mWidgetWeatherPaint.setStrokeWidth(1);
+            canvas.drawPath(flakePath, mWidgetWeatherPaint);
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setAlpha(255);
+            mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
+            mWidgetWeatherPaint.setStrokeWidth(1);
+            canvas.drawPath(flakePath, mWidgetWeatherPaint);
+            mWidgetWeatherPaint.setStrokeWidth(2);
+        }
+
+        private void drawLightning(Canvas canvas, float x, float y) {
+            Path lightningPath = new Path();
+            lightningPath.moveTo(x, y + 11f);
+            lightningPath.rLineTo(-1f, 0);
+            lightningPath.rLineTo(-7f, 10f);
+            lightningPath.rLineTo(4f, 0);
+            lightningPath.rLineTo(-2f, 7f);
+            lightningPath.rLineTo(1f, 0);
+            lightningPath.rLineTo(6f, -9f);
+            lightningPath.rLineTo(-4f, 0);
+            lightningPath.close();
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setAlpha(255);
+            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+            canvas.drawPath(lightningPath, mWidgetWeatherPaint);
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
+            mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
+            canvas.drawPath(lightningPath, mWidgetWeatherPaint);
+        }
+
+        private void drawFog(Canvas canvas, float x, float y) {
+            float left = x - 5f;
+            float top = y - 4f;
+            float length = 14;
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setAlpha(255);
+            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
+            canvas.drawLine(left, top, left + length, top, mWidgetWeatherPaint);
+            top += 4;
+            canvas.drawLine(left, top, left + length, top, mWidgetWeatherPaint);
+            top += 4;
+            canvas.drawLine(left, top, left + length, top, mWidgetWeatherPaint);
+            top += 4;
+            canvas.drawLine(left, top, left + length, top, mWidgetWeatherPaint);
+
+            top = y - 4f;
+
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
+            mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
+            canvas.drawLine(left, top, left + length, top, mWidgetWeatherPaint);
+            top += 4;
+            canvas.drawLine(left, top, left + length, top, mWidgetWeatherPaint);
+            top += 4;
+            canvas.drawLine(left, top, left + length, top, mWidgetWeatherPaint);
+            top += 4;
+            canvas.drawLine(left, top, left + length, top, mWidgetWeatherPaint);
+        }
+        //endregion
+
         private void registerReceiver() {
             if (mRegisteredTimeZoneReceiver) {
                 return;
@@ -848,9 +1139,14 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 setMiddleColor(config.getString(Utility.KEY_MIDDLE_COLOUR));
                 setForegroundColor(config.getString(Utility.KEY_FOREGROUND_COLOUR));
                 setAccentColor(config.getString(Utility.KEY_ACCENT_COLOUR));
-
-                // TODO: change preview image??
             }
+
+            // weather test data
+            /*mTemperatureC = -999;
+            mTemperatureF = -999;
+            mShowWeather = true;
+            mCode = Utility.WeatherCodes.UNKNOWN;
+            mIsDayTime = true;*/
 
             invalidate();
         }
