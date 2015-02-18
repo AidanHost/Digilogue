@@ -30,6 +30,8 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 import com.greenman.common.Utility;
 
+import java.util.concurrent.TimeUnit;
+
 public class DigilogueConfigActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataApi.DataItemResult> {
     private static final String TAG = "DigilogueConfigActivity";
 
@@ -227,6 +229,10 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                     lastTime.set(config.getLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME));
 
                     weatherData += getString(R.string.last_time_updated) + lastTime.format(getString(R.string.time_format)) + "\n\n";
+
+                    Time nextTime = new Time();
+                    nextTime.set(lastTime.toMillis(true) + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS));
+                    weatherData += getString(R.string.next_update) + nextTime.format(getString(R.string.time_format)) + "\n\n";
                 }
 
                 if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_CODE)) {
