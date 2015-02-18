@@ -567,7 +567,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
 
             // Draw the Day, Date.
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE, d");
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE, d", Resources.getSystem().getConfiguration().locale);
             String dayString = sdf.format(new Date(mTime.toMillis(true)));
 
             mTextElementPaint.setStyle(Paint.Style.STROKE);
