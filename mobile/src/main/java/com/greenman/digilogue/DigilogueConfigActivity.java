@@ -12,11 +12,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -190,14 +191,97 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         boolean autoLocation = true;
 
-        // TODO: animate visibility changes
+        final Animation slideDownGroup = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
+        slideDownGroup.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                // Called when the Animation starts
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                // Called when the Animation ended
+                // Since we are fading a View out we set the visibility
+                // to GONE once the Animation is finished
+                widget_weather_group.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                // This is called each time the Animation repeats
+            }
+        });
+
+        final Animation slideUpGroup = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
+        slideUpGroup.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                // Called when the Animation starts
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                // Called when the Animation ended
+                // Since we are fading a View out we set the visibility
+                // to GONE once the Animation is finished
+                widget_weather_group.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                // This is called each time the Animation repeats
+            }
+        });
+
+        final Animation slideDownLocation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_down);
+        slideDownLocation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                // Called when the Animation starts
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                // Called when the Animation ended
+                // Since we are fading a View out we set the visibility
+                // to GONE once the Animation is finished
+                location.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                // This is called each time the Animation repeats
+            }
+        });
+
+        final Animation slideUpLocation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_up);
+        slideUpLocation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                // Called when the Animation starts
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                // Called when the Animation ended
+                // Since we are fading a View out we set the visibility
+                // to GONE once the Animation is finished
+                location.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+                // This is called each time the Animation repeats
+            }
+        });
+
         widget_show_weather.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked)
-                    widget_weather_group.setVisibility(View.VISIBLE);
+                    widget_weather_group.startAnimation(slideDownGroup); //.setVisibility(View.VISIBLE);
                 else
-                    widget_weather_group.setVisibility(View.GONE);
+                    widget_weather_group.startAnimation(slideUpGroup); //.setVisibility(View.GONE);
             }
         });
 
@@ -205,9 +289,9 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked)
-                    location.setVisibility(View.GONE);
+                    location.startAnimation(slideUpLocation); //.setVisibility(View.GONE);
                 else
-                    location.setVisibility(View.VISIBLE);
+                    location.startAnimation(slideDownLocation); //.setVisibility(View.VISIBLE);
             }
         });
 
