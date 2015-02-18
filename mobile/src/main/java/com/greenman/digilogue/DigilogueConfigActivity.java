@@ -18,6 +18,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -53,7 +54,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     CheckBox widget_weather_fahrenheit;
     CheckBox widget_weather_auto_location;
 
-    LinearLayout weather_data;
+    RelativeLayout weather_data;
     TextView widget_weather_text_data;
 
     @Override
@@ -177,7 +178,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         foreground = (Spinner) findViewById(R.id.foreground);
         accent = (Spinner) findViewById(R.id.accent);
 
-        weather_data = (LinearLayout) findViewById(R.id.weather_data);
+        weather_data = (RelativeLayout) findViewById(R.id.weather_data);
         widget_weather_text_data = (TextView) findViewById(R.id.widget_weather_text_data);
         digital_format = (CheckBox) findViewById(R.id.digital_format);
         widget_show_weather = (CheckBox)findViewById(R.id.widget_show_weather);
@@ -186,8 +187,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         widget_weather_text_location = (EditText) findViewById(R.id.widget_weather_text_location);
 
-        final LinearLayout widget_weather_group = (LinearLayout) findViewById(R.id.widget_weather_group);
-        final LinearLayout location = (LinearLayout) findViewById(R.id.location);
+        final RelativeLayout widget_weather_group = (RelativeLayout) findViewById(R.id.widget_weather_group);
+        final RelativeLayout location = (RelativeLayout) findViewById(R.id.location);
 
         boolean autoLocation = true;
 
