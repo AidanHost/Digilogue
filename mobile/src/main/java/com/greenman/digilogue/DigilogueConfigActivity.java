@@ -203,7 +203,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 // Called when the Animation ended
                 // Since we are fading a View out we set the visibility
                 // to GONE once the Animation is finished
-                widget_weather_group.setVisibility(View.GONE);
+                widget_weather_group.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -224,7 +224,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 // Called when the Animation ended
                 // Since we are fading a View out we set the visibility
                 // to GONE once the Animation is finished
-                widget_weather_group.setVisibility(View.VISIBLE);
+                widget_weather_group.setVisibility(View.GONE);
             }
 
             @Override
@@ -245,7 +245,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 // Called when the Animation ended
                 // Since we are fading a View out we set the visibility
                 // to GONE once the Animation is finished
-                location.setVisibility(View.GONE);
+                location.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -266,7 +266,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 // Called when the Animation ended
                 // Since we are fading a View out we set the visibility
                 // to GONE once the Animation is finished
-                location.setVisibility(View.VISIBLE);
+                location.setVisibility(View.GONE);
             }
 
             @Override
