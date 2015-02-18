@@ -8,6 +8,9 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.greenman.digilogue.DigilogueConfigActivity">
 
+    <!-- TODO: preview and improved layout (tablet)-->
+    <!-- TODO: connection indicator-->
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

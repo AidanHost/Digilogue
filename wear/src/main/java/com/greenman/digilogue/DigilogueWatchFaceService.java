@@ -958,7 +958,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawCloud(Canvas canvas, float x, float y) {
-            /// TODO: redo these arcs correctly
+            // TODO: redo these arcs correctly
             Path cloudPath = new Path();
             cloudPath.moveTo(x - 8f, y + 16f);
             cloudPath.arcTo(x, y + 6f, x + 10f, y + 16f, 90, -250, false);
