@@ -958,7 +958,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawCloud(Canvas canvas, float x, float y) {
-            // TODO: redo these arcs correctly
             Path cloudPath = new Path();
             cloudPath.moveTo(x - 8f, y + 16f);
             cloudPath.arcTo(x, y + 6f, x + 10f, y + 16f, 90, -250, false);
@@ -976,26 +975,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
             canvas.drawPath(cloudPath, mWidgetWeatherPaint);
         }
-
-        /*private void drawDrop(Canvas canvas, float x, float y) {
-            *//*Path dropPath = new Path();
-            dropPath.moveTo(x - 2f, y + 20f);
-            dropPath.rLineTo(-2f, 6f);
-            dropPath.arcTo(x - 4f, y + 24f, x, y + 26f, 180, -180, true);
-            dropPath.rLineTo(-2f, -6f);
-            dropPath.close();
-
-            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
-            mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
-            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-            canvas.drawPath(dropPath, mWidgetWeatherPaint);
-
-            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
-            mWidgetWeatherPaint.setAlpha(255);
-            mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
-            canvas.drawPath(dropPath, mWidgetWeatherPaint);*//*
-            drawRainLine(canvas, x, y);
-        }*/
 
         private void drawRainLine(Canvas canvas, float x, float y) {
             Path linePath = new Path();
