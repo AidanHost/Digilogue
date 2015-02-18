@@ -93,7 +93,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         boolean mShowWeather = Utility.CONFIG_WIDGET_SHOW_WEATHER_DEFAULT;
         boolean mFahrenheit = Utility.CONFIG_WIDGET_FAHRENHEIT_DEFAULT;
         boolean mIsDayTime = Utility.CONFIG_WIDGET_WEATHER_DAYTIME_DEFAULT;
-        private boolean mRunWeather;
+        boolean mRunWeather = true;
 
         Time mTime;
 
@@ -138,6 +138,15 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         Paint mDigitalMinutePaint;
         Paint mDigitalAmPmPaint;
         Paint mColonPaint;
+
+        // Paths
+        Path batteryIcon = new Path();
+        Path batteryIconLevel = new Path();
+        Path moonPath = new Path();
+        Path cloudPath = new Path();
+        Path linePath = new Path();
+        Path flakePath = new Path();
+        Path lightningPath = new Path();
 
         GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(DigilogueWatchFaceService.this)
                 .addConnectionCallbacks(this)
@@ -400,9 +409,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         public void onDraw(Canvas canvas, Rect bounds) {
             // for new preview time
             //mTime.set(35, 10, 10, 5, 8, 2014);
+            //mBatteryLevel = 100;
             mTime.setToNow();
 
-            // TODO: refactor assignments out of draw method
+            // TODO: refactor assignments out of draw method - check if more can be done
 
             int width = bounds.width();
             int height = bounds.height();
@@ -418,15 +428,14 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // Analogue
             // Draw the ticks.
             float innerTickRadius = centerX - 10;
-            float outerTickRadius = centerX;
             float innerShortTickRadius = centerX - 13;
             float outerShortTickRadius = centerX - 23;
             for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
                 float tickRot = (float) (tickIndex * Math.PI * 2 / 12);
                 float innerX = (float) Math.sin(tickRot) * innerTickRadius;
                 float innerY = (float) -Math.cos(tickRot) * innerTickRadius;
-                float outerX = (float) Math.sin(tickRot) * outerTickRadius;
-                float outerY = (float) -Math.cos(tickRot) * outerTickRadius;
+                float outerX = (float) Math.sin(tickRot) * centerX;
+                float outerY = (float) -Math.cos(tickRot) * centerX;
 
                 if (!isInAmbientMode())
                     canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mHourTickPaint);
@@ -441,13 +450,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // Draw the minute ticks.
             if (!isInAmbientMode()) {
                 float innerMinuteTickRadius = centerX - 7;
-                float outerMinuteTickRadius = centerX;
                 for (int tickIndex = 0; tickIndex < 60; tickIndex++) {
                     float tickRot = (float) (tickIndex * Math.PI * 2 / 60);
                     float innerX = (float) Math.sin(tickRot) * innerMinuteTickRadius;
                     float innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius;
-                    float outerX = (float) Math.sin(tickRot) * outerMinuteTickRadius;
-                    float outerY = (float) -Math.cos(tickRot) * outerMinuteTickRadius;
+                    float outerX = (float) Math.sin(tickRot) * centerX;
+                    float outerY = (float) -Math.cos(tickRot) * centerX;
                     canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mMinuteTickPaint);
                 }
             }
@@ -567,7 +575,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
 
             // Draw the Day, Date.
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE, d");
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE, d", Resources.getSystem().getConfiguration().locale);
             String dayString = sdf.format(new Date(mTime.toMillis(true)));
 
             mTextElementPaint.setStyle(Paint.Style.STROKE);
@@ -581,7 +589,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextOffset, mTextElementPaint);
 
             // Draw Battery icon
-            Path batteryIcon = new Path();
+            batteryIcon.reset();
             batteryIcon.moveTo((centerX / 2f) - 35f, centerY + mSmallTextOffset);
             batteryIcon.rLineTo(0, -13);
             batteryIcon.rLineTo(2, 0);
@@ -602,7 +610,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             float batteryHeight = (float)Math.ceil(15f * mBatteryLevel / 100f);
 
-            Path batteryIconLevel = new Path();
+            batteryIconLevel.reset();
             batteryIconLevel.moveTo((centerX / 2f) - 35f, centerY + mSmallTextOffset);
 
             if (batteryHeight >= 13) {
@@ -941,7 +949,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawMoon(Canvas canvas, float x, float y) {
-            Path moonPath = new Path();
+            moonPath.reset();
             moonPath.moveTo(x, y - 8f);
             moonPath.arcTo(x - 8f, y - 8f, x + 8f, y + 8f, 270, -270, false);
             moonPath.arcTo(x - 4f, y - 8f, x + 8f, y + 4f, 0, 270, false);
@@ -958,8 +966,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawCloud(Canvas canvas, float x, float y) {
-            /// TODO: redo these arcs correctly
-            Path cloudPath = new Path();
+            cloudPath.reset();
             cloudPath.moveTo(x - 8f, y + 16f);
             cloudPath.arcTo(x, y + 6f, x + 10f, y + 16f, 90, -250, false);
             cloudPath.arcTo(x - 8f, y, x + 4f, y + 9f, 0, -210, false);
@@ -977,28 +984,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             canvas.drawPath(cloudPath, mWidgetWeatherPaint);
         }
 
-        /*private void drawDrop(Canvas canvas, float x, float y) {
-            *//*Path dropPath = new Path();
-            dropPath.moveTo(x - 2f, y + 20f);
-            dropPath.rLineTo(-2f, 6f);
-            dropPath.arcTo(x - 4f, y + 24f, x, y + 26f, 180, -180, true);
-            dropPath.rLineTo(-2f, -6f);
-            dropPath.close();
-
-            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
-            mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
-            mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-            canvas.drawPath(dropPath, mWidgetWeatherPaint);
-
-            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
-            mWidgetWeatherPaint.setAlpha(255);
-            mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
-            canvas.drawPath(dropPath, mWidgetWeatherPaint);*//*
-            drawRainLine(canvas, x, y);
-        }*/
-
         private void drawRainLine(Canvas canvas, float x, float y) {
-            Path linePath = new Path();
+            linePath.reset();
             linePath.moveTo(x - 4f, y + 14f);
             linePath.rLineTo(-1f, 5f);
             linePath.rMoveTo(0f, 2f);
@@ -1021,7 +1008,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawSnowFlake(Canvas canvas, float x, float y) {
-            Path flakePath = new Path();
+            flakePath.reset();
             flakePath.moveTo(x - 2f, y + 19f);
             flakePath.rMoveTo(-2f, 4f);
             flakePath.rLineTo(6f, 0);
@@ -1046,7 +1033,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawLightning(Canvas canvas, float x, float y) {
-            Path lightningPath = new Path();
+            lightningPath.reset();
             lightningPath.moveTo(x, y + 11f);
             lightningPath.rLineTo(-1f, 0);
             lightningPath.rLineTo(-7f, 10f);
@@ -1142,10 +1129,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
 
             // weather test data
-            /*mTemperatureC = -999;
-            mTemperatureF = -999;
+            /*mTemperatureC = 16;
+            mTemperatureF = 66;
             mShowWeather = true;
-            mCode = Utility.WeatherCodes.UNKNOWN;
+            mCode = Utility.WeatherCodes.PARTLY_CLOUDY;
             mIsDayTime = true;*/
 
             invalidate();

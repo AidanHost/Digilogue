@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <!-- TODO: translations-->
     <string name="app_name">Digilogue</string>
     <string name="digital_config_background">Background</string>
     <string name="digital_config_foreground">Foreground</string>
@@ -14,12 +14,40 @@
     <string name="weather_location">Location</string>
     <string name="widget_weather_auto_location">Auto detect</string>
     <string name="widget_show_weather">Weather</string>
+    <string name="weather_header">Weather</string>
     <string name="location_hint">City, Country (Eg. Cape Town, ZA)</string>
     <string name="fahrenheit">Fahrenheit</string>
     <string name="widget_weather_frequency">Update weather every %02d hours</string>
-
+    <string name="weather_api_credit">Powered by World Weather Online</string>
+    <string name="play_store_description_instruction">View the Play Store description for more info.</string>
+    <string name="weather_data_info">Weather data will be displayed here once fetched.</string>
+    <string name="degrees">°</string>
     <string name="title_no_device_connected">No wearable device is currently connected.</string>
     <string name="ok_no_device_connected">OK</string>
+    <string name="last_time_updated">"Last time updated: "</string>
+    <string name="next_update">"Next update at: "</string>
+    <string name="time_format">%Y-%m-%d %H:%M:%S</string>
+    <string name="condition">"Condition: "</string>
+    <string name="day">Day</string>
+    <string name="night">Night</string>
+    <string name="location">"Location: "</string>
+    <string name="clear">Clear</string>
+    <string name="partly_cloudy">Partly Cloudy</string>
+    <string name="cloudy">Cloudy</string>
+    <string name="mist">Mist/Fog</string>
+    <string name="patchy_rain">Patchy Rain</string>
+    <string name="patchy_snow">Patchy Snow</string>
+    <string name="patchy_sleet">Patchy Sleet</string>
+    <string name="thundery_outbreaks">Thundery Outbreaks</string>
+    <string name="blowing_snow">Blowing Snow</string>
+    <string name="blizzard">Blizzard</string>
+    <string name="light_drizzle">Light Drizzle</string>
+    <string name="moderate_rain_at_times">Moderate Rain at times</string>
+    <string name="moderate_rain">Moderate Rain</string>
+    <string name="patchy_light_snow">Patchy Light Snow</string>
+    <string name="patchy_heavy_snow">Patchy Heavy Snow</string>
+    <string name="moderate_rain_with_thunder">Moderate or Heavy Rain with Thunder</string>
+    <string name="unknown">Unknown</string>
 
     <string name="color_black">Black</string>
     <string name="color_blue">Blue</string>
@@ -28,8 +56,6 @@
     <string name="color_navy">Navy</string>
     <string name="color_red">Red</string>
     <string name="color_white">White</string>
-    <string name="weather_api_credit">Powered by World Weather Online</string>
-    <string name="play_store_description_instruction">Alternatively you can view the Google Doc that is linked in the Play Store description.</string>
 
     <string-array name="color_array">
         <item>@string/color_black</item>

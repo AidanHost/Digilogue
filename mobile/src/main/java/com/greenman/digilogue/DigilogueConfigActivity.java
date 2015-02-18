@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.wearable.companion.WatchFaceCompanion;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +30,8 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 import com.greenman.common.Utility;
 
+import java.util.concurrent.TimeUnit;
+
 public class DigilogueConfigActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataApi.DataItemResult> {
     private static final String TAG = "DigilogueConfigActivity";
 
@@ -48,6 +51,9 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     CheckBox widget_show_weather;
     CheckBox widget_weather_fahrenheit;
     CheckBox widget_weather_auto_location;
+
+    LinearLayout weather_data;
+    TextView widget_weather_text_data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,6 +176,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         foreground = (Spinner) findViewById(R.id.foreground);
         accent = (Spinner) findViewById(R.id.accent);
 
+        weather_data = (LinearLayout) findViewById(R.id.weather_data);
+        widget_weather_text_data = (TextView) findViewById(R.id.widget_weather_text_data);
         digital_format = (CheckBox) findViewById(R.id.digital_format);
         widget_show_weather = (CheckBox)findViewById(R.id.widget_show_weather);
         widget_weather_fahrenheit = (CheckBox) findViewById(R.id.widget_weather_fahrenheit);
@@ -182,14 +190,14 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         boolean autoLocation = true;
 
+        // TODO: animate visibility changes
         widget_show_weather.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
+                if (isChecked)
                     widget_weather_group.setVisibility(View.VISIBLE);
-                } else {
+                else
                     widget_weather_group.setVisibility(View.GONE);
-                }
             }
         });
 
@@ -211,8 +219,45 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             autoLocation = (config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, true) || !config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION));
 
             widget_show_weather.setChecked(showWeather);
-            if (showWeather)
+            if (showWeather) {
                 widget_weather_group.setVisibility(View.VISIBLE);
+                weather_data.setVisibility(View.VISIBLE);
+
+                String weatherData = "";
+
+                if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME)) {
+                    Time lastTime = new Time();
+                    lastTime.set(config.getLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME));
+
+                    weatherData += getString(R.string.last_time_updated) + lastTime.format(getString(R.string.time_format)) + "\n\n";
+
+                    Time nextTime = new Time();
+                    nextTime.set(lastTime.toMillis(true) + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS));
+                    weatherData += getString(R.string.next_update) + nextTime.format(getString(R.string.time_format)) + "\n\n";
+                }
+
+                if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_CODE)) {
+                    weatherData += getString(R.string.condition) + getString(Utility.WeatherCodes.getStringResourceByCode(config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE))) + "\n\n";
+                }
+
+                if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME)) {
+                    weatherData += (config.getBoolean(Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME) ? getString(R.string.day) : getString(R.string.night)) + "\n\n";
+                }
+
+                if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C) && config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F)) {
+                    weatherData += config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C) + getString(R.string.degrees) + "C / " +
+                        config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F) + getString(R.string.degrees) + "F\n\n";
+                }
+
+                if (config.containsKey(Utility.KEY_WIDGET_WEATHER_LOCATION)) {
+                    weatherData += getString(R.string.location) + config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION);
+                }
+
+                if (!weatherData.isEmpty())
+                    widget_weather_text_data.setText(weatherData);
+                else
+                    widget_weather_text_data.setText(getString(R.string.weather_data_info));
+            }
 
             widget_weather_fahrenheit.setChecked(config.containsKey(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, false));
 
