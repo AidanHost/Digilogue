@@ -98,5 +98,76 @@ public class Utility {
         public static final int MODERATE_OR_HEAVY_RAIN_IN_AREA_WITH_THUNDER = 389;
         public static final int PATCHY_LIGHT_SNOW_IN_AREA_WITH_THUNDER = 392;
         public static final int MODERATE_OR_HEAVY_SNOW_IN_AREA_WITH_THUNDER = 395;
+
+        public static int getStringResourceByCode(int code) {
+            switch (code) {
+                case Utility.WeatherCodes.CLEAR:
+                    return R.string.clear;
+                case Utility.WeatherCodes.PARTLY_CLOUDY:
+                    return R.string.partly_cloudy;
+                case Utility.WeatherCodes.CLOUDY:
+                case Utility.WeatherCodes.OVERCAST:
+                    return R.string.cloudy;
+                case Utility.WeatherCodes.MIST:
+                case Utility.WeatherCodes.FOG:
+                case Utility.WeatherCodes.FREEZING_FOG:
+                    return R.string.mist;
+                case Utility.WeatherCodes.PATCHY_RAIN_NEARBY:
+                case Utility.WeatherCodes.PATCHY_LIGHT_DRIZZLE:
+                case Utility.WeatherCodes.LIGHT_RAIN_SHOWER:
+                    return R.string.patchy_rain;
+                case Utility.WeatherCodes.PATCHY_SNOW_NEARBY:
+                case Utility.WeatherCodes.LIGHT_SLEET_SHOWERS:
+                case Utility.WeatherCodes.MODERATE_OR_HEAVY_SLEET_SHOWERS:
+                case Utility.WeatherCodes.LIGHT_SHOWERS_OF_ICE_PELLETS:
+                    return R.string.patchy_snow;
+                case Utility.WeatherCodes.PATCHY_SLEET_NEARBY:
+                case Utility.WeatherCodes.PATCHY_FREEZING_DRIZZLE_NEARBY:
+                case Utility.WeatherCodes.FREEZING_DRIZZLE:
+                case Utility.WeatherCodes.HEAVY_FREEZING_DRIZZLE:
+                case Utility.WeatherCodes.LIGHT_FREEZING_RAIN:
+                case Utility.WeatherCodes.MODERATE_OR_HEAVY_FREEZING_RAIN:
+                case Utility.WeatherCodes.LIGHT_SLEET:
+                case Utility.WeatherCodes.ICE_PELLETS:
+                case Utility.WeatherCodes.MODERATE_OR_HEAVY_SHOWERS_OF_ICE_PELLETS:
+                    return R.string.patchy_sleet;
+                case Utility.WeatherCodes.THUNDERY_OUTBREAKS:
+                case Utility.WeatherCodes.PATCHY_LIGHT_RAIN_IN_AREA_WITH_THUNDER:
+                case Utility.WeatherCodes.PATCHY_LIGHT_SNOW_IN_AREA_WITH_THUNDER:
+                    return R.string.thundery_outbreaks;
+                case Utility.WeatherCodes.BLOWING_SNOW:
+                case Utility.WeatherCodes.MODERATE_OR_HEAVY_SLEET:
+                    return R.string.blowing_snow;
+                case Utility.WeatherCodes.BLIZZARD:
+                case Utility.WeatherCodes.PATCHY_MODERATE_SNOW:
+                case Utility.WeatherCodes.MODERATE_SNOW:
+                case Utility.WeatherCodes.HEAVY_SNOW:
+                    return R.string.blizzard;
+                case Utility.WeatherCodes.LIGHT_DRIZZLE:
+                case Utility.WeatherCodes.PATCHY_LIGHT_RAIN:
+                case Utility.WeatherCodes.LIGHT_RAIN:
+                    return R.string.light_drizzle;
+                case Utility.WeatherCodes.MODERATE_RAIN_AT_TIMES:
+                case Utility.WeatherCodes.HEAVY_RAIN_AT_TIMES:
+                case Utility.WeatherCodes.MODERATE_OR_HEAVY_RAIN_SHOWER:
+                    return R.string.moderate_rain_at_times;
+                case Utility.WeatherCodes.MODERATE_RAIN:
+                case Utility.WeatherCodes.HEAVY_RAIN:
+                case Utility.WeatherCodes.TORRENTIAL_RAIN_SHOWER:
+                    return R.string.moderate_rain;
+                case Utility.WeatherCodes.PATCHY_LIGHT_SNOW:
+                case Utility.WeatherCodes.LIGHT_SNOW:
+                case Utility.WeatherCodes.LIGHT_SNOW_SHOWERS:
+                    return R.string.patchy_light_snow;
+                case Utility.WeatherCodes.PATCHY_HEAVY_SNOW:
+                case Utility.WeatherCodes.MODERATE_OR_HEAVY_SNOW_SHOWERS:
+                case Utility.WeatherCodes.MODERATE_OR_HEAVY_SNOW_IN_AREA_WITH_THUNDER:
+                    return R.string.patchy_heavy_snow;
+                case Utility.WeatherCodes.MODERATE_OR_HEAVY_RAIN_IN_AREA_WITH_THUNDER:
+                    return R.string.moderate_rain_with_thunder;
+                default:
+                    return R.string.unknown;
+            }
+        }
     }
 }

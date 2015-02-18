@@ -93,7 +93,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         boolean mShowWeather = Utility.CONFIG_WIDGET_SHOW_WEATHER_DEFAULT;
         boolean mFahrenheit = Utility.CONFIG_WIDGET_FAHRENHEIT_DEFAULT;
         boolean mIsDayTime = Utility.CONFIG_WIDGET_WEATHER_DAYTIME_DEFAULT;
-        private boolean mRunWeather;
+        boolean mRunWeather = true;
 
         Time mTime;
 

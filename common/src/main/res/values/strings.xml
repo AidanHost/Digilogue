@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">Common</string>
+    <string name="clear">Clear</string>
+    <string name="partly_cloudy">Partly Cloudy</string>
+    <string name="cloudy">Cloudy</string>
+    <string name="mist">Mist/Fog</string>
+    <string name="patchy_rain">Patchy Rain</string>
+    <string name="patchy_snow">Patchy Snow</string>
+    <string name="patchy_sleet">Patchy Sleet</string>
+    <string name="thundery_outbreaks">Thundery Outbreaks</string>
+    <string name="blowing_snow">Blowing Snow</string>
+    <string name="blizzard">Blizzard</string>
+    <string name="light_drizzle">Light Drizzle</string>
+    <string name="moderate_rain_at_times">Moderate Rain at times</string>
+    <string name="moderate_rain">Moderate Rain</string>
+    <string name="patchy_light_snow">Patchy Light Snow</string>
+    <string name="patchy_heavy_snow">Patchy Heavy Snow</string>
+    <string name="moderate_rain_with_thunder">Moderate or Heavy Rain with Thunder</string>
+    <string name="unknown">Unknown</string>
 </resources>
