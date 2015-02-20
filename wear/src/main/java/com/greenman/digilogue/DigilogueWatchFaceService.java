@@ -439,7 +439,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             // for new preview time
-            //mTime.set(25, 35, 10, 5, 8, 2014);
+            //mTime.set(27, 27, 10, 5, 8, 2014);
             //mBatteryLevel = 100;
             mTime.setToNow();;
 
@@ -460,6 +460,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // portion.
             float centerX = width / 2f;
             float centerY = height / 2f;
+            float modifier = 1.15f - (mChinHeight / centerX);
 
             if (mToggleAnalogue) {
 
@@ -477,23 +478,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     float outerY = (float) -Math.cos(tickRot) * centerX;
 
                     float difference = centerY + outerY - (height - mChinHeight);
-                    float modifier = 0;
-
-                    if (outerX + centerX > centerX + 10)
-                        modifier = (difference / mChinHeight) * -1.1f;
-                    else if (outerX + centerX < centerX - 10)
-                        modifier = (difference / mChinHeight) * 1.1f;
 
                     if (difference > 0) {
-                        innerX = (float) Math.sin(tickRot) * innerTickRadius;
+                        innerX = (float) Math.sin(tickRot) * (innerTickRadius * modifier);
                         innerY = (float) -Math.cos(tickRot) * innerTickRadius - difference;
-                        outerX = (float) Math.sin(tickRot) * centerX;
+                        outerX = (float) Math.sin(tickRot) * (centerX * modifier);
                         outerY = (float) -Math.cos(tickRot) * centerX - difference;
-
-                        if (modifier < 1f && modifier > -1f) {
-                            innerX += modifier * 10f;
-                            outerX += modifier * 10f;
-                        }
                     }
 
                     if (!isInAmbientMode())
@@ -505,15 +495,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     float outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius;
 
                     if (mGotChin && centerY + (-Math.cos(tickRot) * centerX) > height - mChinHeight) {
-                        innerShortX = (float) Math.sin(tickRot) * innerShortTickRadius;
+                        innerShortX = (float) Math.sin(tickRot) * (innerShortTickRadius * modifier);
                         innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius - difference;
-                        outerShortX = (float) Math.sin(tickRot) * outerShortTickRadius;
+                        outerShortX = (float) Math.sin(tickRot) * (outerShortTickRadius * modifier);
                         outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius - difference;
-
-                        if (modifier < 1f && modifier > -1f) {
-                            innerShortX += modifier * 10f;
-                            outerShortX += modifier * 10f;
-                        }
                     }
 
                     canvas.drawLine(centerX + innerShortX, centerY + innerShortY, centerX + outerShortX, centerY + outerShortY, mHourTickPaint);
@@ -532,23 +517,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                         float outerY = (float) -Math.cos(tickRot) * centerX;
 
                         float difference = centerY + outerY - (height - mChinHeight);
-                        float modifier = 0;
-
-                        if (outerX + centerX > centerX + 5)
-                            modifier = (difference / mChinHeight) * -1.1f;
-                        else if (outerX + centerX < centerX - 5)
-                            modifier = (difference / mChinHeight) * 1.1f;
-
                         if (difference > 0) {
-                            innerX = (float) Math.sin(tickRot) * innerMinuteTickRadius;
+                            innerX = (float) Math.sin(tickRot) * (innerMinuteTickRadius * modifier);
                             innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius - difference;
-                            outerX = (float) Math.sin(tickRot) * centerX;
+                            outerX = (float) Math.sin(tickRot) * (centerX * modifier);
                             outerY = (float) -Math.cos(tickRot) * centerX - difference;
-
-                            if (modifier < 1f && modifier > -1f) {
-                                innerX += modifier * 7f;
-                                outerX += modifier * 7f;
-                            }
 
                             seconds.add(tickIndex);
                         }
@@ -558,9 +531,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 }
 
                 float secRot = mTime.second / 30f * (float) Math.PI;
-                int minutes = mTime.minute;
-                float minRot = minutes / 30f * (float) Math.PI;
-                float hrRot = ((mTime.hour + (minutes / 60f)) / 6f) * (float) Math.PI;
+                float minRot = mTime.minute / 30f * (float) Math.PI;
+                float hrRot = ((mTime.hour + (mTime.minute / 60f)) / 6f) * (float) Math.PI;
 
                 float secLength = centerX - 20;
                 float minLength = centerX - 35;
@@ -573,18 +545,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     float secStartX = (float) Math.sin(secRot) * offset;
                     float secStartY = (float) -Math.cos(secRot) * offset;
 
-                    /*float difference = centerY + secY - (height - mChinHeight);
-                    int modifier = 0;
-
-                    if (secX + centerX > centerX)
-                        modifier = -1;
-                    else if (secX + centerX < centerX)
-                        modifier = 1;
+                    float difference = centerY + secY - (height - mChinHeight);
 
                     if (mGotChin && difference > 0 || seconds.contains(mTime.second)) {
-                        secX = (float) Math.sin(secRot) * secLength + ((mChinHeight - difference) * modifier);
-                        secY = (float) -Math.cos(secRot) * secLength - difference - 20;
-                    }*/
+                        secX = (float) Math.sin(secRot) * (secLength * modifier);
+                        secY = (float) -Math.cos(secRot) * secLength - difference - 18f;
+                    }
 
                     mSecondPaint.setStyle(Paint.Style.STROKE);
                     mSecondPaint.setColor(Color.parseColor(mBackgroundColour));
@@ -601,6 +567,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 float minY = (float) -Math.cos(minRot) * minLength;
                 float minStartX = (float) Math.sin(minRot) * offset;
                 float minStartY = (float) -Math.cos(minRot) * offset;
+
+                float difference = centerY + ((float) -Math.cos(minRot) * secLength) - (height - mChinHeight);
+
+                if (mGotChin && seconds.contains(mTime.minute)) {
+                    minX = (float) Math.sin(minRot) * (secLength * modifier);
+                    minY = (float) -Math.cos(minRot) * secLength - difference - 18f;
+                }
 
                 mMinutePaint.setStyle(Paint.Style.STROKE);
                 mMinutePaint.setColor(Color.parseColor(mBackgroundColour));
@@ -1287,9 +1260,9 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mToggleDimColour = false;
             mToggleSolidText = true;*/
 
-            mFixChin = true;
+            /*mFixChin = true;
             mGotChin = true;
-            mChinHeight = 30;
+            mChinHeight = 30;*/
 
             invalidate();
         }
