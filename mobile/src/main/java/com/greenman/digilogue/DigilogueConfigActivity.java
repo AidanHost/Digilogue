@@ -57,6 +57,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     CheckBox toggle_digital;
     CheckBox toggle_analogue;
     CheckBox toggle_battery;
+    CheckBox toggle_fix_chin;
 
     LinearLayout weather_data;
     TextView widget_weather_text_data;
@@ -195,6 +196,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         toggle_battery = (CheckBox) findViewById(R.id.toggle_battery);
         toggle_dim_colour = (CheckBox) findViewById(R.id.toggle_dim);
         toggle_solid_text = (CheckBox) findViewById(R.id.toggle_solid_number);
+        toggle_fix_chin = (CheckBox) findViewById(R.id.toggle_fix_chin);
 
         widget_weather_text_location = (EditText) findViewById(R.id.widget_weather_text_location);
 
@@ -233,6 +235,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             toggle_battery.setChecked(config.containsKey(Utility.KEY_TOGGLE_BATTERY) && config.getBoolean(Utility.KEY_TOGGLE_BATTERY, true) || !config.containsKey(Utility.KEY_TOGGLE_BATTERY));
             toggle_dim_colour.setChecked(config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR) && config.getBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, true) || !config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR));
             toggle_solid_text.setChecked(config.containsKey(Utility.KEY_TOGGLE_SOLID_TEXT) && config.getBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, false));
+            toggle_fix_chin.setChecked(config.containsKey(Utility.KEY_TOGGLE_FIX_CHIN) && config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN, false));
 
             boolean showWeather = config.containsKey(Utility.KEY_TOGGLE_WEATHER) && config.getBoolean(Utility.KEY_TOGGLE_WEATHER, false);
             autoLocation = (config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, true) || !config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION));
@@ -352,6 +355,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             config.putBoolean(Utility.KEY_TOGGLE_BATTERY, toggle_battery.isChecked());
             config.putBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, toggle_dim_colour.isChecked());
             config.putBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, toggle_solid_text.isChecked());
+            config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, toggle_fix_chin.isChecked());
 
             byte[] rawData = config.toByteArray();
 

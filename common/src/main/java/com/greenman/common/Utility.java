@@ -13,6 +13,7 @@ public class Utility {
     public static final String KEY_TOGGLE_DIM_COLOUR = "com.greenman.digilogue.DIM_COLOUR";
     public static final String KEY_TOGGLE_SOLID_TEXT = "com.greenman.digilogue.SOLID_TEXT";
     public static final String KEY_TOGGLE_WEATHER = "com.greenman.digilogue.SHOW_WEATHER";
+    public static final String KEY_TOGGLE_FIX_CHIN = "com.greenman.digilogue.FIX_CHIN";
 
     public static final String KEY_WIDGET_WEATHER_FAHRENHEIT = "com.greenman.digilogue.FAHRENHEIT";
     public static final String KEY_WIDGET_WEATHER_AUTO_LOCATION = "com.greenman.digilogue.AUTO_LOCATION";
@@ -41,6 +42,7 @@ public class Utility {
     public static final boolean CONFIG_TOGGLE_DAY_DATE_DEFAULT = true;
     public static final boolean CONFIG_TOGGLE_DIM_COLOUR_DEFAULT = true;
     public static final boolean CONFIG_TOGGLE_SOLID_TEXT_DEFAULT = false;
+    public static final boolean CONFIG_TOGGLE_FIX_CHIN = false;
 
     public static final boolean CONFIG_TOGGLE_WEATHER_DEFAULT = false;
     public static final boolean CONFIG_WIDGET_WEATHER_FAHRENHEIT_DEFAULT = false;

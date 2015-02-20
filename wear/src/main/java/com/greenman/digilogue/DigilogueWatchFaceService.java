@@ -41,6 +41,7 @@ import com.google.android.gms.wearable.Wearable;
 import com.greenman.common.Utility;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -117,6 +118,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         int mTemperatureF = Utility.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT;
         int mCode = Utility.WIDGET_WEATHER_DATA_CODE_DEFAULT;
         long mLastTime = Utility.WIDGET_WEATHER_DATA_DATETIME_DEFAULT;
+
+        private int mChinHeight = 0;
+        private boolean mGotChin = false;
+        boolean mFixChin = Utility.CONFIG_TOGGLE_FIX_CHIN;
 
         String mAmString;
         String mPmString;
@@ -326,6 +331,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mColonWidth = mColonPaint.measureText(COLON_STRING);
 
             mSmallTextOffset = textSize / 4f;
+
+            mGotChin = insets.hasSystemWindowInsets();
+            mChinHeight = insets.getSystemWindowInsetBottom();
+            // mChinHeight = 30
         }
 
         @Override
@@ -430,9 +439,14 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             // for new preview time
-            //mTime.set(35, 10, 10, 5, 8, 2014);
+            //mTime.set(25, 35, 10, 5, 8, 2014);
             //mBatteryLevel = 100;
-            mTime.setToNow();
+            mTime.setToNow();;
+
+            if (!mFixChin) {
+                mGotChin = false;
+                mChinHeight = 0;
+            }
 
             // TODO: refactor assignments out of draw method - check if more can be done
 
@@ -454,12 +468,33 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 float innerTickRadius = centerX - 10;
                 float innerShortTickRadius = centerX - 13;
                 float outerShortTickRadius = centerX - 23;
+
                 for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
                     float tickRot = (float) (tickIndex * Math.PI * 2 / 12);
                     float innerX = (float) Math.sin(tickRot) * innerTickRadius;
                     float innerY = (float) -Math.cos(tickRot) * innerTickRadius;
                     float outerX = (float) Math.sin(tickRot) * centerX;
                     float outerY = (float) -Math.cos(tickRot) * centerX;
+
+                    float difference = centerY + outerY - (height - mChinHeight);
+                    float modifier = 0;
+
+                    if (outerX + centerX > centerX + 10)
+                        modifier = (difference / mChinHeight) * -1.1f;
+                    else if (outerX + centerX < centerX - 10)
+                        modifier = (difference / mChinHeight) * 1.1f;
+
+                    if (difference > 0) {
+                        innerX = (float) Math.sin(tickRot) * innerTickRadius;
+                        innerY = (float) -Math.cos(tickRot) * innerTickRadius - difference;
+                        outerX = (float) Math.sin(tickRot) * centerX;
+                        outerY = (float) -Math.cos(tickRot) * centerX - difference;
+
+                        if (modifier < 1f && modifier > -1f) {
+                            innerX += modifier * 10f;
+                            outerX += modifier * 10f;
+                        }
+                    }
 
                     if (!isInAmbientMode())
                         canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mHourTickPaint);
@@ -468,8 +503,23 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     float innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius;
                     float outerShortX = (float) Math.sin(tickRot) * outerShortTickRadius;
                     float outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius;
+
+                    if (mGotChin && centerY + (-Math.cos(tickRot) * centerX) > height - mChinHeight) {
+                        innerShortX = (float) Math.sin(tickRot) * innerShortTickRadius;
+                        innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius - difference;
+                        outerShortX = (float) Math.sin(tickRot) * outerShortTickRadius;
+                        outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius - difference;
+
+                        if (modifier < 1f && modifier > -1f) {
+                            innerShortX += modifier * 10f;
+                            outerShortX += modifier * 10f;
+                        }
+                    }
+
                     canvas.drawLine(centerX + innerShortX, centerY + innerShortY, centerX + outerShortX, centerY + outerShortY, mHourTickPaint);
                 }
+
+                ArrayList<Integer> seconds = new ArrayList<Integer>();
 
                 // Draw the minute ticks.
                 if (!isInAmbientMode()) {
@@ -480,6 +530,29 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                         float innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius;
                         float outerX = (float) Math.sin(tickRot) * centerX;
                         float outerY = (float) -Math.cos(tickRot) * centerX;
+
+                        float difference = centerY + outerY - (height - mChinHeight);
+                        float modifier = 0;
+
+                        if (outerX + centerX > centerX + 5)
+                            modifier = (difference / mChinHeight) * -1.1f;
+                        else if (outerX + centerX < centerX - 5)
+                            modifier = (difference / mChinHeight) * 1.1f;
+
+                        if (difference > 0) {
+                            innerX = (float) Math.sin(tickRot) * innerMinuteTickRadius;
+                            innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius - difference;
+                            outerX = (float) Math.sin(tickRot) * centerX;
+                            outerY = (float) -Math.cos(tickRot) * centerX - difference;
+
+                            if (modifier < 1f && modifier > -1f) {
+                                innerX += modifier * 7f;
+                                outerX += modifier * 7f;
+                            }
+
+                            seconds.add(tickIndex);
+                        }
+
                         canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mMinuteTickPaint);
                     }
                 }
@@ -499,6 +572,19 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     float secY = (float) -Math.cos(secRot) * secLength;
                     float secStartX = (float) Math.sin(secRot) * offset;
                     float secStartY = (float) -Math.cos(secRot) * offset;
+
+                    /*float difference = centerY + secY - (height - mChinHeight);
+                    int modifier = 0;
+
+                    if (secX + centerX > centerX)
+                        modifier = -1;
+                    else if (secX + centerX < centerX)
+                        modifier = 1;
+
+                    if (mGotChin && difference > 0 || seconds.contains(mTime.second)) {
+                        secX = (float) Math.sin(secRot) * secLength + ((mChinHeight - difference) * modifier);
+                        secY = (float) -Math.cos(secRot) * secLength - difference - 20;
+                    }*/
 
                     mSecondPaint.setStyle(Paint.Style.STROKE);
                     mSecondPaint.setColor(Color.parseColor(mBackgroundColour));
@@ -1159,6 +1245,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mToggleDayDate = config.getBoolean(Utility.KEY_TOGGLE_DAY_DATE);
             mToggleDimColour = config.getBoolean(Utility.KEY_TOGGLE_DIM_COLOUR);
             mToggleSolidText = config.getBoolean(Utility.KEY_TOGGLE_SOLID_TEXT);
+            mFixChin = config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN);
 
             mTemperatureC = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C);
             mTemperatureF = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F);
@@ -1199,6 +1286,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mToggleDayDate = false;
             mToggleDimColour = false;
             mToggleSolidText = true;*/
+
+            mFixChin = true;
+            mGotChin = true;
+            mChinHeight = 30;
 
             invalidate();
         }
