@@ -16,7 +16,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -51,6 +50,13 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     CheckBox widget_show_weather;
     CheckBox widget_weather_fahrenheit;
     CheckBox widget_weather_auto_location;
+
+    CheckBox toggle_day_date;
+    CheckBox toggle_dim_colour;
+    CheckBox toggle_solid_text;
+    CheckBox toggle_digital;
+    CheckBox toggle_analogue;
+    CheckBox toggle_battery;
 
     LinearLayout weather_data;
     TextView widget_weather_text_data;
@@ -183,6 +189,13 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         widget_weather_fahrenheit = (CheckBox) findViewById(R.id.widget_weather_fahrenheit);
         widget_weather_auto_location = (CheckBox) findViewById(R.id.widget_weather_auto_location);
 
+        toggle_analogue = (CheckBox) findViewById(R.id.toggle_analogue);
+        toggle_digital = (CheckBox) findViewById(R.id.toggle_digital);
+        toggle_day_date = (CheckBox) findViewById(R.id.toggle_date_day);
+        toggle_battery = (CheckBox) findViewById(R.id.toggle_battery);
+        toggle_dim_colour = (CheckBox) findViewById(R.id.toggle_dim);
+        toggle_solid_text = (CheckBox) findViewById(R.id.toggle_solid_number);
+
         widget_weather_text_location = (EditText) findViewById(R.id.widget_weather_text_location);
 
         final LinearLayout widget_weather_group = (LinearLayout) findViewById(R.id.widget_weather_group);
@@ -190,7 +203,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         boolean autoLocation = true;
 
-        // TODO: animate visibility changes
+        // TODO: animate visibility changes?
         widget_show_weather.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -213,9 +226,15 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         if (config != null) {
             // Toggles
-            digital_format.setChecked(config.containsKey(Utility.KEY_12HOUR_FORMAT) && config.getBoolean(Utility.KEY_12HOUR_FORMAT, false));
+            digital_format.setChecked(config.containsKey(Utility.KEY_TOGGLE_AM_PM) && config.getBoolean(Utility.KEY_TOGGLE_AM_PM, false));
+            toggle_analogue.setChecked(config.containsKey(Utility.KEY_TOGGLE_ANALOGUE) && config.getBoolean(Utility.KEY_TOGGLE_ANALOGUE, true) || !config.containsKey(Utility.KEY_TOGGLE_ANALOGUE));
+            toggle_digital.setChecked(config.containsKey(Utility.KEY_TOGGLE_DIGITAL) && config.getBoolean(Utility.KEY_TOGGLE_DIGITAL, true) || !config.containsKey(Utility.KEY_TOGGLE_DIGITAL));
+            toggle_day_date.setChecked(config.containsKey(Utility.KEY_TOGGLE_DAY_DATE) && config.getBoolean(Utility.KEY_TOGGLE_DAY_DATE, true) || !config.containsKey(Utility.KEY_TOGGLE_DAY_DATE));
+            toggle_battery.setChecked(config.containsKey(Utility.KEY_TOGGLE_BATTERY) && config.getBoolean(Utility.KEY_TOGGLE_BATTERY, true) || !config.containsKey(Utility.KEY_TOGGLE_BATTERY));
+            toggle_dim_colour.setChecked(config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR) && config.getBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, true) || !config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR));
+            toggle_solid_text.setChecked(config.containsKey(Utility.KEY_TOGGLE_SOLID_TEXT) && config.getBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, false));
 
-            boolean showWeather = config.containsKey(Utility.KEY_WIDGET_SHOW_WEATHER) && config.getBoolean(Utility.KEY_WIDGET_SHOW_WEATHER, false);
+            boolean showWeather = config.containsKey(Utility.KEY_TOGGLE_WEATHER) && config.getBoolean(Utility.KEY_TOGGLE_WEATHER, false);
             autoLocation = (config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, true) || !config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION));
 
             widget_show_weather.setChecked(showWeather);
@@ -312,7 +331,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             if (config == null)
                 config = new DataMap();
 
-            config.putBoolean(Utility.KEY_12HOUR_FORMAT, digital_format.isChecked());
+            config.putBoolean(Utility.KEY_TOGGLE_AM_PM, digital_format.isChecked());
             config.putString(Utility.KEY_BACKGROUND_COLOUR, background.getSelectedItem().toString());
             config.putString(Utility.KEY_MIDDLE_COLOUR, middle.getSelectedItem().toString());
             config.putString(Utility.KEY_FOREGROUND_COLOUR, foreground.getSelectedItem().toString());
@@ -323,9 +342,16 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             if (length > 0 && !widget_weather_auto_location.isChecked())
                 config.putString(Utility.KEY_WIDGET_WEATHER_LOCATION, manualLocation);
 
-            config.putBoolean(Utility.KEY_WIDGET_SHOW_WEATHER, widget_show_weather.isChecked());
+            config.putBoolean(Utility.KEY_TOGGLE_WEATHER, widget_show_weather.isChecked());
             config.putBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, widget_weather_fahrenheit.isChecked());
             config.putBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, widget_weather_auto_location.isChecked());
+
+            config.putBoolean(Utility.KEY_TOGGLE_ANALOGUE, toggle_analogue.isChecked());
+            config.putBoolean(Utility.KEY_TOGGLE_DIGITAL, toggle_digital.isChecked());
+            config.putBoolean(Utility.KEY_TOGGLE_DAY_DATE, toggle_day_date.isChecked());
+            config.putBoolean(Utility.KEY_TOGGLE_BATTERY, toggle_battery.isChecked());
+            config.putBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, toggle_dim_colour.isChecked());
+            config.putBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, toggle_solid_text.isChecked());
 
             byte[] rawData = config.toByteArray();
 

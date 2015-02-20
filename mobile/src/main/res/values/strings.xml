@@ -5,7 +5,7 @@
     <string name="digital_config_background">Background</string>
     <string name="digital_config_foreground">Foreground</string>
     <string name="title_activity_digilogue_config">DigilogueConfigActivity</string>
-    <string name="digital_config_format">12 Hour format</string>
+    <string name="digital_config_format">AM/PM</string>
     <string name="digital_config_accent">Accent</string>
     <string name="digital_config_middle">Middle</string>
     <string name="update_watch">Update watchface</string>
@@ -18,7 +18,7 @@
     <string name="location_hint">City, Country (Eg. Cape Town, ZA)</string>
     <string name="fahrenheit">Fahrenheit</string>
     <string name="widget_weather_frequency">Update weather every %02d hours</string>
-    <string name="weather_api_credit">Powered by World Weather Online</string>
+    <string name="weather_api_credit">Weather by World Weather Online</string>
     <string name="play_store_description_instruction">View the Play Store description for more info.</string>
     <string name="weather_data_info">Weather data will be displayed here once fetched.</string>
     <string name="degrees">°</string>
@@ -48,6 +48,12 @@
     <string name="patchy_heavy_snow">Patchy Heavy Snow</string>
     <string name="moderate_rain_with_thunder">Moderate or Heavy Rain with Thunder</string>
     <string name="unknown">Unknown</string>
+    <string name="toggle_dim">Dim colour for ambient mode (disable with caution)</string>
+    <string name="toggle_solid_number">Solid text in ambient mode (enable with caution)</string>
+    <string name="toggle_battery">Battery</string>
+    <string name="toggle_digital">Digital</string>
+    <string name="toggle_analogue">Analogue</string>
+    <string name="toggle_date_day">Day, Date</string>
 
     <string name="color_black">Black</string>
     <string name="color_blue">Blue</string>
