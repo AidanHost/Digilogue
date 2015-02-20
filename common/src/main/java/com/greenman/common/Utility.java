@@ -5,8 +5,15 @@ public class Utility {
     public static final int REFRESH_WEATHER_DELAY_HOURS = 3;
 
     // boolean keys
-    public static final String KEY_12HOUR_FORMAT = "com.greenman.digilogue.12HOUR_FORMAT";
-    public static final String KEY_WIDGET_SHOW_WEATHER = "com.greenman.digilogue.SHOW_WEATHER";
+    public static final String KEY_TOGGLE_AM_PM = "com.greenman.digilogue.12HOUR_FORMAT";
+    public static final String KEY_TOGGLE_ANALOGUE = "com.greenman.digilogue.ANALOGUE";
+    public static final String KEY_TOGGLE_DIGITAL = "com.greenman.digilogue.DIGITAL";
+    public static final String KEY_TOGGLE_BATTERY = "com.greenman.digilogue.BATTERY";
+    public static final String KEY_TOGGLE_DAY_DATE = "com.greenman.digilogue.DAY_DATE";
+    public static final String KEY_TOGGLE_DIM_COLOUR = "com.greenman.digilogue.DIM_COLOUR";
+    public static final String KEY_TOGGLE_SOLID_TEXT = "com.greenman.digilogue.SOLID_TEXT";
+    public static final String KEY_TOGGLE_WEATHER = "com.greenman.digilogue.SHOW_WEATHER";
+
     public static final String KEY_WIDGET_WEATHER_FAHRENHEIT = "com.greenman.digilogue.FAHRENHEIT";
     public static final String KEY_WIDGET_WEATHER_AUTO_LOCATION = "com.greenman.digilogue.AUTO_LOCATION";
     public static final String KEY_WIDGET_WEATHER_DATA_ISDAYTIME = "com.greenman.digilogue.WEATHER_ISDAYTIME";
@@ -27,10 +34,17 @@ public class Utility {
     public static final String KEY_WIDGET_WEATHER_DATA_DATETIME = "com.greenman.digilogue.WEATHER_DATETIME";
 
     // boolean defaults
-    public static final boolean CONFIG_12HOUR_DEFAULT = false;
-    public static final boolean CONFIG_WIDGET_SHOW_WEATHER_DEFAULT = false;
-    public static final boolean CONFIG_WIDGET_FAHRENHEIT_DEFAULT = false;
-    public static final boolean CONFIG_AUTO_LOCATION_DEFAULT = true;
+    public static final boolean CONFIG_TOGGLE_AM_PM_DEFAULT = false;
+    public static final boolean CONFIG_TOGGLE_ANALOGUE_DEFAULT = true;
+    public static final boolean CONFIG_TOGGLE_DIGITAL_DEFAULT = true;
+    public static final boolean CONFIG_TOGGLE_BATTERY_DEFAULT = true;
+    public static final boolean CONFIG_TOGGLE_DAY_DATE_DEFAULT = true;
+    public static final boolean CONFIG_TOGGLE_DIM_COLOUR_DEFAULT = true;
+    public static final boolean CONFIG_TOGGLE_SOLID_TEXT_DEFAULT = false;
+
+    public static final boolean CONFIG_TOGGLE_WEATHER_DEFAULT = false;
+    public static final boolean CONFIG_WIDGET_WEATHER_FAHRENHEIT_DEFAULT = false;
+    public static final boolean CONFIG_WIDGET_WEATHER_AUTO_LOCATION_DEFAULT = true;
     public static final boolean CONFIG_WIDGET_WEATHER_DAYTIME_DEFAULT = true;
 
     // string defaults

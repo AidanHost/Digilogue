@@ -89,11 +89,18 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         boolean mLowBitAmbient;
         boolean mMute;
         boolean mRegisteredTimeZoneReceiver = false;
-        boolean m12Hour = Utility.CONFIG_12HOUR_DEFAULT;
-        boolean mShowWeather = Utility.CONFIG_WIDGET_SHOW_WEATHER_DEFAULT;
-        boolean mFahrenheit = Utility.CONFIG_WIDGET_FAHRENHEIT_DEFAULT;
+        boolean mToggleAmPm = Utility.CONFIG_TOGGLE_AM_PM_DEFAULT;
+        boolean mToggleWeather = Utility.CONFIG_TOGGLE_WEATHER_DEFAULT;
+        boolean mFahrenheit = Utility.CONFIG_WIDGET_WEATHER_FAHRENHEIT_DEFAULT;
         boolean mIsDayTime = Utility.CONFIG_WIDGET_WEATHER_DAYTIME_DEFAULT;
         boolean mRunWeather = true;
+
+        boolean mToggleAnalogue = Utility.CONFIG_TOGGLE_ANALOGUE_DEFAULT;
+        boolean mToggleDigital = Utility.CONFIG_TOGGLE_DIGITAL_DEFAULT;
+        boolean mToggleBattery = Utility.CONFIG_TOGGLE_BATTERY_DEFAULT;
+        boolean mToggleDayDate = Utility.CONFIG_TOGGLE_DAY_DATE_DEFAULT;
+        boolean mToggleDimColour = Utility.CONFIG_TOGGLE_DIM_COLOUR_DEFAULT;
+        boolean mToggleSolidText = Utility.CONFIG_TOGGLE_SOLID_TEXT_DEFAULT;
 
         Time mTime;
 
@@ -114,10 +121,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         String mAmString;
         String mPmString;
 
-        String mBackgroundColor = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND;
-        String mMiddleColor = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
-        String mForegroundColor = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
-        String mAccentColor = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
+        String mBackgroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND;
+        String mMiddleColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
+        String mForegroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
+        String mAccentColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
 
         // Face
         Paint mBackgroundPaint;
@@ -229,60 +236,65 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mPmString = resources.getString(R.string.digital_pm);
 
             mHourPaint = new Paint();
-            mHourPaint.setColor(Color.parseColor(mForegroundColor));
+            mHourPaint.setColor(Color.parseColor(mForegroundColour));
             mHourPaint.setStrokeWidth(3f);
             mHourPaint.setAntiAlias(true);
             mHourPaint.setStrokeCap(Paint.Cap.ROUND);
 
             mMinutePaint = new Paint();
-            mMinutePaint.setColor(Color.parseColor(mForegroundColor));
+            mMinutePaint.setColor(Color.parseColor(mForegroundColour));
             mMinutePaint.setStrokeWidth(3f);
             mMinutePaint.setAntiAlias(true);
             mMinutePaint.setStrokeCap(Paint.Cap.ROUND);
 
             mSecondPaint = new Paint();
-            mSecondPaint.setColor(Color.parseColor(mAccentColor));
+            mSecondPaint.setColor(Color.parseColor(mAccentColour));
             mSecondPaint.setStrokeWidth(2f);
             mSecondPaint.setAntiAlias(true);
             mSecondPaint.setStrokeCap(Paint.Cap.ROUND);
 
             mHourTickPaint = new Paint();
-            mHourTickPaint.setColor(Color.parseColor(mForegroundColor));
+            mHourTickPaint.setColor(Color.parseColor(mForegroundColour));
             mHourTickPaint.setAlpha(100);
             mHourTickPaint.setStrokeWidth(2f);
             mHourTickPaint.setAntiAlias(true);
 
             mMinuteTickPaint = new Paint();
-            mMinuteTickPaint.setColor(Color.parseColor(mForegroundColor));
+            mMinuteTickPaint.setColor(Color.parseColor(mForegroundColour));
             mMinuteTickPaint.setAlpha(100);
             mMinuteTickPaint.setStrokeWidth(1f);
             mMinuteTickPaint.setAntiAlias(true);
 
             mBatteryFullPaint = new Paint();
-            mBatteryFullPaint.setColor(Color.parseColor(mMiddleColor));
+            mBatteryFullPaint.setColor(Color.parseColor(mMiddleColour));
             mBatteryFullPaint.setStrokeWidth(1f);
 
             mWidgetWeatherPaint = new Paint();
-            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
             mWidgetWeatherPaint.setStrokeWidth(2f);
 
             mBatteryPaint = new Paint();
-            mBatteryPaint.setColor(Color.parseColor(mForegroundColor));
+            mBatteryPaint.setColor(Color.parseColor(mForegroundColour));
             mBatteryPaint.setStrokeWidth(1f);
 
             mBackgroundPaint = new Paint();
-            mBackgroundPaint.setColor(Color.parseColor(mBackgroundColor));
+            mBackgroundPaint.setColor(Color.parseColor(mBackgroundColour));
 
-            mDigitalHourPaint = createTextPaint(Color.parseColor(mForegroundColor));
-            mDigitalMinutePaint = createTextPaint(Color.parseColor(mForegroundColor));
-            mDigitalAmPmPaint = createTextPaint(Color.parseColor(mForegroundColor));
-            mTextElementPaint = createTextPaint(Color.parseColor(mForegroundColor));
-            mColonPaint = createTextPaint(Color.parseColor(mMiddleColor));
+            mDigitalHourPaint = createTextPaint(Color.parseColor(mForegroundColour));
+            mDigitalMinutePaint = createTextPaint(Color.parseColor(mForegroundColour));
+            mDigitalAmPmPaint = createTextPaint(Color.parseColor(mForegroundColour));
+            mTextElementPaint = createTextPaint(Color.parseColor(mForegroundColour));
+            mColonPaint = createTextPaint(Color.parseColor(mMiddleColour));
 
             mTime = new Time();
 
             mForegroundOpacityLevel = mMute || isInAmbientMode() ? 125 : 255;
             mAccentOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
+
+            if (!mToggleDimColour && !mMute) {
+                mForegroundOpacityLevel = 255;
+                mAccentOpacityLevel = 255;
+            }
         }
 
         @Override
@@ -337,7 +349,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
             invalidate();
 
-            if (mShowWeather && mTime.toMillis(true) >= mLastTime + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS) && mRunWeather) {
+            if (mToggleWeather && mTime.toMillis(true) >= mLastTime + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS) && mRunWeather) {
                 mUpdateHandler.sendEmptyMessage(MSG_REFRESH_WEATHER);
                 mRunWeather = false;
             }
@@ -361,6 +373,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // Dim all elements on screen
             mForegroundOpacityLevel = mMute || isInAmbientMode() ? 125 : 255;
             mAccentOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
+
+            if (!mToggleDimColour && !mMute) {
+                mForegroundOpacityLevel = 255;
+                mAccentOpacityLevel = 255;
+            }
 
             if (isInAmbientMode()) {
                 setBackgroundColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
@@ -387,6 +404,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // Dim all elements on screen
             mForegroundOpacityLevel = inMuteMode || isInAmbientMode() ? 125 : 255;
             mAccentOpacityLevel = inMuteMode || isInAmbientMode() ? 100 : 255;
+
+            if (!mToggleDimColour && inMuteMode) {
+                mForegroundOpacityLevel = 255;
+                mAccentOpacityLevel = 255;
+            }
 
             if (mMute != inMuteMode) {
                 mMute = inMuteMode;
@@ -425,238 +447,258 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             float centerX = width / 2f;
             float centerY = height / 2f;
 
-            // Analogue
-            // Draw the ticks.
-            float innerTickRadius = centerX - 10;
-            float innerShortTickRadius = centerX - 13;
-            float outerShortTickRadius = centerX - 23;
-            for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
-                float tickRot = (float) (tickIndex * Math.PI * 2 / 12);
-                float innerX = (float) Math.sin(tickRot) * innerTickRadius;
-                float innerY = (float) -Math.cos(tickRot) * innerTickRadius;
-                float outerX = (float) Math.sin(tickRot) * centerX;
-                float outerY = (float) -Math.cos(tickRot) * centerX;
+            if (mToggleAnalogue) {
 
-                if (!isInAmbientMode())
-                    canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mHourTickPaint);
-
-                float innerShortX = (float) Math.sin(tickRot) * innerShortTickRadius;
-                float innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius;
-                float outerShortX = (float) Math.sin(tickRot) * outerShortTickRadius;
-                float outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius;
-                canvas.drawLine(centerX + innerShortX, centerY + innerShortY, centerX + outerShortX, centerY + outerShortY, mHourTickPaint);
-            }
-
-            // Draw the minute ticks.
-            if (!isInAmbientMode()) {
-                float innerMinuteTickRadius = centerX - 7;
-                for (int tickIndex = 0; tickIndex < 60; tickIndex++) {
-                    float tickRot = (float) (tickIndex * Math.PI * 2 / 60);
-                    float innerX = (float) Math.sin(tickRot) * innerMinuteTickRadius;
-                    float innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius;
+                // Analogue
+                // Draw the ticks.
+                float innerTickRadius = centerX - 10;
+                float innerShortTickRadius = centerX - 13;
+                float outerShortTickRadius = centerX - 23;
+                for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
+                    float tickRot = (float) (tickIndex * Math.PI * 2 / 12);
+                    float innerX = (float) Math.sin(tickRot) * innerTickRadius;
+                    float innerY = (float) -Math.cos(tickRot) * innerTickRadius;
                     float outerX = (float) Math.sin(tickRot) * centerX;
                     float outerY = (float) -Math.cos(tickRot) * centerX;
-                    canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mMinuteTickPaint);
+
+                    if (!isInAmbientMode())
+                        canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mHourTickPaint);
+
+                    float innerShortX = (float) Math.sin(tickRot) * innerShortTickRadius;
+                    float innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius;
+                    float outerShortX = (float) Math.sin(tickRot) * outerShortTickRadius;
+                    float outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius;
+                    canvas.drawLine(centerX + innerShortX, centerY + innerShortY, centerX + outerShortX, centerY + outerShortY, mHourTickPaint);
+                }
+
+                // Draw the minute ticks.
+                if (!isInAmbientMode()) {
+                    float innerMinuteTickRadius = centerX - 7;
+                    for (int tickIndex = 0; tickIndex < 60; tickIndex++) {
+                        float tickRot = (float) (tickIndex * Math.PI * 2 / 60);
+                        float innerX = (float) Math.sin(tickRot) * innerMinuteTickRadius;
+                        float innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius;
+                        float outerX = (float) Math.sin(tickRot) * centerX;
+                        float outerY = (float) -Math.cos(tickRot) * centerX;
+                        canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mMinuteTickPaint);
+                    }
+                }
+
+                float secRot = mTime.second / 30f * (float) Math.PI;
+                int minutes = mTime.minute;
+                float minRot = minutes / 30f * (float) Math.PI;
+                float hrRot = ((mTime.hour + (minutes / 60f)) / 6f) * (float) Math.PI;
+
+                float secLength = centerX - 20;
+                float minLength = centerX - 35;
+                float hrLength = centerX - 75;
+                float offset = centerX / 4;
+
+                if (!isInAmbientMode()) {
+                    float secX = (float) Math.sin(secRot) * secLength;
+                    float secY = (float) -Math.cos(secRot) * secLength;
+                    float secStartX = (float) Math.sin(secRot) * offset;
+                    float secStartY = (float) -Math.cos(secRot) * offset;
+
+                    mSecondPaint.setStyle(Paint.Style.STROKE);
+                    mSecondPaint.setColor(Color.parseColor(mBackgroundColour));
+                    mSecondPaint.setAlpha(255);
+                    canvas.drawLine(centerX + secStartX, centerY + secStartY, centerX + secX, centerY + secY, mSecondPaint);
+
+                    mSecondPaint.setStyle(Paint.Style.FILL);
+                    mSecondPaint.setColor(Color.parseColor(mAccentColour));
+                    mSecondPaint.setAlpha(mForegroundOpacityLevel);
+                    canvas.drawLine(centerX + secStartX, centerY + secStartY, centerX + secX, centerY + secY, mSecondPaint);
+                }
+
+                float minX = (float) Math.sin(minRot) * minLength;
+                float minY = (float) -Math.cos(minRot) * minLength;
+                float minStartX = (float) Math.sin(minRot) * offset;
+                float minStartY = (float) -Math.cos(minRot) * offset;
+
+                mMinutePaint.setStyle(Paint.Style.STROKE);
+                mMinutePaint.setColor(Color.parseColor(mBackgroundColour));
+                mMinutePaint.setAlpha(255);
+                canvas.drawLine(centerX + minStartX, centerY + minStartY, centerX + minX, centerY + minY, mMinutePaint);
+
+                mMinutePaint.setStyle(Paint.Style.FILL);
+                mMinutePaint.setColor(Color.parseColor(mForegroundColour));
+                mMinutePaint.setAlpha(mForegroundOpacityLevel);
+                canvas.drawLine(centerX + minStartX, centerY + minStartY, centerX + minX, centerY + minY, mMinutePaint);
+
+                float hrX = (float) Math.sin(hrRot) * hrLength;
+                float hrY = (float) -Math.cos(hrRot) * hrLength;
+                float hrStartX = (float) Math.sin(hrRot) * offset;
+                float hrStartY = (float) -Math.cos(hrRot) * offset;
+
+                mHourPaint.setStyle(Paint.Style.STROKE);
+                mHourPaint.setColor(Color.parseColor(mBackgroundColour));
+                mHourPaint.setAlpha(255);
+                canvas.drawLine(centerX + hrStartX, centerY + hrStartY, centerX + hrX, centerY + hrY, mHourPaint);
+
+                mHourPaint.setStyle(Paint.Style.FILL);
+                mHourPaint.setColor(Color.parseColor(mForegroundColour));
+                mHourPaint.setAlpha(mForegroundOpacityLevel);
+                canvas.drawLine(centerX + hrStartX, centerY + hrStartY, centerX + hrX, centerY + hrY, mHourPaint);
+            }
+
+            if (mToggleDigital) {
+
+                // Digital
+                // Draw the hours.
+                float x = centerX - mXOffset;
+                String hourString = formatTwoDigitHourNumber(mTime.hour);
+
+                String backgroundColour = mToggleSolidText ? mBackgroundColour : isInAmbientMode() ? mForegroundColour : mBackgroundColour;
+
+                mDigitalHourPaint.setStyle(Paint.Style.STROKE);
+                mDigitalHourPaint.setColor(Color.parseColor(backgroundColour));
+                mDigitalHourPaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
+                canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
+
+                String foregroundColour = mToggleSolidText ? mForegroundColour : isInAmbientMode() ? mBackgroundColour : mForegroundColour;
+
+                mDigitalHourPaint.setStyle(Paint.Style.FILL);
+                mDigitalHourPaint.setColor(Color.parseColor(foregroundColour));
+                mDigitalHourPaint.setAlpha(mForegroundOpacityLevel);
+                canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
+
+                x += mDigitalHourPaint.measureText(hourString);
+
+                String middleBackgroundColour = mToggleSolidText ? mBackgroundColour : isInAmbientMode() ? mMiddleColour : mBackgroundColour;
+
+                mColonPaint.setStyle(Paint.Style.STROKE);
+                mColonPaint.setColor(Color.parseColor(middleBackgroundColour));
+                mColonPaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
+                canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
+
+                String middleForegroudColour = mToggleSolidText ? mMiddleColour : isInAmbientMode() ? mBackgroundColour : mMiddleColour;
+
+                mColonPaint.setStyle(Paint.Style.FILL);
+                mColonPaint.setColor(Color.parseColor(middleForegroudColour));
+                mColonPaint.setAlpha(mForegroundOpacityLevel);
+                canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
+
+                x += mColonWidth;
+
+                // Draw the minutes.
+                String minuteString = formatTwoDigitNumber(mTime.minute);
+
+                mDigitalMinutePaint.setStyle(Paint.Style.STROKE);
+                mDigitalMinutePaint.setColor(Color.parseColor(backgroundColour));
+                mDigitalMinutePaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
+                canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
+
+                mDigitalMinutePaint.setStyle(Paint.Style.FILL);
+                mDigitalMinutePaint.setColor(Color.parseColor(foregroundColour));
+                mDigitalMinutePaint.setAlpha(mForegroundOpacityLevel);
+                canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
+
+                // Draw AM/PM indicator
+                if (mToggleAmPm) {
+                    x += mDigitalMinutePaint.measureText(minuteString);
+
+                    mDigitalAmPmPaint.setStyle(Paint.Style.STROKE);
+                    mDigitalAmPmPaint.setColor(Color.parseColor(mBackgroundColour));
+                    mDigitalAmPmPaint.setAlpha(255);
+                    canvas.drawText(getAmPmString(mTime.hour), x, centerY + mYOffset, mDigitalAmPmPaint);
+
+                    mDigitalAmPmPaint.setStyle(Paint.Style.FILL);
+                    mDigitalAmPmPaint.setColor(Color.parseColor(mForegroundColour));
+                    mDigitalAmPmPaint.setAlpha(mForegroundOpacityLevel);
+                    canvas.drawText(getAmPmString(mTime.hour), x, centerY + mYOffset, mDigitalAmPmPaint);
                 }
             }
 
-            float secRot = mTime.second / 30f * (float) Math.PI;
-            int minutes = mTime.minute;
-            float minRot = minutes / 30f * (float) Math.PI;
-            float hrRot = ((mTime.hour + (minutes / 60f)) / 6f) * (float) Math.PI;
+            if (mToggleDayDate) {
 
-            float secLength = centerX - 20;
-            float minLength = centerX - 35;
-            float hrLength = centerX - 75;
-            float offset = centerX / 4;
+                // Draw the Day, Date.
+                SimpleDateFormat sdf = new SimpleDateFormat("EEE, d", Resources.getSystem().getConfiguration().locale);
+                String dayString = sdf.format(new Date(mTime.toMillis(true)));
 
-            if (!isInAmbientMode()) {
-                float secX = (float) Math.sin(secRot) * secLength;
-                float secY = (float) -Math.cos(secRot) * secLength;
-                float secStartX = (float) Math.sin(secRot) * offset;
-                float secStartY = (float) -Math.cos(secRot) * offset;
+                mTextElementPaint.setStyle(Paint.Style.STROKE);
+                mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
+                mTextElementPaint.setAlpha(255);
+                canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextOffset, mTextElementPaint);
 
-                mSecondPaint.setStyle(Paint.Style.STROKE);
-                mSecondPaint.setColor(Color.parseColor(mBackgroundColor));
-                mSecondPaint.setAlpha(255);
-                canvas.drawLine(centerX + secStartX, centerY + secStartY, centerX + secX, centerY + secY, mSecondPaint);
-
-                mSecondPaint.setStyle(Paint.Style.FILL);
-                mSecondPaint.setColor(Color.parseColor(mAccentColor));
-                mSecondPaint.setAlpha(mForegroundOpacityLevel);
-                canvas.drawLine(centerX + secStartX, centerY + secStartY, centerX + secX, centerY + secY, mSecondPaint);
+                mTextElementPaint.setStyle(Paint.Style.FILL);
+                mTextElementPaint.setColor(Color.parseColor(mForegroundColour));
+                mTextElementPaint.setAlpha(mForegroundOpacityLevel);
+                canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextOffset, mTextElementPaint);
             }
 
-            float minX = (float) Math.sin(minRot) * minLength;
-            float minY = (float) -Math.cos(minRot) * minLength;
-            float minStartX = (float) Math.sin(minRot) * offset;
-            float minStartY = (float) -Math.cos(minRot) * offset;
+            if (mToggleBattery) {
 
-            mMinutePaint.setStyle(Paint.Style.STROKE);
-            mMinutePaint.setColor(Color.parseColor(mBackgroundColor));
-            mMinutePaint.setAlpha(255);
-            canvas.drawLine(centerX + minStartX, centerY + minStartY, centerX + minX, centerY + minY, mMinutePaint);
+                // Draw Battery icon
+                batteryIcon.reset();
+                batteryIcon.moveTo((centerX / 2f) - 35f, centerY + mSmallTextOffset);
+                batteryIcon.rLineTo(0, -13);
+                batteryIcon.rLineTo(2, 0);
+                batteryIcon.rLineTo(0, -2);
+                batteryIcon.rLineTo(5, 0);
+                batteryIcon.rLineTo(0, 2);
+                batteryIcon.rLineTo(2, 0);
+                batteryIcon.rLineTo(0, 13);
+                batteryIcon.close();
 
-            mMinutePaint.setStyle(Paint.Style.FILL);
-            mMinutePaint.setColor(Color.parseColor(mForegroundColor));
-            mMinutePaint.setAlpha(mForegroundOpacityLevel);
-            canvas.drawLine(centerX + minStartX, centerY + minStartY, centerX + minX, centerY + minY, mMinutePaint);
+                mBatteryFullPaint.setColor(Color.parseColor(mBackgroundColour));
+                mBatteryFullPaint.setAlpha(255);
+                canvas.drawPath(batteryIcon, mBatteryFullPaint);
 
-            float hrX = (float) Math.sin(hrRot) * hrLength;
-            float hrY = (float) -Math.cos(hrRot) * hrLength;
-            float hrStartX = (float) Math.sin(hrRot) * offset;
-            float hrStartY = (float) -Math.cos(hrRot) * offset;
+                mBatteryFullPaint.setColor(Color.parseColor(mMiddleColour));
+                mBatteryFullPaint.setAlpha(mForegroundOpacityLevel);
+                canvas.drawPath(batteryIcon, mBatteryFullPaint);
 
-            mHourPaint.setStyle(Paint.Style.STROKE);
-            mHourPaint.setColor(Color.parseColor(mBackgroundColor));
-            mHourPaint.setAlpha(255);
-            canvas.drawLine(centerX + hrStartX, centerY + hrStartY, centerX + hrX, centerY + hrY, mHourPaint);
+                float batteryHeight = (float) Math.ceil(15f * mBatteryLevel / 100f);
 
-            mHourPaint.setStyle(Paint.Style.FILL);
-            mHourPaint.setColor(Color.parseColor(mForegroundColor));
-            mHourPaint.setAlpha(mForegroundOpacityLevel);
-            canvas.drawLine(centerX + hrStartX, centerY + hrStartY, centerX + hrX, centerY + hrY, mHourPaint);
+                batteryIconLevel.reset();
+                batteryIconLevel.moveTo((centerX / 2f) - 35f, centerY + mSmallTextOffset);
 
-            // Digital
-            // Draw the hours.
-            float x = centerX - mXOffset;
-            String hourString = formatTwoDigitHourNumber(mTime.hour);
+                if (batteryHeight >= 13) {
+                    batteryIconLevel.rLineTo(0, -13);
+                    batteryIconLevel.rLineTo(2, 0);
+                    batteryIconLevel.rLineTo(0, -(batteryHeight - 13));
+                    batteryIconLevel.rLineTo(5, 0);
+                    batteryIconLevel.rLineTo(0, (batteryHeight - 13));
+                    batteryIconLevel.rLineTo(2, 0);
+                    batteryIconLevel.rLineTo(0, 13);
+                } else {
+                    batteryIconLevel.rLineTo(0, -batteryHeight);
+                    batteryIconLevel.rLineTo(9, 0);
+                    batteryIconLevel.rLineTo(0, batteryHeight);
+                }
 
-            mDigitalHourPaint.setStyle(Paint.Style.STROKE);
-            mDigitalHourPaint.setColor(isInAmbientMode() ? Color.parseColor(mForegroundColor) : Color.parseColor(mBackgroundColor));
-            mDigitalHourPaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
-            canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
+                batteryIconLevel.close();
 
-            mDigitalHourPaint.setStyle(Paint.Style.FILL);
-            mDigitalHourPaint.setColor(isInAmbientMode() ? Color.parseColor(mBackgroundColor) : Color.parseColor(mForegroundColor));
-            mDigitalHourPaint.setAlpha(isInAmbientMode() ? 255 : mForegroundOpacityLevel);
-            canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
+                canvas.drawPath(batteryIconLevel, mBatteryPaint);
 
-            x += mDigitalHourPaint.measureText(hourString);
+                // Battery level
+                mTextElementPaint.setStyle(Paint.Style.STROKE);
+                mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
+                mTextElementPaint.setAlpha(255);
+                canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextOffset, mTextElementPaint);
 
-            mColonPaint.setStyle(Paint.Style.STROKE);
-            mColonPaint.setColor(isInAmbientMode() ? Color.parseColor(mMiddleColor) : Color.parseColor(mBackgroundColor));
-            mColonPaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
-            canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
-
-            mColonPaint.setStyle(Paint.Style.FILL);
-            mColonPaint.setColor(isInAmbientMode() ? Color.parseColor(mBackgroundColor) : Color.parseColor(mMiddleColor));
-            mColonPaint.setAlpha(isInAmbientMode() ? 255 : mForegroundOpacityLevel);
-            canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
-
-            x += mColonWidth;
-
-            // Draw the minutes.
-            String minuteString = formatTwoDigitNumber(mTime.minute);
-
-            mDigitalMinutePaint.setStyle(Paint.Style.STROKE);
-            mDigitalMinutePaint.setColor(isInAmbientMode() ? Color.parseColor(mForegroundColor) : Color.parseColor(mBackgroundColor));
-            mDigitalMinutePaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
-            canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
-
-            mDigitalMinutePaint.setStyle(Paint.Style.FILL);
-            mDigitalMinutePaint.setColor(isInAmbientMode() ? Color.parseColor(mBackgroundColor) : Color.parseColor(mForegroundColor));
-            mDigitalMinutePaint.setAlpha(isInAmbientMode() ? 255 : mForegroundOpacityLevel);
-            canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
-
-            // Draw AM/PM indicator
-            if (m12Hour) {
-                x += mDigitalMinutePaint.measureText(minuteString);
-
-                mDigitalAmPmPaint.setStyle(Paint.Style.STROKE);
-                mDigitalAmPmPaint.setColor(Color.parseColor(mBackgroundColor));
-                mDigitalAmPmPaint.setAlpha(255);
-                canvas.drawText(getAmPmString(mTime.hour), x, centerY + mYOffset, mDigitalAmPmPaint);
-
-                mDigitalAmPmPaint.setStyle(Paint.Style.FILL);
-                mDigitalAmPmPaint.setColor(Color.parseColor(mForegroundColor));
-                mDigitalAmPmPaint.setAlpha(mForegroundOpacityLevel);
-                canvas.drawText(getAmPmString(mTime.hour), x, centerY + mYOffset, mDigitalAmPmPaint);
+                mTextElementPaint.setStyle(Paint.Style.FILL);
+                mTextElementPaint.setColor(Color.parseColor(mForegroundColour));
+                mTextElementPaint.setAlpha(mForegroundOpacityLevel);
+                canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextOffset, mTextElementPaint);
             }
-
-            // Draw the Day, Date.
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE, d", Resources.getSystem().getConfiguration().locale);
-            String dayString = sdf.format(new Date(mTime.toMillis(true)));
-
-            mTextElementPaint.setStyle(Paint.Style.STROKE);
-            mTextElementPaint.setColor(Color.parseColor(mBackgroundColor));
-            mTextElementPaint.setAlpha(255);
-            canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextOffset, mTextElementPaint);
-
-            mTextElementPaint.setStyle(Paint.Style.FILL);
-            mTextElementPaint.setColor(Color.parseColor(mForegroundColor));
-            mTextElementPaint.setAlpha(mForegroundOpacityLevel);
-            canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextOffset, mTextElementPaint);
-
-            // Draw Battery icon
-            batteryIcon.reset();
-            batteryIcon.moveTo((centerX / 2f) - 35f, centerY + mSmallTextOffset);
-            batteryIcon.rLineTo(0, -13);
-            batteryIcon.rLineTo(2, 0);
-            batteryIcon.rLineTo(0, -2);
-            batteryIcon.rLineTo(5, 0);
-            batteryIcon.rLineTo(0, 2);
-            batteryIcon.rLineTo(2, 0);
-            batteryIcon.rLineTo(0, 13);
-            batteryIcon.close();
-
-            mBatteryFullPaint.setColor(Color.parseColor(mBackgroundColor));
-            mBatteryFullPaint.setAlpha(255);
-            canvas.drawPath(batteryIcon, mBatteryFullPaint);
-
-            mBatteryFullPaint.setColor(Color.parseColor(mMiddleColor));
-            mBatteryFullPaint.setAlpha(mForegroundOpacityLevel);
-            canvas.drawPath(batteryIcon, mBatteryFullPaint);
-
-            float batteryHeight = (float)Math.ceil(15f * mBatteryLevel / 100f);
-
-            batteryIconLevel.reset();
-            batteryIconLevel.moveTo((centerX / 2f) - 35f, centerY + mSmallTextOffset);
-
-            if (batteryHeight >= 13) {
-                batteryIconLevel.rLineTo(0, -13);
-                batteryIconLevel.rLineTo(2, 0);
-                batteryIconLevel.rLineTo(0, -(batteryHeight - 13));
-                batteryIconLevel.rLineTo(5, 0);
-                batteryIconLevel.rLineTo(0, (batteryHeight - 13));
-                batteryIconLevel.rLineTo(2, 0);
-                batteryIconLevel.rLineTo(0, 13);
-            } else {
-                batteryIconLevel.rLineTo(0, -batteryHeight);
-                batteryIconLevel.rLineTo(9, 0);
-                batteryIconLevel.rLineTo(0, batteryHeight);
-            }
-
-            batteryIconLevel.close();
-
-            canvas.drawPath(batteryIconLevel, mBatteryPaint);
-
-            // Battery level
-            mTextElementPaint.setStyle(Paint.Style.STROKE);
-            mTextElementPaint.setColor(Color.parseColor(mBackgroundColor));
-            mTextElementPaint.setAlpha(255);
-            canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextOffset, mTextElementPaint);
-
-            mTextElementPaint.setStyle(Paint.Style.FILL);
-            mTextElementPaint.setColor(Color.parseColor(mForegroundColor));
-            mTextElementPaint.setAlpha(mForegroundOpacityLevel);
-            canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextOffset, mTextElementPaint);
 
             // Widgets
             // weather widget
-            if (mShowWeather) {
+            if (mToggleWeather) {
                 float weatherIconCenterX = centerX - 15f;
                 float weatherIconCenterY = (centerY * 0.6f) - 8;
 
                 if (mTemperatureC != -999 && mTemperatureF != -999 && mCode != Utility.WeatherCodes.UNKNOWN) {
                     // Draw temperature
                     mTextElementPaint.setStyle(Paint.Style.STROKE);
-                    mTextElementPaint.setColor(Color.parseColor(mBackgroundColor));
+                    mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
                     mTextElementPaint.setAlpha(255);
                     canvas.drawText(String.valueOf(mFahrenheit ? mTemperatureF : mTemperatureC) + getString(R.string.degrees), centerX + 3f, centerY * 0.6f, mTextElementPaint);
 
                     mTextElementPaint.setStyle(Paint.Style.FILL);
-                    mTextElementPaint.setColor(Color.parseColor(mForegroundColor));
+                    mTextElementPaint.setColor(Color.parseColor(mForegroundColour));
                     mTextElementPaint.setAlpha(mForegroundOpacityLevel);
                     canvas.drawText(String.valueOf(mFahrenheit ? mTemperatureF : mTemperatureC) + getString(R.string.degrees), centerX + 3f, centerY * 0.6f, mTextElementPaint);
 
@@ -802,12 +844,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                             break;
 
                         default: // line
-                            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+                            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
                             mWidgetWeatherPaint.setAlpha(255);
                             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
                             canvas.drawLine(centerX - 5f, weatherIconCenterY, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
 
-                            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+                            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
                             mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
                             mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
                             canvas.drawLine(centerX - 5f, weatherIconCenterY, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
@@ -815,12 +857,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     }
                 } else {
                     // No weather data to display
-                    mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+                    mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
                     mWidgetWeatherPaint.setAlpha(255);
                     mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
                     canvas.drawLine(centerX - 5f, weatherIconCenterY, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
 
-                    mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+                    mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
                     mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
                     mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
                     canvas.drawLine(centerX - 5f, weatherIconCenterY, centerX + 5f, (centerY * 0.6f) - 8, mWidgetWeatherPaint);
@@ -926,23 +968,23 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 float outerX = (float) Math.sin(beamRot) * 12;
                 float outerY = (float) -Math.cos(beamRot) * 12;
 
-                mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+                mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
                 mWidgetWeatherPaint.setAlpha(255);
                 mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
                 canvas.drawLine(x + innerX, y + innerY, x + outerX, y + outerY, mWidgetWeatherPaint);
 
-                mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+                mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
                 mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
                 mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
                 canvas.drawLine(x + innerX, y + innerY, x + outerX, y + outerY, mWidgetWeatherPaint);
             }
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
             mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
             canvas.drawCircle(x, y, 6, mWidgetWeatherPaint);
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
             mWidgetWeatherPaint.setAlpha(255);
             mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
             canvas.drawCircle(x, y, 6, mWidgetWeatherPaint);
@@ -954,12 +996,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             moonPath.arcTo(x - 8f, y - 8f, x + 8f, y + 8f, 270, -270, false);
             moonPath.arcTo(x - 4f, y - 8f, x + 8f, y + 4f, 0, 270, false);
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
             mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
             canvas.drawPath(moonPath, mWidgetWeatherPaint);
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
             mWidgetWeatherPaint.setAlpha(255);
             mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
             canvas.drawPath(moonPath, mWidgetWeatherPaint);
@@ -973,12 +1015,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             cloudPath.arcTo(x - 14f, y + 8f, x - 6f, y + 16f, 340, -230, false);
             cloudPath.close();
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
             mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
             canvas.drawPath(cloudPath, mWidgetWeatherPaint);
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
             mWidgetWeatherPaint.setAlpha(255);
             mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
             canvas.drawPath(cloudPath, mWidgetWeatherPaint);
@@ -996,12 +1038,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             linePath.rLineTo(-1f, 5f);
             linePath.close();
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
             mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
             canvas.drawPath(linePath, mWidgetWeatherPaint);
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
             mWidgetWeatherPaint.setAlpha(255);
             mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
             canvas.drawPath(linePath, mWidgetWeatherPaint);
@@ -1018,13 +1060,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             flakePath.rLineTo(-4f, 8f);
             flakePath.close();
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
             mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
             mWidgetWeatherPaint.setStrokeWidth(1);
             canvas.drawPath(flakePath, mWidgetWeatherPaint);
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
             mWidgetWeatherPaint.setAlpha(255);
             mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
             mWidgetWeatherPaint.setStrokeWidth(1);
@@ -1044,12 +1086,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             lightningPath.rLineTo(-4f, 0);
             lightningPath.close();
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
             mWidgetWeatherPaint.setAlpha(255);
             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
             canvas.drawPath(lightningPath, mWidgetWeatherPaint);
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
             mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
             mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
             canvas.drawPath(lightningPath, mWidgetWeatherPaint);
@@ -1060,7 +1102,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             float top = y - 4f;
             float length = 14;
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
             mWidgetWeatherPaint.setAlpha(255);
             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
             canvas.drawLine(left, top, left + length, top, mWidgetWeatherPaint);
@@ -1073,7 +1115,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             top = y - 4f;
 
-            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColor));
+            mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
             mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
             mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
             canvas.drawLine(left, top, left + length, top, mWidgetWeatherPaint);
@@ -1107,9 +1149,16 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void updateUI(DataMap config) {
             setDefaultValuesForMissingConfigKeys(config);
 
-            m12Hour = config.getBoolean(Utility.KEY_12HOUR_FORMAT);
-            mShowWeather = config.getBoolean(Utility.KEY_WIDGET_SHOW_WEATHER);
+            mToggleAmPm = config.getBoolean(Utility.KEY_TOGGLE_AM_PM);
+            mToggleWeather = config.getBoolean(Utility.KEY_TOGGLE_WEATHER);
             mFahrenheit = config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT);
+
+            mToggleAnalogue = config.getBoolean(Utility.KEY_TOGGLE_ANALOGUE);
+            mToggleDigital = config.getBoolean(Utility.KEY_TOGGLE_DIGITAL);
+            mToggleBattery = config.getBoolean(Utility.KEY_TOGGLE_BATTERY);
+            mToggleDayDate = config.getBoolean(Utility.KEY_TOGGLE_DAY_DATE);
+            mToggleDimColour = config.getBoolean(Utility.KEY_TOGGLE_DIM_COLOUR);
+            mToggleSolidText = config.getBoolean(Utility.KEY_TOGGLE_SOLID_TEXT);
 
             mTemperatureC = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C);
             mTemperatureF = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F);
@@ -1128,12 +1177,28 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 setAccentColor(config.getString(Utility.KEY_ACCENT_COLOUR));
             }
 
+            // Dim all elements on screen
+            mForegroundOpacityLevel = mMute || isInAmbientMode() ? 125 : 255;
+            mAccentOpacityLevel = mMute || isInAmbientMode() ? 100 : 255;
+
+            if (!mToggleDimColour && !mMute) {
+                mForegroundOpacityLevel = 255;
+                mAccentOpacityLevel = 255;
+            }
+
             // weather test data
             /*mTemperatureC = 16;
             mTemperatureF = 66;
-            mShowWeather = true;
+            mToggleWeather = true;
             mCode = Utility.WeatherCodes.PARTLY_CLOUDY;
             mIsDayTime = true;*/
+
+            /*mToggleAnalogue = false;
+            mToggleDigital = true;
+            mToggleBattery  = false;
+            mToggleDayDate = false;
+            mToggleDimColour = false;
+            mToggleSolidText = true;*/
 
             invalidate();
         }
@@ -1191,12 +1256,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void setBackgroundColor(String color) {
-            mBackgroundColor = color;
+            mBackgroundColour = color;
             updatePaint(mBackgroundPaint, color, 255);
         }
 
         private void setForegroundColor(String color) {
-            mForegroundColor = color;
+            mForegroundColour = color;
 
             updatePaint(mHourPaint, color, mForegroundOpacityLevel, 3f);
             updatePaint(mMinutePaint, color, mForegroundOpacityLevel, 3f);
@@ -1212,12 +1277,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void setAccentColor(String color) {
-            mAccentColor = color;
+            mAccentColour = color;
             updatePaint(mSecondPaint, color, mAccentOpacityLevel, 2f);
         }
 
         private void setMiddleColor(String color) {
-            mMiddleColor = color;
+            mMiddleColour = color;
             updatePaint(mColonPaint, color, mForegroundOpacityLevel);
             updatePaint(mBatteryFullPaint, color, mForegroundOpacityLevel);
         }
@@ -1235,11 +1300,18 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         //region Config Data methods
         private void setDefaultValuesForMissingConfigKeys(DataMap config) {
-            addBooleanKeyIfMissing(config, Utility.KEY_12HOUR_FORMAT, Utility.CONFIG_12HOUR_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_SHOW_WEATHER, Utility.CONFIG_WIDGET_SHOW_WEATHER_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, Utility.CONFIG_WIDGET_FAHRENHEIT_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, Utility.CONFIG_AUTO_LOCATION_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_AM_PM, Utility.CONFIG_TOGGLE_AM_PM_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_WEATHER, Utility.CONFIG_TOGGLE_WEATHER_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, Utility.CONFIG_WIDGET_WEATHER_FAHRENHEIT_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, Utility.CONFIG_WIDGET_WEATHER_AUTO_LOCATION_DEFAULT);
             addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME, Utility.CONFIG_WIDGET_WEATHER_DAYTIME_DEFAULT);
+
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_ANALOGUE, Utility.CONFIG_TOGGLE_ANALOGUE_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DIGITAL, Utility.CONFIG_TOGGLE_DIGITAL_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_BATTERY, Utility.CONFIG_TOGGLE_BATTERY_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DAY_DATE, Utility.CONFIG_TOGGLE_DAY_DATE_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DIM_COLOUR, Utility.CONFIG_TOGGLE_DIM_COLOUR_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_SOLID_TEXT, Utility.CONFIG_TOGGLE_SOLID_TEXT_DEFAULT);
 
             addStringKeyIfMissing(config, Utility.KEY_BACKGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
             addStringKeyIfMissing(config, Utility.KEY_MIDDLE_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE);
@@ -1285,7 +1357,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
 
         private String formatTwoDigitHourNumber(int hour) {
-            if (m12Hour)
+            if (mToggleAmPm)
                 return String.format("%02d", convertTo12Hour(hour));
             else
                 return String.format("%02d", hour);
