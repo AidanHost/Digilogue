@@ -439,7 +439,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             // for new preview time
-            //mTime.set(27, 27, 10, 5, 8, 2014);
+            //mTime.set(35, 10, 10, 5, 8, 2014);
             //mBatteryLevel = 100;
             mTime.setToNow();;
 
