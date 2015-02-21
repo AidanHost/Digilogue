@@ -1230,6 +1230,9 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             if (mLastTime != oldTime)
                 mRunWeather = true;
 
+            if (mToggleWeather && !mRunWeather && mLastTime == 0)
+                mRunWeather = true;
+
             if (!isInAmbientMode()) {
                 setBackgroundColor(config.getString(Utility.KEY_BACKGROUND_COLOUR));
                 setMiddleColor(config.getString(Utility.KEY_MIDDLE_COLOUR));

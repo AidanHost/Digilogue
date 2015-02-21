@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/button_reset"
+        android:icon="@android:drawable/ic_menu_revert"
+        android:title="@string/reset_defaults"
+        app:showAsAction="always|withText"/>
     <item android:id="@+id/button_update"
         android:icon="@android:drawable/ic_menu_save"
-        android:title="Save"
-        app:showAsAction="always"/>
+        android:title="@string/save"
+        app:showAsAction="always|withText"/>
 </menu>

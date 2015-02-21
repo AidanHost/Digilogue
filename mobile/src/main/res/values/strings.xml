@@ -63,6 +63,8 @@
     <string name="color_navy">Navy</string>
     <string name="color_red">Red</string>
     <string name="color_white">White</string>
+    <string name="reset_defaults">Reset defaults</string>
+    <string name="save">Save</string>
 
     <string-array name="color_array">
         <item>@string/color_black</item>
