@@ -205,7 +205,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         boolean autoLocation = true;
 
-        // TODO: animate visibility changes?
         widget_show_weather.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
