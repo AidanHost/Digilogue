@@ -37,8 +37,6 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_digilogue_wearable_config);
 
-        // TODO: figure out why this activity sometimes crashes
-
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                     @Override
@@ -165,9 +163,9 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
     }
 
     private void updateConfigDataItem(final String backgroundColour) {
-        String foregroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
-        String middleColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
-        String accentColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
+        String foregroundColour = Utility.COLOUR_NAME_DEFAULT_FOREGROUND;
+        String middleColour = Utility.COLOUR_NAME_DEFAULT_MIDDLE;
+        String accentColour = Utility.COLOUR_NAME_DEFAULT_ACCENT;
 
         switch (backgroundColour) {
             /*case "black":

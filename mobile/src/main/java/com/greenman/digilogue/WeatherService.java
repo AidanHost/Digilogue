@@ -99,7 +99,6 @@ public class WeatherService extends WearableListenerService implements GoogleApi
                     con.setDoOutput(true);
                     con.connect();
 
-                    // Let's read the response
                     StringBuilder builder = new StringBuilder();
                     is = con.getInputStream();
                     BufferedReader br = new BufferedReader(new InputStreamReader(is));

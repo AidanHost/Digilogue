@@ -64,22 +64,22 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     private LinearLayout widget_weather_group;
     private LinearLayout location;
 
-    private String backgroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND;
-    private String middleColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
-    private String foregroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
-    private String accentColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
+    private String backgroundColour = Utility.COLOUR_NAME_DEFAULT_BACKGROUND;
+    private String middleColour = Utility.COLOUR_NAME_DEFAULT_MIDDLE;
+    private String foregroundColour = Utility.COLOUR_NAME_DEFAULT_FOREGROUND;
+    private String accentColour = Utility.COLOUR_NAME_DEFAULT_ACCENT;
 
-    private boolean showWeather = Utility.CONFIG_TOGGLE_WEATHER_DEFAULT;
-    private boolean fahrenheit = Utility.CONFIG_WIDGET_WEATHER_FAHRENHEIT_DEFAULT;
-    private boolean autoLocation = Utility.CONFIG_WIDGET_WEATHER_AUTO_LOCATION_DEFAULT;
-    private boolean toggleAmPm = Utility.CONFIG_TOGGLE_AM_PM_DEFAULT;
-    private boolean toggleAnalogue = Utility.CONFIG_TOGGLE_ANALOGUE_DEFAULT;
-    private boolean toggleDigital = Utility.CONFIG_TOGGLE_DIGITAL_DEFAULT;
-    private boolean toggleDayDate = Utility.CONFIG_TOGGLE_DAY_DATE_DEFAULT;
-    private boolean toggleBattery = Utility.CONFIG_TOGGLE_BATTERY_DEFAULT;
-    private boolean toggleDimColour = Utility.CONFIG_TOGGLE_DIM_COLOUR_DEFAULT;
-    private boolean toggleSolidText = Utility.CONFIG_TOGGLE_SOLID_TEXT_DEFAULT;
-    private boolean toggleFixChin = Utility.CONFIG_TOGGLE_FIX_CHIN;
+    private boolean showWeather = Utility.CONFIG_DEFAULT_TOGGLE_WEATHER;
+    private boolean fahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
+    private boolean autoLocation = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION;
+    private boolean toggleAmPm = Utility.CONFIG_DEFAULT_TOGGLE_AM_PM;
+    private boolean toggleAnalogue = Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE;
+    private boolean toggleDigital = Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL;
+    private boolean toggleDayDate = Utility.CONFIG_DEFAULT_TOGGLE_DAY_DATE;
+    private boolean toggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
+    private boolean toggleDimColour = Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR;
+    private boolean toggleSolidText = Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT;
+    private boolean toggleFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
 
     private String weatherData = "";
     private String locationText = "";

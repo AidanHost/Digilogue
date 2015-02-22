@@ -35,34 +35,34 @@ public class Utility {
     public static final String KEY_WIDGET_WEATHER_DATA_DATETIME = "com.greenman.digilogue.WEATHER_DATETIME";
 
     // boolean defaults
-    public static final boolean CONFIG_TOGGLE_AM_PM_DEFAULT = false;
-    public static final boolean CONFIG_TOGGLE_ANALOGUE_DEFAULT = true;
-    public static final boolean CONFIG_TOGGLE_DIGITAL_DEFAULT = true;
-    public static final boolean CONFIG_TOGGLE_BATTERY_DEFAULT = true;
-    public static final boolean CONFIG_TOGGLE_DAY_DATE_DEFAULT = true;
-    public static final boolean CONFIG_TOGGLE_DIM_COLOUR_DEFAULT = true;
-    public static final boolean CONFIG_TOGGLE_SOLID_TEXT_DEFAULT = false;
-    public static final boolean CONFIG_TOGGLE_FIX_CHIN = false;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_AM_PM = false;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_ANALOGUE = true;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_DIGITAL = true;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_BATTERY = true;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_DAY_DATE = true;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_DIM_COLOUR = true;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_SOLID_TEXT = false;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_FIX_CHIN = false;
 
-    public static final boolean CONFIG_TOGGLE_WEATHER_DEFAULT = false;
-    public static final boolean CONFIG_WIDGET_WEATHER_FAHRENHEIT_DEFAULT = false;
-    public static final boolean CONFIG_WIDGET_WEATHER_AUTO_LOCATION_DEFAULT = true;
-    public static final boolean CONFIG_WIDGET_WEATHER_DAYTIME_DEFAULT = true;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_WEATHER = false;
+    public static final boolean CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT = false;
+    public static final boolean CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION = true;
+    public static final boolean CONFIG_DEFAULT_WIDGET_WEATHER_DAYTIME = true;
 
     // string defaults
-    public static final String COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND = "black";
-    public static final String COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE = "gray";
-    public static final String COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND = "white";
-    public static final String COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT = "red";
-    public static final String CONFIG_LOCATION_DEFAULT = "";
+    public static final String COLOUR_NAME_DEFAULT_BACKGROUND = "black";
+    public static final String COLOUR_NAME_DEFAULT_MIDDLE = "gray";
+    public static final String COLOUR_NAME_DEFAULT_FOREGROUND = "white";
+    public static final String COLOUR_NAME_DEFAULT_ACCENT = "red";
+    public static final String CONFIG_DEFAULT_WIDGET_WEATHER_LOCATION = "";
 
     // int defaults
-    public static final int WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT = -999;
-    public static final int WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT = -999;
-    public static final int WIDGET_WEATHER_DATA_CODE_DEFAULT = Utility.WeatherCodes.UNKNOWN;
+    public static final int WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_C = -999;
+    public static final int WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_F = -999;
+    public static final int WIDGET_WEATHER_DATA_DEFAULT_CODE = Utility.WeatherCodes.UNKNOWN;
 
     // long defaults
-    public static final long WIDGET_WEATHER_DATA_DATETIME_DEFAULT = 0;
+    public static final long WIDGET_WEATHER_DATA_DEFAULT_DATETIME = 0;
 
     public static class WeatherCodes {
         public static final int UNKNOWN = -1;

@@ -71,6 +71,31 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
     }
 
     private class Engine extends CanvasWatchFaceService.Engine implements DataApi.DataListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        //region config data defaults
+        boolean mToggleAmPm = Utility.CONFIG_DEFAULT_TOGGLE_AM_PM;
+        boolean mToggleWeather = Utility.CONFIG_DEFAULT_TOGGLE_WEATHER;
+        boolean mFahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
+        boolean mIsDayTime = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_DAYTIME;
+        boolean mToggleAnalogue = Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE;
+        boolean mToggleDigital = Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL;
+        boolean mToggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
+        boolean mToggleDayDate = Utility.CONFIG_DEFAULT_TOGGLE_DAY_DATE;
+        boolean mToggleDimColour = Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR;
+        boolean mToggleSolidText = Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT;
+        boolean mFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
+
+        int mTemperatureC = Utility.WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_C;
+        int mTemperatureF = Utility.WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_F;
+        int mCode = Utility.WIDGET_WEATHER_DATA_DEFAULT_CODE;
+        long mLastTime = Utility.WIDGET_WEATHER_DATA_DEFAULT_DATETIME;
+
+        String mBackgroundColour = Utility.COLOUR_NAME_DEFAULT_BACKGROUND;
+        String mMiddleColour = Utility.COLOUR_NAME_DEFAULT_MIDDLE;
+        String mForegroundColour = Utility.COLOUR_NAME_DEFAULT_FOREGROUND;
+        String mAccentColour = Utility.COLOUR_NAME_DEFAULT_ACCENT;
+        //endregion
+
+        //region class member variables
         static final int MSG_UPDATE_TIME = 0;
         static final int MSG_REFRESH_WEATHER = 1;
 
@@ -79,6 +104,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private RefreshWeatherTask mRefreshWeatherTask;
 
         private DataMap mConfig;
+
+        private Time mTime;
 
         /** How often {@link #mUpdateHandler} ticks in milliseconds. */
         long mInteractiveUpdateRateMs = INTERACTIVE_UPDATE_RATE_MS;
@@ -90,20 +117,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         boolean mLowBitAmbient;
         boolean mMute;
         boolean mRegisteredTimeZoneReceiver = false;
-        boolean mToggleAmPm = Utility.CONFIG_TOGGLE_AM_PM_DEFAULT;
-        boolean mToggleWeather = Utility.CONFIG_TOGGLE_WEATHER_DEFAULT;
-        boolean mFahrenheit = Utility.CONFIG_WIDGET_WEATHER_FAHRENHEIT_DEFAULT;
-        boolean mIsDayTime = Utility.CONFIG_WIDGET_WEATHER_DAYTIME_DEFAULT;
         boolean mRunWeather = true;
-
-        boolean mToggleAnalogue = Utility.CONFIG_TOGGLE_ANALOGUE_DEFAULT;
-        boolean mToggleDigital = Utility.CONFIG_TOGGLE_DIGITAL_DEFAULT;
-        boolean mToggleBattery = Utility.CONFIG_TOGGLE_BATTERY_DEFAULT;
-        boolean mToggleDayDate = Utility.CONFIG_TOGGLE_DAY_DATE_DEFAULT;
-        boolean mToggleDimColour = Utility.CONFIG_TOGGLE_DIM_COLOUR_DEFAULT;
-        boolean mToggleSolidText = Utility.CONFIG_TOGGLE_SOLID_TEXT_DEFAULT;
-
-        Time mTime;
 
         float mXOffset;
         float mYOffset;
@@ -114,57 +128,46 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         int mForegroundOpacityLevel;
         int mAccentOpacityLevel;
 
-        int mTemperatureC = Utility.WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT;
-        int mTemperatureF = Utility.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT;
-        int mCode = Utility.WIDGET_WEATHER_DATA_CODE_DEFAULT;
-        long mLastTime = Utility.WIDGET_WEATHER_DATA_DATETIME_DEFAULT;
-
         private int mChinHeight = 0;
         private boolean mGotChin = false;
-        boolean mFixChin = Utility.CONFIG_TOGGLE_FIX_CHIN;
-
-        String mAmString;
-        String mPmString;
-
-        String mBackgroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND;
-        String mMiddleColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
-        String mForegroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
-        String mAccentColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
+        private String mAmString;
+        private String mPmString;
 
         // Face
-        Paint mBackgroundPaint;
-        Paint mHourTickPaint;
-        Paint mMinuteTickPaint;
-        Paint mBatteryFullPaint;
-        Paint mBatteryPaint;
-        Paint mTextElementPaint;
-        Paint mWidgetWeatherPaint;
+        private Paint mBackgroundPaint;
+        private Paint mHourTickPaint;
+        private Paint mMinuteTickPaint;
+        private Paint mBatteryFullPaint;
+        private Paint mBatteryPaint;
+        private Paint mTextElementPaint;
+        private Paint mWidgetWeatherPaint;
 
         // Analogue
-        Paint mHourPaint;
-        Paint mMinutePaint;
-        Paint mSecondPaint;
+        private Paint mHourPaint;
+        private Paint mMinutePaint;
+        private Paint mSecondPaint;
 
         // Digital
-        Paint mDigitalHourPaint;
-        Paint mDigitalMinutePaint;
-        Paint mDigitalAmPmPaint;
-        Paint mColonPaint;
+        private Paint mDigitalHourPaint;
+        private Paint mDigitalMinutePaint;
+        private Paint mDigitalAmPmPaint;
+        private Paint mColonPaint;
 
         // Paths
-        final Path batteryIcon = new Path();
-        final Path batteryIconLevel = new Path();
-        final Path moonPath = new Path();
-        final Path cloudPath = new Path();
-        final Path linePath = new Path();
-        final Path flakePath = new Path();
-        final Path lightningPath = new Path();
+        final private Path batteryIcon = new Path();
+        final private Path batteryIconLevel = new Path();
+        final private Path moonPath = new Path();
+        final private Path cloudPath = new Path();
+        final private Path linePath = new Path();
+        final private Path flakePath = new Path();
+        final private Path lightningPath = new Path();
 
-        final GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(DigilogueWatchFaceService.this)
+        final private GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(DigilogueWatchFaceService.this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(Wearable.API)
                 .build();
+        //endregion
 
         //region Handler, Callbacks and Receivers
         /**
@@ -389,10 +392,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
 
             if (isInAmbientMode()) {
-                setBackgroundColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
-                setMiddleColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE);
-                setForegroundColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
-                setAccentColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT);
+                setBackgroundColor(Utility.COLOUR_NAME_DEFAULT_BACKGROUND);
+                setMiddleColor(Utility.COLOUR_NAME_DEFAULT_MIDDLE);
+                setForegroundColor(Utility.COLOUR_NAME_DEFAULT_FOREGROUND);
+                setAccentColor(Utility.COLOUR_NAME_DEFAULT_ACCENT);
                 invalidate();
             } else {
                 WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
@@ -438,9 +441,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
-            // for new preview time
+            // for new preview picture
             //mTime.set(35, 10, 10, 5, 8, 2014);
             //mBatteryLevel = 100;
+
             mTime.setToNow();
 
             if (!mFixChin) {
@@ -1187,6 +1191,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
         //endregion
 
+        //region custom methods
         private void registerReceiver() {
             if (mRegisteredTimeZoneReceiver) {
                 return;
@@ -1249,7 +1254,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mAccentOpacityLevel = 255;
             }
 
-            // weather test data
+            // test data
             /*mTemperatureC = 16;
             mTemperatureF = 66;
             mToggleWeather = true;
@@ -1275,6 +1280,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mRefreshWeatherTask.cancel(true);
             }
         }
+        //endregion
 
         //region Timer methods
         /**
@@ -1317,6 +1323,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             paint.setColor(Color.parseColor(colour));
             paint.setAlpha(opacityLevel);
         }
+
         private void updatePaint(Paint paint, String colour, int opacityLevel, float strokeWidth) {
             updatePaint(paint, colour, opacityLevel);
             paint.setStrokeWidth(isInAmbientMode() ? 2f : strokeWidth);
@@ -1367,28 +1374,28 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         //region Config Data methods
         private void setDefaultValuesForMissingConfigKeys(DataMap config) {
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_AM_PM, Utility.CONFIG_TOGGLE_AM_PM_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_WEATHER, Utility.CONFIG_TOGGLE_WEATHER_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, Utility.CONFIG_WIDGET_WEATHER_FAHRENHEIT_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, Utility.CONFIG_WIDGET_WEATHER_AUTO_LOCATION_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME, Utility.CONFIG_WIDGET_WEATHER_DAYTIME_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_AM_PM, Utility.CONFIG_DEFAULT_TOGGLE_AM_PM);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_WEATHER, Utility.CONFIG_DEFAULT_TOGGLE_WEATHER);
+            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT);
+            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION);
+            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_DAYTIME);
 
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_ANALOGUE, Utility.CONFIG_TOGGLE_ANALOGUE_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DIGITAL, Utility.CONFIG_TOGGLE_DIGITAL_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_BATTERY, Utility.CONFIG_TOGGLE_BATTERY_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DAY_DATE, Utility.CONFIG_TOGGLE_DAY_DATE_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DIM_COLOUR, Utility.CONFIG_TOGGLE_DIM_COLOUR_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_SOLID_TEXT, Utility.CONFIG_TOGGLE_SOLID_TEXT_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_ANALOGUE, Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DIGITAL, Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_BATTERY, Utility.CONFIG_DEFAULT_TOGGLE_BATTERY);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DAY_DATE, Utility.CONFIG_DEFAULT_TOGGLE_DAY_DATE);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DIM_COLOUR, Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_SOLID_TEXT, Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT);
 
-            addStringKeyIfMissing(config, Utility.KEY_BACKGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
-            addStringKeyIfMissing(config, Utility.KEY_MIDDLE_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE);
-            addStringKeyIfMissing(config, Utility.KEY_FOREGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
-            addStringKeyIfMissing(config, Utility.KEY_ACCENT_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT);
-            addStringKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_LOCATION, Utility.CONFIG_LOCATION_DEFAULT);
+            addStringKeyIfMissing(config, Utility.KEY_BACKGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_BACKGROUND);
+            addStringKeyIfMissing(config, Utility.KEY_MIDDLE_COLOUR, Utility.COLOUR_NAME_DEFAULT_MIDDLE);
+            addStringKeyIfMissing(config, Utility.KEY_FOREGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_FOREGROUND);
+            addStringKeyIfMissing(config, Utility.KEY_ACCENT_COLOUR, Utility.COLOUR_NAME_DEFAULT_ACCENT);
+            addStringKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_LOCATION, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_LOCATION);
 
-            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C, Utility.WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT);
-            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F, Utility.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT);
-            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_CODE, Utility.WIDGET_WEATHER_DATA_CODE_DEFAULT);
+            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C, Utility.WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_C);
+            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F, Utility.WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_F);
+            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_CODE, Utility.WIDGET_WEATHER_DATA_DEFAULT_CODE);
 
             addLongKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_DATETIME, 0);
         }
