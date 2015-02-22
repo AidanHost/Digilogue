@@ -7,6 +7,7 @@ public class Utility {
     // boolean keys
     public static final String KEY_TOGGLE_AM_PM = "com.greenman.digilogue.12HOUR_FORMAT";
     public static final String KEY_TOGGLE_ANALOGUE = "com.greenman.digilogue.ANALOGUE";
+    public static final String KEY_TOGGLE_DRAW_DIAL = "com.greenman.digilogue.DRAW_DIAL";
     public static final String KEY_TOGGLE_DIGITAL = "com.greenman.digilogue.DIGITAL";
     public static final String KEY_TOGGLE_BATTERY = "com.greenman.digilogue.BATTERY";
     public static final String KEY_TOGGLE_DAY_DATE = "com.greenman.digilogue.DAY_DATE";
@@ -37,6 +38,7 @@ public class Utility {
     // boolean defaults
     public static final boolean CONFIG_DEFAULT_TOGGLE_AM_PM = false;
     public static final boolean CONFIG_DEFAULT_TOGGLE_ANALOGUE = true;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_DRAW_DIAL = false;
     public static final boolean CONFIG_DEFAULT_TOGGLE_DIGITAL = true;
     public static final boolean CONFIG_DEFAULT_TOGGLE_BATTERY = true;
     public static final boolean CONFIG_DEFAULT_TOGGLE_DAY_DATE = true;

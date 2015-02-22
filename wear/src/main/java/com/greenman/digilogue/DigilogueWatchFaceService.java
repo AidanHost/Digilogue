@@ -149,7 +149,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private float innerTickRadius;
         private float innerShortTickRadius;
         private float outerShortTickRadius;
+        private float dialRadius;
         private float tickRot;
+        private float dialX;
+        private float dialY;
         private float innerX;
         private float innerY;
         private float outerX;
@@ -206,6 +209,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         boolean mFahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
         boolean mIsDayTime = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_DAYTIME;
         boolean mToggleAnalogue = Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE;
+        boolean mToggleDrawDial = Utility.CONFIG_DEFAULT_TOGGLE_DRAW_DIAL;
         boolean mToggleDigital = Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL;
         boolean mToggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
         boolean mToggleDayDate = Utility.CONFIG_DEFAULT_TOGGLE_DAY_DATE;
@@ -283,6 +287,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onCreate");
             }
+
             super.onCreate(holder);
 
             setWatchFaceStyle(new WatchFaceStyle.Builder(DigilogueWatchFaceService.this)
@@ -502,12 +507,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mTime.setToNow();
 
-            if (!mFixChin) {
-                mGotChin = false;
-                mChinHeight = 0;
-                modifier = 1.15f - (mChinHeight / centerX);
-            }
-
             width = bounds.width();
             height = bounds.height();
 
@@ -518,46 +517,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // portion.
             centerX = width / 2f;
             centerY = height / 2f;
+            modifier = 1.15f - (mChinHeight / centerX);
 
-            if (mToggleAnalogue) {
-                // Analogue
-                // Draw the ticks.
-                drawHourTicks(canvas);
+            drawAnalogue(canvas);
+            drawDigital(canvas);
 
-                seconds.clear();
-
-                // Draw the minute ticks.
-                drawMinuteTicks(canvas);
-
-                offset = centerX / 4;
-
-                drawSecondHand(canvas);
-
-                drawMinuteHand(canvas);
-
-                drawHourHand(canvas);
-            }
-
-            if (mToggleDigital) {
-                // Digital
-                x = centerX - mXOffset;
-
-                // Draw the hours.
-                drawHourText(canvas);
-
-                drawColon(canvas);
-
-                // Draw the minutes.
-                drawMinuteText(canvas);
-
-                // Draw AM/PM indicator
-                drawAmPm(canvas);
-            }
-
-            // Indicators
-            drawDayDate(canvas);
-            drawBattery(canvas);
-            drawWeather(canvas);
+            drawIndicators(canvas);
         }
 
         @Override
@@ -650,6 +615,29 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         //endregion
 
         //region draw methods
+        private void drawAnalogue(Canvas canvas) {
+            if (mToggleAnalogue) {
+                // Analogue
+                // Draw the ticks.
+                drawHourTicks(canvas);
+
+                seconds.clear();
+
+                // Draw the minute ticks.
+                drawMinuteTicks(canvas);
+
+                drawDialNumbers(canvas);
+
+                offset = centerX / 4;
+
+                drawSecondHand(canvas);
+
+                drawMinuteHand(canvas);
+
+                drawHourHand(canvas);
+            }
+        }
+
         private void drawHourTicks(Canvas canvas) {
             innerTickRadius = centerX - HOUR_TICK_LENGTH;
             innerShortTickRadius = innerTickRadius - HOUR_TICK_GAP;
@@ -711,6 +699,36 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     }
 
                     canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mMinuteTickPaint);
+                }
+            }
+        }
+
+        private void drawDialNumbers(Canvas canvas) {
+            if (mToggleDrawDial) { // && !isInAmbientMode()) {
+                dialRadius = innerTickRadius - 25;
+                for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
+                    if (tickIndex % 3 != 0) {
+                        tickRot = (float) (tickIndex * Math.PI * 2 / 12);
+                        dialX = (float) Math.sin(tickRot) * dialRadius;
+                        dialY = (float) -Math.cos(tickRot) * dialRadius;
+
+                        difference = centerY + outerY - (height - mChinHeight);
+
+                        if (difference > 0) {
+                            dialX = (float) Math.sin(tickRot) * (dialRadius * modifier);
+                            dialY = (float) -Math.cos(tickRot) * dialRadius - difference;
+                        }
+
+                        mTextElementPaint.setStyle(Paint.Style.STROKE);
+                        mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
+                        mTextElementPaint.setAlpha(255);
+                        canvas.drawText(tickIndex + "", centerX + dialX, centerY + dialY, mTextElementPaint);
+
+                        mTextElementPaint.setStyle(Paint.Style.FILL);
+                        mTextElementPaint.setColor(Color.parseColor(mForegroundColour));
+                        mTextElementPaint.setAlpha(mForegroundOpacityLevel);
+                        canvas.drawText(tickIndex + "", centerX + dialX, centerY + dialY, mTextElementPaint);
+                    }
                 }
             }
         }
@@ -791,6 +809,24 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             canvas.drawLine(centerX + hrStartX, centerY + hrStartY, centerX + hrX, centerY + hrY, mHourPaint);
         }
 
+        private void drawDigital(Canvas canvas) {
+            if (mToggleDigital) {
+                // Digital
+                x = centerX - mXOffset;
+
+                // Draw the hours.
+                drawHourText(canvas);
+
+                drawColon(canvas);
+
+                // Draw the minutes.
+                drawMinuteText(canvas);
+
+                // Draw AM/PM indicator
+                drawAmPm(canvas);
+            }
+        }
+
         private void drawHourText(Canvas canvas) {
             hourString = formatTwoDigitHourNumber(mTime.hour);
             backgroundColour = mToggleSolidText ? mBackgroundColour : isInAmbientMode() ? mForegroundColour : mBackgroundColour;
@@ -856,6 +892,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mDigitalAmPmPaint.setAlpha(mForegroundOpacityLevel);
                 canvas.drawText(getAmPmString(mTime.hour), x, centerY + mYOffset, mDigitalAmPmPaint);
             }
+        }
+
+        private void drawIndicators(Canvas canvas) {
+            drawDayDate(canvas);
+            drawBattery(canvas);
+            drawWeather(canvas);
         }
 
         private void drawDayDate(Canvas canvas) {
@@ -1315,6 +1357,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mFahrenheit = config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT);
 
             mToggleAnalogue = config.getBoolean(Utility.KEY_TOGGLE_ANALOGUE);
+            mToggleDrawDial = config.getBoolean(Utility.KEY_TOGGLE_DRAW_DIAL);
             mToggleDigital = config.getBoolean(Utility.KEY_TOGGLE_DIGITAL);
             mToggleBattery = config.getBoolean(Utility.KEY_TOGGLE_BATTERY);
             mToggleDayDate = config.getBoolean(Utility.KEY_TOGGLE_DAY_DATE);
@@ -1351,6 +1394,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mAccentOpacityLevel = 255;
             }
 
+            if (!mFixChin) {
+                mGotChin = false;
+                mChinHeight = 0;
+            }
+
             // test data
             /*mTemperatureC = 16;
             mTemperatureF = 66;
@@ -1368,6 +1416,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             /*mFixChin = true;
             mGotChin = true;
             mChinHeight = 30;*/
+
+            mToggleDrawDial = true;
 
             invalidate();
         }
