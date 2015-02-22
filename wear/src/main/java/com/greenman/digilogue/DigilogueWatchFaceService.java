@@ -1494,7 +1494,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F, Utility.WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_F);
             addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_CODE, Utility.WIDGET_WEATHER_DATA_DEFAULT_CODE);
 
-            addLongKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_DATETIME, 0);
+            addLongKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_DATETIME, Utility.WIDGET_WEATHER_DATA_DEFAULT_DATETIME);
         }
 
         private void addBooleanKeyIfMissing(DataMap config, String key, boolean value) {
