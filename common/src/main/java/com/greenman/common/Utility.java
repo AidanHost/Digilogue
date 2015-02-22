@@ -57,12 +57,12 @@ public class Utility {
     public static final String CONFIG_LOCATION_DEFAULT = "";
 
     // int defaults
-    public static int WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT = -999;
-    public static int WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT = -999;
-    public static int WIDGET_WEATHER_DATA_CODE_DEFAULT = Utility.WeatherCodes.UNKNOWN;
+    public static final int WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT = -999;
+    public static final int WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT = -999;
+    public static final int WIDGET_WEATHER_DATA_CODE_DEFAULT = Utility.WeatherCodes.UNKNOWN;
 
     // long defaults
-    public static long WIDGET_WEATHER_DATA_DATETIME_DEFAULT = 0;
+    public static final long WIDGET_WEATHER_DATA_DATETIME_DEFAULT = 0;
 
     public static class WeatherCodes {
         public static final int UNKNOWN = -1;

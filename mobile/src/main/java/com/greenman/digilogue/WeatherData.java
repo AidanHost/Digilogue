@@ -6,7 +6,7 @@ import com.greenman.common.Utility;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class WeatherData {
+class WeatherData {
     // Defaults
     private int temperatureC = -999;
     private int temperatureF = -999;

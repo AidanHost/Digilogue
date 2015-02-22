@@ -1,23 +1,15 @@
 package com.greenman.digilogue;
 
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.format.Time;
-import android.util.TimeUtils;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 import com.greenman.common.Utility;
@@ -29,7 +21,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class WeatherService extends WearableListenerService implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener {
@@ -114,7 +105,7 @@ public class WeatherService extends WearableListenerService implements GoogleApi
                     BufferedReader br = new BufferedReader(new InputStreamReader(is));
                     String line;
                     while ((line = br.readLine()) != null)
-                        builder.append(line + "\r\n");
+                        builder.append(line).append("\r\n");
 
                     is.close();
                     con.disconnect();
@@ -123,12 +114,14 @@ public class WeatherService extends WearableListenerService implements GoogleApi
                     t.printStackTrace();
                 } finally {
                     try {
-                        is.close();
-                    } catch (Throwable t) {
+                        if (is != null)
+                            is.close();
+                    } catch (Throwable ignored) {
                     }
                     try {
-                        con.disconnect();
-                    } catch (Throwable t) {
+                        if (con != null)
+                            con.disconnect();
+                    } catch (Throwable ignored) {
                     }
                 }
 

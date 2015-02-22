@@ -152,15 +152,15 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         Paint mColonPaint;
 
         // Paths
-        Path batteryIcon = new Path();
-        Path batteryIconLevel = new Path();
-        Path moonPath = new Path();
-        Path cloudPath = new Path();
-        Path linePath = new Path();
-        Path flakePath = new Path();
-        Path lightningPath = new Path();
+        final Path batteryIcon = new Path();
+        final Path batteryIconLevel = new Path();
+        final Path moonPath = new Path();
+        final Path cloudPath = new Path();
+        final Path linePath = new Path();
+        final Path flakePath = new Path();
+        final Path lightningPath = new Path();
 
-        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(DigilogueWatchFaceService.this)
+        final GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(DigilogueWatchFaceService.this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(Wearable.API)
@@ -203,14 +203,14 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
         };
 
-        private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
+        private final BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
             @Override
             public void onReceive(Context arg0, Intent intent) {
                 mBatteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
             }
         };
 
-        private WatchFaceUtil.FetchConfigDataMapCallback fetchConfigCallback = new WatchFaceUtil.FetchConfigDataMapCallback() {
+        private final WatchFaceUtil.FetchConfigDataMapCallback fetchConfigCallback = new WatchFaceUtil.FetchConfigDataMapCallback() {
             @Override
             public void onConfigDataMapFetched(DataMap config) {
                 DigilogueWatchFaceService.Engine.this.mConfig = config;
@@ -441,7 +441,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             // for new preview time
             //mTime.set(35, 10, 10, 5, 8, 2014);
             //mBatteryLevel = 100;
-            mTime.setToNow();;
+            mTime.setToNow();
 
             if (!mFixChin) {
                 mGotChin = false;
@@ -504,7 +504,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     canvas.drawLine(centerX + innerShortX, centerY + innerShortY, centerX + outerShortX, centerY + outerShortY, mHourTickPaint);
                 }
 
-                ArrayList<Integer> seconds = new ArrayList<Integer>();
+                ArrayList<Integer> seconds = new ArrayList<>();
 
                 // Draw the minute ticks.
                 if (!isInAmbientMode()) {
@@ -631,10 +631,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mColonPaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
                 canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
 
-                String middleForegroudColour = mToggleSolidText ? mMiddleColour : isInAmbientMode() ? mBackgroundColour : mMiddleColour;
+                String middleForegroundColour = mToggleSolidText ? mMiddleColour : isInAmbientMode() ? mBackgroundColour : mMiddleColour;
 
                 mColonPaint.setStyle(Paint.Style.FILL);
-                mColonPaint.setColor(Color.parseColor(middleForegroudColour));
+                mColonPaint.setColor(Color.parseColor(middleForegroundColour));
                 mColonPaint.setAlpha(mForegroundOpacityLevel);
                 canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
 

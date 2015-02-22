@@ -27,7 +27,7 @@ import com.greenman.common.Utility;
 public class DigilogueWearableConfigActivity extends Activity implements WearableListView.ClickListener, WearableListView.OnScrollListener {
     private static final String TAG = "WearableConfigActivity";
 
-    DataMap existingConfig;
+    private DataMap existingConfig;
     private TextView mHeaderBackground;
 
     private GoogleApiClient mGoogleApiClient;

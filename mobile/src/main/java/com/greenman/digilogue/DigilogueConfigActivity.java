@@ -34,33 +34,55 @@ import java.util.concurrent.TimeUnit;
 public class DigilogueConfigActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataApi.DataItemResult> {
     private static final String TAG = "DigilogueConfigActivity";
 
-    DataMap config;
+    private DataMap config;
 
     private GoogleApiClient mGoogleApiClient;
     private String mPeerId;
 
-    Spinner background;
-    Spinner middle;
-    Spinner foreground;
-    Spinner accent;
+    private Spinner background;
+    private Spinner middle;
+    private Spinner foreground;
+    private Spinner accent;
 
-    EditText widget_weather_text_location;
+    private EditText widget_weather_text_location;
 
-    CheckBox digital_format;
-    CheckBox widget_show_weather;
-    CheckBox widget_weather_fahrenheit;
-    CheckBox widget_weather_auto_location;
+    private CheckBox digital_format;
+    private CheckBox widget_show_weather;
+    private CheckBox widget_weather_fahrenheit;
+    private CheckBox widget_weather_auto_location;
 
-    CheckBox toggle_day_date;
-    CheckBox toggle_dim_colour;
-    CheckBox toggle_solid_text;
-    CheckBox toggle_digital;
-    CheckBox toggle_analogue;
-    CheckBox toggle_battery;
-    CheckBox toggle_fix_chin;
+    private CheckBox toggle_day_date;
+    private CheckBox toggle_dim_colour;
+    private CheckBox toggle_solid_text;
+    private CheckBox toggle_digital;
+    private CheckBox toggle_analogue;
+    private CheckBox toggle_battery;
+    private CheckBox toggle_fix_chin;
 
-    LinearLayout weather_data;
-    TextView widget_weather_text_data;
+    private LinearLayout weather_data;
+    private TextView widget_weather_text_data;
+    private LinearLayout widget_weather_group;
+    private LinearLayout location;
+
+    private String backgroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND;
+    private String middleColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
+    private String foregroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
+    private String accentColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
+
+    private boolean showWeather = Utility.CONFIG_TOGGLE_WEATHER_DEFAULT;
+    private boolean fahrenheit = Utility.CONFIG_WIDGET_WEATHER_FAHRENHEIT_DEFAULT;
+    private boolean autoLocation = Utility.CONFIG_WIDGET_WEATHER_AUTO_LOCATION_DEFAULT;
+    private boolean toggleAmPm = Utility.CONFIG_TOGGLE_AM_PM_DEFAULT;
+    private boolean toggleAnalogue = Utility.CONFIG_TOGGLE_ANALOGUE_DEFAULT;
+    private boolean toggleDigital = Utility.CONFIG_TOGGLE_DIGITAL_DEFAULT;
+    private boolean toggleDayDate = Utility.CONFIG_TOGGLE_DAY_DATE_DEFAULT;
+    private boolean toggleBattery = Utility.CONFIG_TOGGLE_BATTERY_DEFAULT;
+    private boolean toggleDimColour = Utility.CONFIG_TOGGLE_DIM_COLOUR_DEFAULT;
+    private boolean toggleSolidText = Utility.CONFIG_TOGGLE_SOLID_TEXT_DEFAULT;
+    private boolean toggleFixChin = Utility.CONFIG_TOGGLE_FIX_CHIN;
+
+    private String weatherData = "";
+    private String locationText = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +119,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 sendConfigUpdateMessage();
                 return true;
             case R.id.button_reset:
-                setUpAllPickers(null);
+                init(null);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -139,11 +161,11 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             DataMapItem dataMapItem = DataMapItem.fromDataItem(configDataItem);
             DataMap config = dataMapItem.getDataMap();
             this.config = config;
-            setUpAllPickers(config);
+            init(config);
         } else {
             // If DataItem with the current config can't be retrieved, select the default items on
             // each picker.
-            setUpAllPickers(null);
+            init(null);
         }
     }
 
@@ -175,27 +197,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         alert.show();
     }
 
-    private void setUpAllPickers(DataMap config) {
-        String backgroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND;
-        String middleColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
-        String foregroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
-        String accentColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
-
-        boolean showWeather = Utility.CONFIG_TOGGLE_WEATHER_DEFAULT;
-        boolean fahrenheit = Utility.CONFIG_WIDGET_WEATHER_FAHRENHEIT_DEFAULT;
-        boolean autoLocation = Utility.CONFIG_WIDGET_WEATHER_AUTO_LOCATION_DEFAULT;
-        boolean toggleAmPm = Utility.CONFIG_TOGGLE_AM_PM_DEFAULT;
-        boolean toggleAnalogue = Utility.CONFIG_TOGGLE_ANALOGUE_DEFAULT;
-        boolean toggleDigital = Utility.CONFIG_TOGGLE_DIGITAL_DEFAULT;
-        boolean toggleDayDate = Utility.CONFIG_TOGGLE_DAY_DATE_DEFAULT;
-        boolean toggleBattery = Utility.CONFIG_TOGGLE_BATTERY_DEFAULT;
-        boolean toggleDimColour = Utility.CONFIG_TOGGLE_DIM_COLOUR_DEFAULT;
-        boolean toggleSolidText = Utility.CONFIG_TOGGLE_SOLID_TEXT_DEFAULT;
-        boolean toggleFixChin = Utility.CONFIG_TOGGLE_FIX_CHIN;
-
-        String weatherData = "";
-        String locationText = "";
-
+    private void fetchControls() {
         background = (Spinner) findViewById(R.id.background);
         middle = (Spinner) findViewById(R.id.middle);
         foreground = (Spinner) findViewById(R.id.foreground);
@@ -218,105 +220,98 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         widget_weather_text_location = (EditText) findViewById(R.id.widget_weather_text_location);
 
-        final LinearLayout widget_weather_group = (LinearLayout) findViewById(R.id.widget_weather_group);
-        final LinearLayout location = (LinearLayout) findViewById(R.id.location);
+        widget_weather_group = (LinearLayout) findViewById(R.id.widget_weather_group);
+        location = (LinearLayout) findViewById(R.id.location);
+    }
 
-        try {
-            widget_show_weather.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked)
-                        widget_weather_group.setVisibility(View.VISIBLE);
-                    else
-                        widget_weather_group.setVisibility(View.GONE);
-                }
-            });
-
-            widget_weather_auto_location.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked)
-                        location.setVisibility(View.GONE);
-                    else
-                        location.setVisibility(View.VISIBLE);
-                }
-            });
-
-            if (config != null) {
-                // Toggles
-                toggleAmPm = config.containsKey(Utility.KEY_TOGGLE_AM_PM) && config.getBoolean(Utility.KEY_TOGGLE_AM_PM, false);
-                toggleAnalogue = config.containsKey(Utility.KEY_TOGGLE_ANALOGUE) && config.getBoolean(Utility.KEY_TOGGLE_ANALOGUE, true) || !config.containsKey(Utility.KEY_TOGGLE_ANALOGUE);
-                toggleDigital = config.containsKey(Utility.KEY_TOGGLE_DIGITAL) && config.getBoolean(Utility.KEY_TOGGLE_DIGITAL, true) || !config.containsKey(Utility.KEY_TOGGLE_DIGITAL);
-                toggleDayDate = config.containsKey(Utility.KEY_TOGGLE_DAY_DATE) && config.getBoolean(Utility.KEY_TOGGLE_DAY_DATE, true) || !config.containsKey(Utility.KEY_TOGGLE_DAY_DATE);
-                toggleBattery = config.containsKey(Utility.KEY_TOGGLE_BATTERY) && config.getBoolean(Utility.KEY_TOGGLE_BATTERY, true) || !config.containsKey(Utility.KEY_TOGGLE_BATTERY);
-                toggleDimColour = config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR) && config.getBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, true) || !config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR);
-                toggleSolidText = config.containsKey(Utility.KEY_TOGGLE_SOLID_TEXT) && config.getBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, false);
-                toggleFixChin = config.containsKey(Utility.KEY_TOGGLE_FIX_CHIN) && config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN, false);
-
-                showWeather = config.containsKey(Utility.KEY_TOGGLE_WEATHER) && config.getBoolean(Utility.KEY_TOGGLE_WEATHER, false);
-                autoLocation = (config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, true) || !config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION));
-
-                if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME)) {
-                    Time lastTime = new Time();
-                    lastTime.set(config.getLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME));
-
-                    weatherData += getString(R.string.last_time_updated) + lastTime.format(getString(R.string.time_format)) + "\n\n";
-
-                    Time nextTime = new Time();
-                    nextTime.set(lastTime.toMillis(true) + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS));
-                    weatherData += getString(R.string.next_update) + nextTime.format(getString(R.string.time_format)) + "\n\n";
-                }
-
-                if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_CODE)) {
-                    weatherData += getString(R.string.condition) + getString(Utility.WeatherCodes.getStringResourceByCode(config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE))) + "\n\n";
-                }
-
-                if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME)) {
-                    weatherData += (config.getBoolean(Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME) ? getString(R.string.day) : getString(R.string.night)) + "\n\n";
-                }
-
-                if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C) && config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F)) {
-                    weatherData += config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C) + getString(R.string.degrees) + "C / " +
-                            config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F) + getString(R.string.degrees) + "F\n\n";
-                }
-
-                if (config.containsKey(Utility.KEY_WIDGET_WEATHER_LOCATION)) {
-                    weatherData += getString(R.string.location) + config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION);
-                }
-
-                fahrenheit = config.containsKey(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, false);
-
-                if (!autoLocation) {
-                    location.setVisibility(View.VISIBLE);
-
-                    if (config.containsKey(Utility.KEY_WIDGET_WEATHER_LOCATION))
-                        locationText = config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION);
-                }
-
-                // Colours
-                if (config.containsKey(Utility.KEY_BACKGROUND_COLOUR))
-                    backgroundColour = config.getString(Utility.KEY_BACKGROUND_COLOUR);
-
-                if (config.containsKey(Utility.KEY_MIDDLE_COLOUR))
-                    middleColour = config.getString(Utility.KEY_MIDDLE_COLOUR);
-
-                if (config.containsKey(Utility.KEY_FOREGROUND_COLOUR))
-                    foregroundColour = config.getString(Utility.KEY_FOREGROUND_COLOUR);
-
-                if (config.containsKey(Utility.KEY_ACCENT_COLOUR))
-                    accentColour = config.getString(Utility.KEY_ACCENT_COLOUR);
+    private void setUpUIChangeListeners() {
+        widget_show_weather.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                    widget_weather_group.setVisibility(View.VISIBLE);
+                else
+                    widget_weather_group.setVisibility(View.GONE);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        });
+
+        widget_weather_auto_location.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                    location.setVisibility(View.GONE);
+                else
+                    location.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    private void fetchToggles(DataMap config) {
+        toggleAmPm = config.containsKey(Utility.KEY_TOGGLE_AM_PM) && config.getBoolean(Utility.KEY_TOGGLE_AM_PM, false);
+        toggleAnalogue = config.containsKey(Utility.KEY_TOGGLE_ANALOGUE) && config.getBoolean(Utility.KEY_TOGGLE_ANALOGUE, true) || !config.containsKey(Utility.KEY_TOGGLE_ANALOGUE);
+        toggleDigital = config.containsKey(Utility.KEY_TOGGLE_DIGITAL) && config.getBoolean(Utility.KEY_TOGGLE_DIGITAL, true) || !config.containsKey(Utility.KEY_TOGGLE_DIGITAL);
+        toggleDayDate = config.containsKey(Utility.KEY_TOGGLE_DAY_DATE) && config.getBoolean(Utility.KEY_TOGGLE_DAY_DATE, true) || !config.containsKey(Utility.KEY_TOGGLE_DAY_DATE);
+        toggleBattery = config.containsKey(Utility.KEY_TOGGLE_BATTERY) && config.getBoolean(Utility.KEY_TOGGLE_BATTERY, true) || !config.containsKey(Utility.KEY_TOGGLE_BATTERY);
+        toggleDimColour = config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR) && config.getBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, true) || !config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR);
+        toggleSolidText = config.containsKey(Utility.KEY_TOGGLE_SOLID_TEXT) && config.getBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, false);
+        toggleFixChin = config.containsKey(Utility.KEY_TOGGLE_FIX_CHIN) && config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN, false);
+
+        showWeather = config.containsKey(Utility.KEY_TOGGLE_WEATHER) && config.getBoolean(Utility.KEY_TOGGLE_WEATHER, false);
+        autoLocation = (config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, true) || !config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION));
+        fahrenheit = config.containsKey(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, false);
+    }
+
+    private void fetchWeatherData(DataMap config) {
+        if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME)) {
+            Time lastTime = new Time();
+            lastTime.set(config.getLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME));
+
+            weatherData += getString(R.string.last_time_updated) + lastTime.format(getString(R.string.time_format)) + "\n\n";
+
+            Time nextTime = new Time();
+            nextTime.set(lastTime.toMillis(true) + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS));
+            weatherData += getString(R.string.next_update) + nextTime.format(getString(R.string.time_format)) + "\n\n";
         }
 
-        if (showWeather) {
-            widget_weather_group.setVisibility(View.VISIBLE);
-            weather_data.setVisibility(View.VISIBLE);
+        if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_CODE)) {
+            weatherData += getString(R.string.condition) + getString(Utility.WeatherCodes.getStringResourceByCode(config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE))) + "\n\n";
         }
 
+        if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME)) {
+            weatherData += (config.getBoolean(Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME) ? getString(R.string.day) : getString(R.string.night)) + "\n\n";
+        }
+
+        if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C) && config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F)) {
+            weatherData += config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C) + getString(R.string.degrees) + "C / " +
+                    config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F) + getString(R.string.degrees) + "F\n\n";
+        }
+
+        if (config.containsKey(Utility.KEY_WIDGET_WEATHER_LOCATION)) {
+            weatherData += getString(R.string.location) + config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION);
+        }
+
+        if (!autoLocation) {
+            if (config.containsKey(Utility.KEY_WIDGET_WEATHER_LOCATION))
+                locationText = config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION);
+        }
+    }
+
+    private void fetchColours(DataMap config) {
+        if (config.containsKey(Utility.KEY_BACKGROUND_COLOUR))
+            backgroundColour = config.getString(Utility.KEY_BACKGROUND_COLOUR);
+
+        if (config.containsKey(Utility.KEY_MIDDLE_COLOUR))
+            middleColour = config.getString(Utility.KEY_MIDDLE_COLOUR);
+
+        if (config.containsKey(Utility.KEY_FOREGROUND_COLOUR))
+            foregroundColour = config.getString(Utility.KEY_FOREGROUND_COLOUR);
+
+        if (config.containsKey(Utility.KEY_ACCENT_COLOUR))
+            accentColour = config.getString(Utility.KEY_ACCENT_COLOUR);
+    }
+
+    private void setChecked() {
         widget_weather_auto_location.setChecked(autoLocation);
-
         widget_show_weather.setChecked(showWeather);
         widget_weather_fahrenheit.setChecked(fahrenheit);
         digital_format.setChecked(toggleAmPm);
@@ -327,7 +322,9 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         toggle_dim_colour.setChecked(toggleDimColour);
         toggle_solid_text.setChecked(toggleSolidText);
         toggle_fix_chin.setChecked(toggleFixChin);
+    }
 
+    private void setText() {
         if (!weatherData.isEmpty())
             widget_weather_text_data.setText(weatherData);
         else
@@ -335,11 +332,46 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         if (!locationText.isEmpty())
             widget_weather_text_location.setText(locationText);
+    }
 
+    private void setColours(DataMap config) {
         setUpColorPickerSelection(R.id.background, Utility.KEY_BACKGROUND_COLOUR, config, backgroundColour);
         setUpColorPickerSelection(R.id.middle, Utility.KEY_MIDDLE_COLOUR, config, middleColour);
         setUpColorPickerSelection(R.id.foreground, Utility.KEY_FOREGROUND_COLOUR, config, foregroundColour);
         setUpColorPickerSelection(R.id.accent, Utility.KEY_ACCENT_COLOUR, config, accentColour);
+    }
+
+    private void init(DataMap config) {
+        fetchControls();
+
+        setUpUIChangeListeners();
+
+        try {
+
+            if (config != null) {
+                fetchToggles(config);
+
+                fetchWeatherData(config);
+
+                fetchColours(config);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (showWeather) {
+            widget_weather_group.setVisibility(View.VISIBLE);
+            weather_data.setVisibility(View.VISIBLE);
+
+            if (!autoLocation)
+                location.setVisibility(View.VISIBLE);
+        }
+
+        setChecked();
+
+        setText();
+
+        setColours(config);
     }
 
     private void setUpColorPickerSelection(int spinnerId, final String configKey, DataMap config, String defaultColorName) {
