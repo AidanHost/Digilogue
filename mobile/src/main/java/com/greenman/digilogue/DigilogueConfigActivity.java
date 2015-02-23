@@ -58,6 +58,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     private CheckBox toggle_analogue;
     private CheckBox toggle_battery;
     private CheckBox toggle_fix_chin;
+    private CheckBox toggle_dial;
 
     private LinearLayout weather_data;
     private TextView widget_weather_text_data;
@@ -80,6 +81,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     private boolean toggleDimColour = Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR;
     private boolean toggleSolidText = Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT;
     private boolean toggleFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
+    private boolean toggleDial = Utility.CONFIG_DEFAULT_TOGGLE_DRAW_DIAL;
 
     private String weatherData = "";
     private String locationText = "";
@@ -217,6 +219,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         toggle_dim_colour = (CheckBox) findViewById(R.id.toggle_dim);
         toggle_solid_text = (CheckBox) findViewById(R.id.toggle_solid_number);
         toggle_fix_chin = (CheckBox) findViewById(R.id.toggle_fix_chin);
+        toggle_dial = (CheckBox) findViewById(R.id.toggle_dial);
 
         widget_weather_text_location = (EditText) findViewById(R.id.widget_weather_text_location);
 
@@ -255,6 +258,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         toggleDimColour = config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR) && config.getBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, true) || !config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR);
         toggleSolidText = config.containsKey(Utility.KEY_TOGGLE_SOLID_TEXT) && config.getBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, false);
         toggleFixChin = config.containsKey(Utility.KEY_TOGGLE_FIX_CHIN) && config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN, false);
+        toggleDial = config.containsKey(Utility.KEY_TOGGLE_DRAW_DIAL) && config.getBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, false);
 
         showWeather = config.containsKey(Utility.KEY_TOGGLE_WEATHER) && config.getBoolean(Utility.KEY_TOGGLE_WEATHER, false);
         autoLocation = (config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, true) || !config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION));
@@ -322,6 +326,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         toggle_dim_colour.setChecked(toggleDimColour);
         toggle_solid_text.setChecked(toggleSolidText);
         toggle_fix_chin.setChecked(toggleFixChin);
+        toggle_dial.setChecked(toggleDial);
     }
 
     private void setText() {
@@ -418,6 +423,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             config.putBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, toggle_dim_colour.isChecked());
             config.putBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, toggle_solid_text.isChecked());
             config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, toggle_fix_chin.isChecked());
+            config.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, toggle_dial.isChecked());
 
             byte[] rawData = config.toByteArray();
 
