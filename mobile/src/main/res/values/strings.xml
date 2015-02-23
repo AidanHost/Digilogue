@@ -51,7 +51,7 @@
     <string name="toggle_digital">Digital</string>
     <string name="toggle_analogue">Analogue</string>
     <string name="toggle_date_day">Day, Date</string>
-    <string name="moto_mode">Moto 360 compatibility</string>
+    <string name="moto_mode">Moto 360 compatibility (beta)</string>
     <string name="toggle_dial">Dial numbers</string>
 
     <string name="color_black">Black</string>
