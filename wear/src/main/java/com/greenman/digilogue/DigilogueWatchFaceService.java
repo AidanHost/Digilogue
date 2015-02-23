@@ -85,7 +85,9 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         private Time mTime;
 
-        /** How often {@link #mUpdateHandler} ticks in milliseconds. */
+        /**
+         * How often {@link #mUpdateHandler} ticks in milliseconds.
+         */
         long mInteractiveUpdateRateMs = INTERACTIVE_UPDATE_RATE_MS;
 
         /**
@@ -99,7 +101,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         private float mXOffset;
         private float mYOffset;
-        private float mSmallTextOffset;
+        private float mSmallTextYOffset;
         private float mColonWidth;
 
         private int mBatteryLevel = 100;
@@ -265,7 +267,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
         };
 
-        private final BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
+        private final BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context arg0, Intent intent) {
                 mBatteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
@@ -299,7 +301,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     .build());
 
             Resources resources = DigilogueWatchFaceService.this.getResources();
-            mYOffset = resources.getDimension(R.dimen.digital_y_offset);
             mAmString = resources.getString(R.string.digital_am);
             mPmString = resources.getString(R.string.digital_pm);
 
@@ -384,6 +385,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             Resources resources = DigilogueWatchFaceService.this.getResources();
             boolean isRound = insets.isRound();
             mXOffset = resources.getDimension(isRound ? R.dimen.digital_x_offset_round : R.dimen.digital_x_offset);
+            mYOffset = resources.getDimension(isRound ? R.dimen.digital_y_offset_round : R.dimen.digital_y_offset);
             float textSize = resources.getDimension(isRound ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
 
             mDigitalHourPaint.setTextSize(textSize);
@@ -393,7 +395,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mColonWidth = mColonPaint.measureText(COLON_STRING);
 
-            mSmallTextOffset = textSize / 4f;
+            mSmallTextYOffset = mYOffset / 2f;
 
             mGotChin = insets.hasSystemWindowInsets();
             mChinHeight = insets.getSystemWindowInsetBottom();
@@ -705,7 +707,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         private void drawDialNumbers(Canvas canvas) {
             if (mToggleDrawDial) { // && !isInAmbientMode()) {
-                dialRadius = innerTickRadius - 25;
+                dialRadius = innerTickRadius - (mYOffset * 2f) - 5f;
                 for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
                     if (tickIndex % 3 != 0) {
                         tickRot = (float) (tickIndex * Math.PI * 2 / 12);
@@ -718,6 +720,14 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                             dialX = (float) Math.sin(tickRot) * (dialRadius * modifier);
                             dialY = (float) -Math.cos(tickRot) * dialRadius - difference;
                         }
+
+                        dialX -= 6f;
+
+                        if (tickIndex == 10 || tickIndex == 11) {
+                            dialX -= 6f;
+                        }
+
+                        dialY += mSmallTextYOffset;
 
                         mTextElementPaint.setStyle(Paint.Style.STROKE);
                         mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
@@ -908,12 +918,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mTextElementPaint.setStyle(Paint.Style.STROKE);
                 mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
                 mTextElementPaint.setAlpha(255);
-                canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextOffset, mTextElementPaint);
+                canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextYOffset, mTextElementPaint);
 
                 mTextElementPaint.setStyle(Paint.Style.FILL);
                 mTextElementPaint.setColor(Color.parseColor(mForegroundColour));
                 mTextElementPaint.setAlpha(mForegroundOpacityLevel);
-                canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextOffset, mTextElementPaint);
+                canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextYOffset, mTextElementPaint);
             }
         }
 
@@ -921,7 +931,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             if (mToggleBattery) {
                 // Draw Battery icon
                 batteryIcon.reset();
-                batteryIcon.moveTo((centerX / 2f) - 35f, centerY + mSmallTextOffset);
+                batteryIcon.moveTo((centerX / 2f) - 35f, centerY + mSmallTextYOffset);
                 batteryIcon.rLineTo(0, -13);
                 batteryIcon.rLineTo(2, 0);
                 batteryIcon.rLineTo(0, -2);
@@ -942,7 +952,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 batteryHeight = (float) Math.ceil(15f * mBatteryLevel / 100f);
 
                 batteryIconLevel.reset();
-                batteryIconLevel.moveTo((centerX / 2f) - 35f, centerY + mSmallTextOffset);
+                batteryIconLevel.moveTo((centerX / 2f) - 35f, centerY + mSmallTextYOffset);
 
                 if (batteryHeight >= 13) {
                     batteryIconLevel.rLineTo(0, -13);
@@ -966,12 +976,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mTextElementPaint.setStyle(Paint.Style.STROKE);
                 mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
                 mTextElementPaint.setAlpha(255);
-                canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextOffset, mTextElementPaint);
+                canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextYOffset, mTextElementPaint);
 
                 mTextElementPaint.setStyle(Paint.Style.FILL);
                 mTextElementPaint.setColor(Color.parseColor(mForegroundColour));
                 mTextElementPaint.setAlpha(mForegroundOpacityLevel);
-                canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextOffset, mTextElementPaint);
+                canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextYOffset, mTextElementPaint);
             }
         }
 
@@ -1430,6 +1440,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         //endregion
 
         //region Timer methods
+
         /**
          * Starts the {@link #mUpdateHandler} timer if it should be running and isn't currently
          * or stops it if it shouldn't be running but currently is.
