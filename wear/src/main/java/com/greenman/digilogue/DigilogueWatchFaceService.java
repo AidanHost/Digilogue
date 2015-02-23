@@ -102,6 +102,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private float mXOffset;
         private float mYOffset;
         private float mSmallTextYOffset;
+        private float mSmallTextXOffset;
         private float mColonWidth;
 
         private int mBatteryLevel = 100;
@@ -121,6 +122,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private Paint mBatteryPaint;
         private Paint mTextElementPaint;
         private Paint mWidgetWeatherPaint;
+        private Paint mDialPaint;
 
         // Analogue
         private Paint mHourPaint;
@@ -170,7 +172,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private float secLength;
         private float minLength;
         private float hrLength;
-        private float offset;
+        private float analogueHandOffset;
         private float x;
         private float secX;
         private float secY;
@@ -354,6 +356,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mDigitalAmPmPaint = createTextPaint(Color.parseColor(mForegroundColour));
             mTextElementPaint = createTextPaint(Color.parseColor(mForegroundColour));
             mColonPaint = createTextPaint(Color.parseColor(mMiddleColour));
+            mDialPaint = createTextPaint(Color.parseColor(mMiddleColour));
 
             mTime = new Time();
 
@@ -391,11 +394,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mDigitalHourPaint.setTextSize(textSize);
             mDigitalMinutePaint.setTextSize(textSize);
             mTextElementPaint.setTextSize(textSize / 2f);
+            mDialPaint.setTextSize(textSize / 2f);
             mColonPaint.setTextSize(textSize);
 
             mColonWidth = mColonPaint.measureText(COLON_STRING);
 
             mSmallTextYOffset = mYOffset / 2f;
+            mSmallTextXOffset = resources.getDimension(R.dimen.digital_x_small_text_offset);
 
             mGotChin = insets.hasSystemWindowInsets();
             mChinHeight = insets.getSystemWindowInsetBottom();
@@ -505,6 +510,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         public void onDraw(Canvas canvas, Rect bounds) {
             // for new preview picture
             //mTime.set(35, 10, 10, 5, 8, 2014);
+            mTime.set(30, 10, 10, 5, 8, 2014);
             //mBatteryLevel = 100;
 
             mTime.setToNow();
@@ -630,7 +636,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
                 drawDialNumbers(canvas);
 
-                offset = centerX / 4;
+                analogueHandOffset = centerX / 4f;
 
                 drawSecondHand(canvas);
 
@@ -646,7 +652,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             outerShortTickRadius = innerShortTickRadius - HOUR_TICK_LENGTH;
 
             for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
-                tickRot = (float) (tickIndex * Math.PI * 2 / 12);
+                tickRot = (float) (tickIndex * Math.PI * 2f / 12f);
                 innerX = (float) Math.sin(tickRot) * innerTickRadius;
                 innerY = (float) -Math.cos(tickRot) * innerTickRadius;
                 outerX = (float) Math.sin(tickRot) * centerX;
@@ -682,15 +688,15 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         private void drawMinuteTicks(Canvas canvas) {
             if (!isInAmbientMode()) {
-                float innerMinuteTickRadius = centerX - 7;
+                float innerMinuteTickRadius = centerX - 7f;
                 for (int tickIndex = 0; tickIndex < 60; tickIndex++) {
-                    tickRot = (float) (tickIndex * Math.PI * 2 / 60);
+                    tickRot = (float) (tickIndex * Math.PI * 2f / 60f);
                     innerX = (float) Math.sin(tickRot) * innerMinuteTickRadius;
                     innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius;
                     outerX = (float) Math.sin(tickRot) * centerX;
                     outerY = (float) -Math.cos(tickRot) * centerX;
 
-                    float difference = centerY + outerY - (height - mChinHeight);
+                    difference = centerY + outerY - (height - mChinHeight);
                     if (difference > 0) {
                         innerX = (float) Math.sin(tickRot) * (innerMinuteTickRadius * modifier);
                         innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius - difference;
@@ -709,49 +715,53 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             if (mToggleDrawDial) { // && !isInAmbientMode()) {
                 dialRadius = innerTickRadius - (mYOffset * 2f) - 5f;
                 for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
-                    if (tickIndex % 3 != 0) {
-                        tickRot = (float) (tickIndex * Math.PI * 2 / 12);
-                        dialX = (float) Math.sin(tickRot) * dialRadius;
-                        dialY = (float) -Math.cos(tickRot) * dialRadius;
+                    if (tickIndex == 3 && mToggleDayDate)
+                        continue;
 
-                        difference = centerY + outerY - (height - mChinHeight);
+                    if (tickIndex == 9 && mToggleBattery)
+                        continue;
 
-                        if (difference > 0) {
-                            dialX = (float) Math.sin(tickRot) * (dialRadius * modifier);
-                            dialY = (float) -Math.cos(tickRot) * dialRadius - difference;
-                        }
+                    tickRot = (float) (tickIndex * Math.PI * 2f / 12f);
+                    dialX = (float) Math.sin(tickRot) * dialRadius;
+                    dialY = (float) -Math.cos(tickRot) * dialRadius;
 
-                        dialX -= 6f;
+                    difference = centerY + ((float)-Math.cos(tickRot) * centerX) - (height - mChinHeight);
 
-                        if (tickIndex == 10 || tickIndex == 11) {
-                            dialX -= 6f;
-                        }
-
-                        dialY += mSmallTextYOffset;
-
-                        mTextElementPaint.setStyle(Paint.Style.STROKE);
-                        mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
-                        mTextElementPaint.setAlpha(255);
-                        canvas.drawText(tickIndex + "", centerX + dialX, centerY + dialY, mTextElementPaint);
-
-                        mTextElementPaint.setStyle(Paint.Style.FILL);
-                        mTextElementPaint.setColor(Color.parseColor(mForegroundColour));
-                        mTextElementPaint.setAlpha(mForegroundOpacityLevel);
-                        canvas.drawText(tickIndex + "", centerX + dialX, centerY + dialY, mTextElementPaint);
+                    if (difference > 0) {
+                        dialX = (float) Math.sin(tickRot) * (dialRadius * modifier);
+                        dialY = (float) -Math.cos(tickRot) * dialRadius - difference;
                     }
+
+                    dialX -= mSmallTextXOffset;
+
+                    if (tickIndex == 0 || tickIndex == 10 || tickIndex == 11) {
+                        dialX -= mSmallTextXOffset;
+                    }
+
+                    dialY += mSmallTextYOffset;
+
+                    mTextElementPaint.setStyle(Paint.Style.STROKE);
+                    mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
+                    mTextElementPaint.setAlpha(255);
+                    canvas.drawText(tickIndex == 0 ? "12" : tickIndex + "", centerX + dialX, centerY + dialY, mDialPaint);
+
+                    mTextElementPaint.setStyle(Paint.Style.FILL);
+                    mTextElementPaint.setColor(Color.parseColor(mForegroundColour));
+                    mTextElementPaint.setAlpha(mForegroundOpacityLevel);
+                    canvas.drawText(tickIndex == 0 ? "12" : tickIndex + "", centerX + dialX, centerY + dialY, mDialPaint);
                 }
             }
         }
 
         private void drawSecondHand(Canvas canvas) {
             if (!isInAmbientMode()) {
-                secLength = centerX - 20;
+                secLength = centerX - 20f;
                 secRot = mTime.second / 30f * (float) Math.PI;
 
                 secX = (float) Math.sin(secRot) * secLength;
                 secY = (float) -Math.cos(secRot) * secLength;
-                secStartX = (float) Math.sin(secRot) * offset;
-                secStartY = (float) -Math.cos(secRot) * offset;
+                secStartX = (float) Math.sin(secRot) * analogueHandOffset;
+                secStartY = (float) -Math.cos(secRot) * analogueHandOffset;
 
                 float difference = centerY + secY - (height - mChinHeight);
 
@@ -778,8 +788,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             minX = (float) Math.sin(minRot) * minLength;
             minY = (float) -Math.cos(minRot) * minLength;
-            minStartX = (float) Math.sin(minRot) * offset;
-            minStartY = (float) -Math.cos(minRot) * offset;
+            minStartX = (float) Math.sin(minRot) * analogueHandOffset;
+            minStartY = (float) -Math.cos(minRot) * analogueHandOffset;
 
             difference = centerY + ((float) -Math.cos(minRot) * secLength) - (height - mChinHeight);
 
@@ -805,8 +815,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             hrX = (float) Math.sin(hrRot) * hrLength;
             hrY = (float) -Math.cos(hrRot) * hrLength;
-            hrStartX = (float) Math.sin(hrRot) * offset;
-            hrStartY = (float) -Math.cos(hrRot) * offset;
+            hrStartX = (float) Math.sin(hrRot) * analogueHandOffset;
+            hrStartY = (float) -Math.cos(hrRot) * analogueHandOffset;
 
             mHourPaint.setStyle(Paint.Style.STROKE);
             mHourPaint.setColor(Color.parseColor(mBackgroundColour));
@@ -928,6 +938,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawBattery(Canvas canvas) {
+            // TODO: plot battery points once
             if (mToggleBattery) {
                 // Draw Battery icon
                 batteryIcon.reset();
@@ -1174,11 +1185,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         //region Drawing icon methods
         private void drawSun(Canvas canvas, float x, float y) {
             for (int beam = 0; beam < 8; beam++) {
-                float beamRot = (float) (beam * Math.PI * 2 / 8);
-                float innerX = (float) Math.sin(beamRot) * 8;
-                float innerY = (float) -Math.cos(beamRot) * 8;
-                float outerX = (float) Math.sin(beamRot) * 12;
-                float outerY = (float) -Math.cos(beamRot) * 12;
+                float beamRot = (float) (beam * Math.PI * 2f / 8f);
+                float innerX = (float) Math.sin(beamRot) * 8f;
+                float innerY = (float) -Math.cos(beamRot) * 8f;
+                float outerX = (float) Math.sin(beamRot) * 12f;
+                float outerY = (float) -Math.cos(beamRot) * 12f;
 
                 mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
                 mWidgetWeatherPaint.setAlpha(255);
@@ -1194,19 +1205,19 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
             mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-            canvas.drawCircle(x, y, 6, mWidgetWeatherPaint);
+            canvas.drawCircle(x, y, 6f, mWidgetWeatherPaint);
 
             mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
             mWidgetWeatherPaint.setAlpha(255);
             mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
-            canvas.drawCircle(x, y, 6, mWidgetWeatherPaint);
+            canvas.drawCircle(x, y, 6f, mWidgetWeatherPaint);
         }
 
         private void drawMoon(Canvas canvas, float x, float y) {
             moonPath.reset();
             moonPath.moveTo(x, y - 8f);
-            moonPath.arcTo(x - 8f, y - 8f, x + 8f, y + 8f, 270, -270, false);
-            moonPath.arcTo(x - 4f, y - 8f, x + 8f, y + 4f, 0, 270, false);
+            moonPath.arcTo(x - 8f, y - 8f, x + 8f, y + 8f, 270f, -270f, false);
+            moonPath.arcTo(x - 4f, y - 8f, x + 8f, y + 4f, 0f, 270f, false);
 
             mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
             mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
@@ -1222,9 +1233,9 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void drawCloud(Canvas canvas, float x, float y) {
             cloudPath.reset();
             cloudPath.moveTo(x - 8f, y + 16f);
-            cloudPath.arcTo(x, y + 6f, x + 10f, y + 16f, 90, -250, false);
-            cloudPath.arcTo(x - 8f, y, x + 4f, y + 9f, 0, -210, false);
-            cloudPath.arcTo(x - 14f, y + 8f, x - 6f, y + 16f, 340, -230, false);
+            cloudPath.arcTo(x, y + 6f, x + 10f, y + 16f, 90f, -250f, false);
+            cloudPath.arcTo(x - 8f, y, x + 4f, y + 9f, 0f, -210f, false);
+            cloudPath.arcTo(x - 14f, y + 8f, x - 6f, y + 16f, 340f, -230f, false);
             cloudPath.close();
 
             mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
@@ -1265,10 +1276,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             flakePath.reset();
             flakePath.moveTo(x - 2f, y + 19f);
             flakePath.rMoveTo(-2f, 4f);
-            flakePath.rLineTo(6f, 0);
+            flakePath.rLineTo(6f, 0f);
             flakePath.rMoveTo(-5f, -4f);
             flakePath.rLineTo(4f, 8f);
-            flakePath.rMoveTo(0, -8f);
+            flakePath.rMoveTo(0f, -8f);
             flakePath.rLineTo(-4f, 8f);
             flakePath.close();
 
@@ -1289,13 +1300,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void drawLightning(Canvas canvas, float x, float y) {
             lightningPath.reset();
             lightningPath.moveTo(x, y + 11f);
-            lightningPath.rLineTo(-1f, 0);
+            lightningPath.rLineTo(-1f, 0f);
             lightningPath.rLineTo(-7f, 10f);
-            lightningPath.rLineTo(4f, 0);
+            lightningPath.rLineTo(4f, 0f);
             lightningPath.rLineTo(-2f, 7f);
-            lightningPath.rLineTo(1f, 0);
+            lightningPath.rLineTo(1f, 0f);
             lightningPath.rLineTo(6f, -9f);
-            lightningPath.rLineTo(-4f, 0);
+            lightningPath.rLineTo(-4f, 0f);
             lightningPath.close();
 
             mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
@@ -1312,7 +1323,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void drawFog(Canvas canvas, float x, float y) {
             float left = x - 5f;
             float top = y - 4f;
-            float length = 14;
+            float length = 14f;
 
             mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
             mWidgetWeatherPaint.setAlpha(255);
@@ -1404,10 +1415,11 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mAccentOpacityLevel = 255;
             }
 
-            if (!mFixChin) {
+            // TODO: remove?
+            /*if (!mFixChin) {
                 mGotChin = false;
                 mChinHeight = 0;
-            }
+            }*/
 
             // test data
             /*mTemperatureC = 16;
@@ -1421,13 +1433,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mToggleBattery  = false;
             mToggleDayDate = false;
             mToggleDimColour = false;
-            mToggleSolidText = true;*/
+            mToggleSolidText = true;
+            mToggleDrawDial = true;*/
 
             /*mFixChin = true;
             mGotChin = true;
             mChinHeight = 30;*/
-
-            mToggleDrawDial = true;
 
             invalidate();
         }
