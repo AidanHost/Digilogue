@@ -399,8 +399,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mColonWidth = mColonPaint.measureText(COLON_STRING);
 
-            mSmallTextYOffset = mYOffset / 2f;
             mSmallTextXOffset = resources.getDimension(R.dimen.digital_x_small_text_offset);
+            mSmallTextYOffset = mYOffset / 2f;
 
             mGotChin = insets.hasSystemWindowInsets();
             mChinHeight = insets.getSystemWindowInsetBottom();
@@ -717,7 +717,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawDialNumbers(Canvas canvas) {
-            if (mToggleDrawDial) { // && !isInAmbientMode()) {
+            if (mToggleDrawDial) {
                 dialRadius = innerTickRadius - (mYOffset * 2f) - 5f;
                 for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
                     if (tickIndex == 3 && mToggleDayDate)
@@ -1456,7 +1456,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         //endregion
 
         //region Timer methods
-
         /**
          * Starts the {@link #mUpdateHandler} timer if it should be running and isn't currently
          * or stops it if it shouldn't be running but currently is.
