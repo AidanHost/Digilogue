@@ -9,8 +9,7 @@
     <string name="digital_config_middle">Middle</string>
     <string name="header_colours">Colours</string>
     <string name="header_toggles">Toggles</string>
-    <string name="weather_location">Location</string>
-    <string name="widget_weather_auto_location">Auto detect</string>
+    <string name="widget_weather_auto_location">Auto detect location</string>
     <string name="weather_header">Weather</string>
     <string name="location_hint">City, Country (Eg. Cape Town, ZA)</string>
     <string name="fahrenheit">Fahrenheit</string>

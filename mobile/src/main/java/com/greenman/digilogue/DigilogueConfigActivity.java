@@ -266,6 +266,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         toggle_battery.setOnCheckedChangeListener(checkBoxListener);
         toggle_fix_chin.setOnCheckedChangeListener(checkBoxListener);
         toggle_dial.setOnCheckedChangeListener(checkBoxListener);
+        widget_weather_fahrenheit.setOnCheckedChangeListener(checkBoxListener);
 
         toggle_weather.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -286,8 +287,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                     location.setVisibility(View.GONE);
                 else
                     location.setVisibility(View.VISIBLE);
-
-                updateConfig();
             }
         });
     }
@@ -392,8 +391,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     private void init(DataMap config) {
         fetchControls();
 
-        setUpUIChangeListeners();
-
         try {
 
             if (config != null) {
@@ -422,6 +419,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         setText();
 
         setColours(config);
+
+        setUpUIChangeListeners();
     }
 
     private void setUpColorPickerSelection(int spinnerId, final String configKey, DataMap config, String defaultColorName) {

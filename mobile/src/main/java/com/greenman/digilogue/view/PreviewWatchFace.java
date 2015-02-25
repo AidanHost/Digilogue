@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 
-public class PreviewWatchFace extends View implements View.OnLongClickListener {
+public class PreviewWatchFace extends View {
     //region variables
     private static final Typeface NORMAL_TYPEFACE = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
     private static final float HOUR_TICK_LENGTH = 10;
@@ -184,7 +184,7 @@ public class PreviewWatchFace extends View implements View.OnLongClickListener {
     }
 
     private float getPixelsFromDp(float dp) {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()) * (206f / 320f);
     }
 
     private void init() {
@@ -254,9 +254,10 @@ public class PreviewWatchFace extends View implements View.OnLongClickListener {
 
         mDigitalHourPaint.setTextSize(textSize);
         mDigitalMinutePaint.setTextSize(textSize);
+        mColonPaint.setTextSize(textSize);
         mTextElementPaint.setTextSize(textSize / 2f);
         mDialPaint.setTextSize(textSize / 2f);
-        mColonPaint.setTextSize(textSize);
+        mDigitalAmPmPaint.setTextSize(textSize / 4f);
 
         mColonWidth = mColonPaint.measureText(COLON_STRING);
 
@@ -269,9 +270,6 @@ public class PreviewWatchFace extends View implements View.OnLongClickListener {
             mForegroundOpacityLevel = 255;
             mAccentOpacityLevel = 255;
         }
-
-        width = (int)getPixelsFromDp(320);
-        height = (int)getPixelsFromDp(320);
     }
 
     @Override
@@ -279,6 +277,9 @@ public class PreviewWatchFace extends View implements View.OnLongClickListener {
         // for new preview picture
         mTime.set(35, 10, 10, 5, 8, 2014);
         mBatteryLevel = 100;
+
+        width = getWidth();
+        height = getHeight();
 
         canvas.drawRect(0, 0, width, height, mBackgroundPaint);
 
@@ -306,21 +307,11 @@ public class PreviewWatchFace extends View implements View.OnLongClickListener {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
+            mIsInAmbientMode = !mIsInAmbientMode;
             updateUI(mConfig);
-
-            return true;
         }
 
-        return false;
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        // TODO: vibrate
-        mIsInAmbientMode = !mIsInAmbientMode;
-        //updateUI(mConfig);
-
-        return false;
+        return true;
     }
 
     private void updateUI(DataMap config) {
@@ -347,6 +338,11 @@ public class PreviewWatchFace extends View implements View.OnLongClickListener {
             setMiddleColor(config.getString(Utility.KEY_MIDDLE_COLOUR));
             setForegroundColor(config.getString(Utility.KEY_FOREGROUND_COLOUR));
             setAccentColor(config.getString(Utility.KEY_ACCENT_COLOUR));
+        } else {
+            setBackgroundColor(Utility.COLOUR_NAME_DEFAULT_BACKGROUND);
+            setMiddleColor(Utility.COLOUR_NAME_DEFAULT_MIDDLE);
+            setForegroundColor(Utility.COLOUR_NAME_DEFAULT_FOREGROUND);
+            setAccentColor(Utility.COLOUR_NAME_DEFAULT_ACCENT);
         }
 
         // Dim all elements on screen
@@ -695,10 +691,12 @@ public class PreviewWatchFace extends View implements View.OnLongClickListener {
             batteryIcon.rLineTo(0, getPixelsFromDp(13));
             batteryIcon.close();
 
+            mBatteryFullPaint.setStyle(Paint.Style.STROKE);
             mBatteryFullPaint.setColor(Color.parseColor(mBackgroundColour));
             mBatteryFullPaint.setAlpha(255);
             canvas.drawPath(batteryIcon, mBatteryFullPaint);
 
+            mBatteryFullPaint.setStyle(Paint.Style.FILL);
             mBatteryFullPaint.setColor(Color.parseColor(mMiddleColour));
             mBatteryFullPaint.setAlpha(mForegroundOpacityLevel);
             canvas.drawPath(batteryIcon, mBatteryFullPaint);
@@ -708,7 +706,7 @@ public class PreviewWatchFace extends View implements View.OnLongClickListener {
             batteryIconLevel.reset();
             batteryIconLevel.moveTo((centerX / 2f) - getPixelsFromDp(35), centerY + mSmallTextYOffset);
 
-            if (batteryHeight >= 13) {
+            if (batteryHeight >= 13f) {
                 batteryIconLevel.rLineTo(0, getPixelsFromDp(-13));
                 batteryIconLevel.rLineTo(getPixelsFromDp(2), 0);
                 batteryIconLevel.rLineTo(0, getPixelsFromDp(-(batteryHeight - 13)));
@@ -724,6 +722,14 @@ public class PreviewWatchFace extends View implements View.OnLongClickListener {
 
             batteryIconLevel.close();
 
+            mBatteryPaint.setStyle(Paint.Style.FILL);
+            mBatteryPaint.setColor(Color.parseColor(mBackgroundColour));
+            mBatteryPaint.setAlpha(255);
+            canvas.drawPath(batteryIconLevel, mBatteryPaint);
+
+            mBatteryPaint.setStyle(Paint.Style.FILL);
+            mBatteryPaint.setColor(Color.parseColor(mForegroundColour));
+            mBatteryPaint.setAlpha(mForegroundOpacityLevel);
             canvas.drawPath(batteryIconLevel, mBatteryPaint);
 
             // Battery level
@@ -1124,7 +1130,7 @@ public class PreviewWatchFace extends View implements View.OnLongClickListener {
 
     private void updatePaint(Paint paint, String colour, int opacityLevel, float strokeWidth) {
         updatePaint(paint, colour, opacityLevel);
-        paint.setStrokeWidth(mIsInAmbientMode ? 2f : strokeWidth);
+        paint.setStrokeWidth(mIsInAmbientMode ? getPixelsFromDp(2) : strokeWidth);
     }
 
     private void setBackgroundColor(String color) {
@@ -1135,8 +1141,8 @@ public class PreviewWatchFace extends View implements View.OnLongClickListener {
     private void setForegroundColor(String color) {
         mForegroundColour = color;
 
-        updatePaint(mHourPaint, color, mForegroundOpacityLevel, 3f);
-        updatePaint(mMinutePaint, color, mForegroundOpacityLevel, 3f);
+        updatePaint(mHourPaint, color, mForegroundOpacityLevel, getPixelsFromDp(3));
+        updatePaint(mMinutePaint, color, mForegroundOpacityLevel, getPixelsFromDp(3));
 
         updatePaint(mDigitalHourPaint, color, mForegroundOpacityLevel);
         updatePaint(mDigitalMinutePaint, color, mForegroundOpacityLevel);
