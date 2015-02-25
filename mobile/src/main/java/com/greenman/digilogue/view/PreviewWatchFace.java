@@ -191,7 +191,7 @@ public class PreviewWatchFace extends View {
         r = getResources();
 
         mXOffset = getPixelsFromDp(45);
-        mYOffset = getPixelsFromDp(14);
+        mYOffset = getPixelsFromDp(12);
         float textSize = getPixelsFromDp(36);
 
         mSmallTextXOffset = getPixelsFromDp(3);
@@ -504,7 +504,7 @@ public class PreviewWatchFace extends View {
 
                 if (mGotChin && difference > 0 || seconds.contains(mTime.second)) {
                     secX = (float) Math.sin(secRot) * (secLength * modifier);
-                    secY = (float) -Math.cos(secRot) * secLength - difference - 18f;
+                    secY = (float) -Math.cos(secRot) * secLength - difference - getPixelsFromDp(18);
                 }
             }
 
@@ -534,7 +534,7 @@ public class PreviewWatchFace extends View {
 
             if (mGotChin && seconds.contains(mTime.minute)) {
                 minX = (float) Math.sin(minRot) * (secLength * modifier);
-                minY = (float) -Math.cos(minRot) * secLength - difference - 18f;
+                minY = (float) -Math.cos(minRot) * secLength - difference - getPixelsFromDp(18);
             }
         }
 
@@ -755,12 +755,12 @@ public class PreviewWatchFace extends View {
                 mTextElementPaint.setStyle(Paint.Style.STROKE);
                 mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
                 mTextElementPaint.setAlpha(255);
-                canvas.drawText(String.valueOf(mFahrenheit ? mTemperatureF : mTemperatureC) + DEGREE_STRING, centerX + 3f, centerY * 0.6f, mTextElementPaint);
+                canvas.drawText(String.valueOf(mFahrenheit ? mTemperatureF : mTemperatureC) + DEGREE_STRING, centerX + getPixelsFromDp(3), centerY * 0.6f, mTextElementPaint);
 
                 mTextElementPaint.setStyle(Paint.Style.FILL);
                 mTextElementPaint.setColor(Color.parseColor(mForegroundColour));
                 mTextElementPaint.setAlpha(mForegroundOpacityLevel);
-                canvas.drawText(String.valueOf(mFahrenheit ? mTemperatureF : mTemperatureC) + DEGREE_STRING, centerX + 3f, centerY * 0.6f, mTextElementPaint);
+                canvas.drawText(String.valueOf(mFahrenheit ? mTemperatureF : mTemperatureC) + DEGREE_STRING, centerX + getPixelsFromDp(3), centerY * 0.6f, mTextElementPaint);
 
                 // Draw icon based on conditions
                 switch (mCode) {
@@ -1035,27 +1035,27 @@ public class PreviewWatchFace extends View {
         mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
         mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
         mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-        mWidgetWeatherPaint.setStrokeWidth(1);
+        mWidgetWeatherPaint.setStrokeWidth(getPixelsFromDp(1));
         canvas.drawPath(flakePath, mWidgetWeatherPaint);
 
         mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
         mWidgetWeatherPaint.setAlpha(255);
         mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
-        mWidgetWeatherPaint.setStrokeWidth(1);
+        mWidgetWeatherPaint.setStrokeWidth(getPixelsFromDp(1));
         canvas.drawPath(flakePath, mWidgetWeatherPaint);
-        mWidgetWeatherPaint.setStrokeWidth(2);
+        mWidgetWeatherPaint.setStrokeWidth(getPixelsFromDp(2));
     }
 
     private void drawLightning(Canvas canvas, float x, float y) {
         lightningPath.reset();
         lightningPath.moveTo(x, y + getPixelsFromDp(11));
-        lightningPath.rLineTo(getPixelsFromDp(-1), 0f);
+        lightningPath.rLineTo(getPixelsFromDp(-1), 0);
         lightningPath.rLineTo(getPixelsFromDp(-7), getPixelsFromDp(10));
-        lightningPath.rLineTo(getPixelsFromDp(4), 0f);
+        lightningPath.rLineTo(getPixelsFromDp(4), 0);
         lightningPath.rLineTo(getPixelsFromDp(-2), getPixelsFromDp(7));
-        lightningPath.rLineTo(getPixelsFromDp(1), 0f);
+        lightningPath.rLineTo(getPixelsFromDp(1), 0);
         lightningPath.rLineTo(getPixelsFromDp(6), getPixelsFromDp(-9));
-        lightningPath.rLineTo(getPixelsFromDp(-4), 0f);
+        lightningPath.rLineTo(getPixelsFromDp(-4), 0);
         lightningPath.close();
 
         mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
@@ -1156,7 +1156,7 @@ public class PreviewWatchFace extends View {
 
     private void setAccentColor(String color) {
         mAccentColour = color;
-        updatePaint(mSecondPaint, color, mAccentOpacityLevel, 2f);
+        updatePaint(mSecondPaint, color, mAccentOpacityLevel, getPixelsFromDp(2));
     }
 
     private void setMiddleColor(String color) {
