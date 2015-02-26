@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="color_black">Black</string>
+    <string name="color_blue">Blue</string>
+    <string name="color_gray">Gray</string>
+    <string name="color_green">Green</string>
+    <string name="color_navy">Navy</string>
+    <string name="color_red">Red</string>
+    <string name="color_white">White</string>
+
     <!-- TODO: translations-->
     <string name="app_name">Digilogue</string>
     <string name="digital_config_background">Background</string>
@@ -50,16 +58,9 @@
     <string name="toggle_digital">Digital</string>
     <string name="toggle_analogue">Analogue</string>
     <string name="toggle_date_day">Day, Date</string>
-    <string name="moto_mode">Moto 360 compatibility (beta)</string>
+    <string name="moto_mode">Moto 360 compatibility</string>
     <string name="toggle_dial">Dial numbers</string>
-
-    <string name="color_black">Black</string>
-    <string name="color_blue">Blue</string>
-    <string name="color_gray">Gray</string>
-    <string name="color_green">Green</string>
-    <string name="color_navy">Navy</string>
-    <string name="color_red">Red</string>
-    <string name="color_white">White</string>
+    <string name="preview_tap">Tap on the preview to toggle Ambient Mode</string>
     <string name="reset_defaults">Reset defaults</string>
     <string name="save">Save</string>
 

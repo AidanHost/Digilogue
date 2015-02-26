@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -36,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class DigilogueConfigActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataApi.DataItemResult> {
     private static final String TAG = "DigilogueConfigActivity";
 
+    //region variables
     private DataMap config;
 
     private GoogleApiClient mGoogleApiClient;
@@ -89,7 +91,9 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
     private String weatherData = "";
     private String locationText = "";
+    //endregion
 
+    //region Overrides
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -188,6 +192,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             Log.d(TAG, "onConnectionFailed: " + result);
         }
     }
+    //endregion
 
     private void displayNoConnectedDeviceDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -421,6 +426,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         setColours(config);
 
         setUpUIChangeListeners();
+
+        Toast.makeText(getBaseContext(), getString(R.string.preview_tap), Toast.LENGTH_LONG).show();
     }
 
     private void setUpColorPickerSelection(int spinnerId, final String configKey, DataMap config, String defaultColorName) {
