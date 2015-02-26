@@ -393,9 +393,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mDigitalHourPaint.setTextSize(textSize);
             mDigitalMinutePaint.setTextSize(textSize);
+            mColonPaint.setTextSize(textSize);
             mTextElementPaint.setTextSize(textSize / 2f);
             mDialPaint.setTextSize(textSize / 2f);
-            mColonPaint.setTextSize(textSize);
+            mDigitalAmPmPaint.setTextSize(textSize / 3f);
 
             mColonWidth = mColonPaint.measureText(COLON_STRING);
 
@@ -949,7 +950,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawBattery(Canvas canvas) {
-            // TODO: plot battery points once
             if (mToggleBattery) {
                 // Draw Battery icon
                 batteryIcon.reset();
@@ -992,6 +992,12 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
                 batteryIconLevel.close();
 
+                mBatteryPaint.setColor(Color.parseColor(mBackgroundColour));
+                mBatteryPaint.setAlpha(255);
+                canvas.drawPath(batteryIconLevel, mBatteryPaint);
+
+                mBatteryPaint.setColor(Color.parseColor(mForegroundColour));
+                mBatteryPaint.setAlpha(mForegroundOpacityLevel);
                 canvas.drawPath(batteryIconLevel, mBatteryPaint);
 
                 // Battery level
