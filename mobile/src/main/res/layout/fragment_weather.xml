@@ -16,12 +16,27 @@
             android:paddingBottom="10dp">
 
             <CheckBox
+                android:id="@+id/toggle_weather"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="2"
+                android:text="@string/weather_api_credit" />
+
+            <CheckBox
                 android:id="@+id/widget_weather_fahrenheit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="2"
                 android:text="@string/fahrenheit" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="10dp">
 
             <CheckBox
                 android:id="@+id/widget_weather_auto_location"

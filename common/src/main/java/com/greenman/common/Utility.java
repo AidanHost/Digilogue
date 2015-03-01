@@ -2,7 +2,8 @@ package com.greenman.common;
 
 public class Utility {
     public static final String PATH_DIGILOGUE_SETTINGS = "/digilogue/colours";
-    public static final int REFRESH_WEATHER_DELAY_HOURS = 3;
+    // TODO: confirm ...
+    public static final int REFRESH_WEATHER_DELAY_HOURS = 1;
 
     // boolean keys
     public static final String KEY_TOGGLE_AM_PM = "com.greenman.digilogue.12HOUR_FORMAT";

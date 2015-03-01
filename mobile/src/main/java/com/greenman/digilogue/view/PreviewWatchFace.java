@@ -637,6 +637,7 @@ public class PreviewWatchFace extends View {
     }
 
     private void drawAmPm(Canvas canvas) {
+        // TODO: check size
         if (mToggleAmPm) {
             x += mDigitalMinutePaint.measureText(minuteString);
 
@@ -744,6 +745,7 @@ public class PreviewWatchFace extends View {
     }
 
     private void drawWeather(Canvas canvas) {
+        // TODO: Weather tweaks (blank check)
         if (mToggleWeather) {
             weatherIconCenterX = centerX - getPixelsFromDp(15);
             weatherIconCenterY = (centerY * 0.6f) - getPixelsFromDp(8);

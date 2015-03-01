@@ -114,14 +114,6 @@
                 android:layout_gravity="center"
                 android:layout_weight="2"
                 android:text="@string/toggle_dial" />
-
-            <CheckBox
-                android:id="@+id/toggle_weather"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="2"
-                android:text="@string/weather_api_credit" />
         </LinearLayout>
 
         <!-- // TODO: 420 mode?-->

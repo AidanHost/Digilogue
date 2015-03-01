@@ -25,10 +25,59 @@ public class ColoursFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    Spinner background;
-    Spinner middle;
-    Spinner foreground;
-    Spinner accent;
+    private Spinner background;
+    private Spinner middle;
+    private Spinner foreground;
+    private Spinner accent;
+
+    AdapterView.OnItemSelectedListener spinnerListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            if (mListener != null) {
+                Bundle colours = new Bundle();
+                colours.putString(ColoursFragment.ARG_BACKGROUND, colourNames[background.getSelectedItemPosition()]);
+                colours.putString(ColoursFragment.ARG_MIDDLE, colourNames[middle.getSelectedItemPosition()]);
+                colours.putString(ColoursFragment.ARG_FOREGROUND, colourNames[foreground.getSelectedItemPosition()]);
+                colours.putString(ColoursFragment.ARG_ACCENT, colourNames[accent.getSelectedItemPosition()]);
+
+                mListener.onColourSelected(colours);
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
+
+    /*public void setBackground(String colour) {
+        mBackground = colour;
+        background.setOnItemSelectedListener(null);
+        setUpColorPickerSelection(background, colour);
+        background.setOnItemSelectedListener(spinnerListener);
+
+    }
+
+    public void setMiddle(String colour) {
+        mMiddle = colour;
+        middle.setOnItemSelectedListener(null);
+        setUpColorPickerSelection(middle, colour);
+        middle.setOnItemSelectedListener(spinnerListener);
+    }
+
+    public void setForeground(String colour) {
+        mForeground = colour;
+        foreground.setOnItemSelectedListener(null);
+        setUpColorPickerSelection(foreground, colour);
+        foreground.setOnItemSelectedListener(spinnerListener);
+    }
+
+    public void setAccent(String colour) {
+        mAccent = colour;
+        accent.setOnItemSelectedListener(null);
+        setUpColorPickerSelection(accent, colour);
+        accent.setOnItemSelectedListener(spinnerListener);
+    }*/
 
     public static ColoursFragment newInstance(String background, String middle, String foreground, String accent) {
         ColoursFragment fragment = new ColoursFragment();
@@ -75,26 +124,6 @@ public class ColoursFragment extends Fragment {
         setUpColorPickerSelection(foreground, mForeground);
         setUpColorPickerSelection(accent, mAccent);
 
-        AdapterView.OnItemSelectedListener spinnerListener = new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (mListener != null) {
-                    Bundle colours = new Bundle();
-                    colours.putString(ColoursFragment.ARG_BACKGROUND, colourNames[background.getSelectedItemPosition()]);
-                    colours.putString(ColoursFragment.ARG_MIDDLE, colourNames[middle.getSelectedItemPosition()]);
-                    colours.putString(ColoursFragment.ARG_FOREGROUND, colourNames[foreground.getSelectedItemPosition()]);
-                    colours.putString(ColoursFragment.ARG_ACCENT, colourNames[accent.getSelectedItemPosition()]);
-
-                    mListener.onColourSelected(colours);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        };
-
         background.setOnItemSelectedListener(spinnerListener);
         middle.setOnItemSelectedListener(spinnerListener);
         foreground.setOnItemSelectedListener(spinnerListener);
@@ -102,6 +131,9 @@ public class ColoursFragment extends Fragment {
     }
 
     private void setUpColorPickerSelection(Spinner spinner, final String defaultColorName) {
+        if (colourNames == null)
+            colourNames = getResources().getStringArray(R.array.color_array);
+
         for (int i = 0; i < colourNames.length; i++) {
             if (colourNames[i].toLowerCase().equals(defaultColorName.toLowerCase())) {
                 spinner.setSelection(i);
