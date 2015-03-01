@@ -21,29 +21,33 @@ public class TogglesFragment extends Fragment {
     public static final String ARG_DIAL = "toggleDial";
     public static final String ARG_WEATHER = "toggleWeather";
 
-    private Boolean mToggleAmPm;
-    private Boolean mToggleDayDate;
-    private Boolean mToggleDimColour;
-    private Boolean mToggleSolidText;
-    private Boolean mToggleDigital;
-    private Boolean mToggleAnalogue;
-    private Boolean mToggleBattery;
-    private Boolean mToggleFixChin;
-    private Boolean mToggleDial;
-    private Boolean mToggleWeather;
+    private boolean mToggleAmPm;
+    private boolean mToggleDayDate;
+    private boolean mToggleDimColour;
+    private boolean mToggleSolidText;
+    private boolean mToggleDigital;
+    private boolean mToggleAnalogue;
+    private boolean mToggleBattery;
+    private boolean mToggleFixChin;
+    private boolean mToggleDial;
+    private boolean mToggleWeather;
+
+    public boolean getToggleWeather() {
+        return mToggleWeather;
+    }
 
     private OnFragmentInteractionListener mListener;
 
-    public static TogglesFragment newInstance(Boolean toggleAmPm,
-                                              Boolean toggleDayDate,
-                                              Boolean toggleDimColour,
-                                              Boolean toggleSolidText,
-                                              Boolean toggleDigital,
-                                              Boolean toggleAnalogue,
-                                              Boolean toggleBattery,
-                                              Boolean toggleFixChin,
-                                              Boolean toggleDial,
-                                              Boolean toggleWeather) {
+    public static TogglesFragment newInstance(boolean toggleAmPm,
+                                              boolean toggleDayDate,
+                                              boolean toggleDimColour,
+                                              boolean toggleSolidText,
+                                              boolean toggleDigital,
+                                              boolean toggleAnalogue,
+                                              boolean toggleBattery,
+                                              boolean toggleFixChin,
+                                              boolean toggleDial,
+                                              boolean toggleWeather) {
         TogglesFragment fragment = new TogglesFragment();
         Bundle args = new Bundle();
         args.putBoolean(ARG_AM_PM, toggleAmPm);
@@ -114,6 +118,7 @@ public class TogglesFragment extends Fragment {
         CompoundButton.OnCheckedChangeListener checkBoxListener = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mToggleWeather = toggle_weather.isChecked();
                 if (mListener != null) {
                     Bundle toggles = new Bundle();
                     toggles.putBoolean(ARG_AM_PM, toggle_am_pm.isChecked());
@@ -143,7 +148,7 @@ public class TogglesFragment extends Fragment {
         toggle_weather.setOnCheckedChangeListener(checkBoxListener);
     }
 
-    private void setUpCheckBox(CheckBox checkBox, Boolean toggle) {
+    private void setUpCheckBox(CheckBox checkBox, boolean toggle) {
         checkBox.setChecked(toggle);
     }
 

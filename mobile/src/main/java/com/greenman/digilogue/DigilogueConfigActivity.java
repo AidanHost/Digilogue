@@ -29,6 +29,7 @@ import com.google.android.gms.wearable.Wearable;
 import com.greenman.common.Utility;
 import com.greenman.digilogue.view.PreviewWatchFace;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class DigilogueConfigActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataApi.DataItemResult>, ColoursFragment.OnFragmentInteractionListener, TogglesFragment.OnFragmentInteractionListener, WeatherFragment.OnFragmentInteractionListener {
@@ -67,6 +68,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     private boolean autoLocation = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION;
     private String weatherData = "";
     private String manualLocation = "";
+    private TabAdapter mAdapter;
     //endregion
 
     //region Overrides
@@ -278,7 +280,15 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         togglesFragment = TogglesFragment.newInstance(toggleAmPm, toggleDayDate, toggleDimColour, toggleSolidText, toggleDigital, toggleAnalogue, toggleBattery, toggleFixChin, toggleDial, toggleWeather);
         weatherFragment = WeatherFragment.newInstance(autoLocation, fahrenheit, manualLocation, weatherData);
 
-        pager.setAdapter(new TabAdapter(getSupportFragmentManager(), getBaseContext()));
+        ArrayList<String> tabs = new ArrayList<>();
+        tabs.add(getBaseContext().getString(R.string.colour_title));
+        tabs.add(getBaseContext().getString(R.string.toggles_title));
+        tabs.add(getBaseContext().getString(R.string.weather_title));
+
+
+        mAdapter = new TabAdapter(getSupportFragmentManager(), tabs);
+
+        pager.setAdapter(mAdapter);
     }
 
     private void sendConfigUpdateMessage() {
@@ -345,6 +355,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         if (toggles == null)
             return;
 
+        //mAdapter.notifyDataSetChanged();
+
         if (toggles.containsKey(TogglesFragment.ARG_AM_PM))
             toggleAmPm = toggles.getBoolean(TogglesFragment.ARG_AM_PM);
 
@@ -396,11 +408,11 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     }
 
     public static class TabAdapter extends FragmentPagerAdapter {
-        private Context context;
-        public TabAdapter(FragmentManager fm, Context context) {
+        private ArrayList<String> tabs;
+        public TabAdapter(FragmentManager fm, ArrayList<String> tabs) {
             super(fm);
 
-            this.context = context;
+            this.tabs = tabs;
         }
 
         @Override
@@ -410,17 +422,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return context.getString(R.string.colour_title);
-                case 1:
-                    return context.getString(R.string.toggles_title);
-                case 2:
-                    return context.getString(R.string.weather_title);
-
-                default:
-                    return  "";
-            }
+            return tabs.get(position);
         }
 
         @Override
