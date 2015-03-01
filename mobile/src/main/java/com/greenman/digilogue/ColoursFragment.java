@@ -3,7 +3,7 @@ package com.greenman.digilogue;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +11,12 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 
 public class ColoursFragment extends Fragment {
-    private static final String ARG_BACKGROUND = "background";
-    private static final String ARG_MIDDLE = "middle";
-    private static final String ARG_FOREGROUND = "foreground";
-    private static final String ARG_ACCENT = "accent";
+    public static final String ARG_BACKGROUND = "background";
+    public static final String ARG_MIDDLE = "middle";
+    public static final String ARG_FOREGROUND = "foreground";
+    public static final String ARG_ACCENT = "accent";
 
-    String[] colourNames;
+    private String[] colourNames;
 
     private String mBackground;
     private String mMiddle;
@@ -79,10 +79,13 @@ public class ColoursFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (mListener != null) {
-                    mListener.onColourSelected(colourNames[background.getSelectedItemPosition()],
-                            colourNames[middle.getSelectedItemPosition()],
-                            colourNames[foreground.getSelectedItemPosition()],
-                            colourNames[accent.getSelectedItemPosition()]);
+                    Bundle colours = new Bundle();
+                    colours.putString(ColoursFragment.ARG_BACKGROUND, colourNames[background.getSelectedItemPosition()]);
+                    colours.putString(ColoursFragment.ARG_MIDDLE, colourNames[middle.getSelectedItemPosition()]);
+                    colours.putString(ColoursFragment.ARG_FOREGROUND, colourNames[foreground.getSelectedItemPosition()]);
+                    colours.putString(ColoursFragment.ARG_ACCENT, colourNames[accent.getSelectedItemPosition()]);
+
+                    mListener.onColourSelected(colours);
                 }
             }
 
@@ -125,7 +128,7 @@ public class ColoursFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
-        public void onColourSelected(String background, String middle, String foreground, String accent);
+        public void onColourSelected(Bundle colours);
     }
 
 }

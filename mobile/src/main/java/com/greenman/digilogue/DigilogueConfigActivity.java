@@ -1,9 +1,14 @@
 package com.greenman.digilogue;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.wearable.companion.WatchFaceCompanion;
 import android.text.format.Time;
@@ -11,7 +16,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -37,6 +41,11 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     private String mPeerId;
 
     private PreviewWatchFace preview;
+    private ViewPager pager;
+
+    private static ColoursFragment coloursFragment;
+    private static TogglesFragment togglesFragment;
+    private static WeatherFragment weatherFragment;
 
     private String backgroundColour = Utility.COLOUR_NAME_DEFAULT_BACKGROUND;
     private String middleColour = Utility.COLOUR_NAME_DEFAULT_MIDDLE;
@@ -65,6 +74,9 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_digilogue_config);
+
+        preview = (PreviewWatchFace) findViewById(R.id.preview);
+        pager = (ViewPager) findViewById(R.id.pager);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -175,10 +187,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         alert.show();
     }
 
-    private void fetchControls() {
-        preview = (PreviewWatchFace) findViewById(R.id.preview);
-    }
-
     private void fetchToggles(DataMap config) {
         toggleAmPm = config.containsKey(Utility.KEY_TOGGLE_AM_PM) && config.getBoolean(Utility.KEY_TOGGLE_AM_PM, false);
         toggleAnalogue = config.containsKey(Utility.KEY_TOGGLE_ANALOGUE) && config.getBoolean(Utility.KEY_TOGGLE_ANALOGUE, true) || !config.containsKey(Utility.KEY_TOGGLE_ANALOGUE);
@@ -245,16 +253,14 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     }
 
     private void init(DataMap config) {
-        fetchControls();
-
         try {
 
             if (config != null) {
+                fetchColours(config);
+
                 fetchToggles(config);
 
                 fetchWeatherData(config);
-
-                fetchColours(config);
 
                 preview.setConfig(config);
             }
@@ -265,6 +271,14 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         setUpFragments();
 
         Toast.makeText(getBaseContext(), getString(R.string.preview_tap), Toast.LENGTH_LONG).show();
+    }
+
+    private void setUpFragments() {
+        coloursFragment = ColoursFragment.newInstance(backgroundColour, middleColour, foregroundColour, accentColour);
+        togglesFragment = TogglesFragment.newInstance(toggleAmPm, toggleDayDate, toggleDimColour, toggleSolidText, toggleDigital, toggleAnalogue, toggleBattery, toggleFixChin, toggleDial, toggleWeather);
+        weatherFragment = WeatherFragment.newInstance(autoLocation, fahrenheit, manualLocation, weatherData);
+
+        pager.setAdapter(new TabAdapter(getSupportFragmentManager(), getBaseContext()));
     }
 
     private void sendConfigUpdateMessage() {
@@ -307,46 +321,122 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     }
 
     @Override
-    public void onColourSelected(String background, String middle, String foreground, String accent) {
-        backgroundColour = background;
-        middleColour = middle;
-        foregroundColour = foreground;
-        accentColour = accent;
+    public void onColourSelected(Bundle colours) {
+        if (colours == null)
+            return;
+
+        if (colours.containsKey(ColoursFragment.ARG_BACKGROUND))
+            backgroundColour = colours.getString(ColoursFragment.ARG_BACKGROUND);
+
+        if (colours.containsKey(ColoursFragment.ARG_BACKGROUND))
+            middleColour = colours.getString(ColoursFragment.ARG_MIDDLE);
+
+        if (colours.containsKey(ColoursFragment.ARG_BACKGROUND))
+            foregroundColour = colours.getString(ColoursFragment.ARG_FOREGROUND);
+
+        if (colours.containsKey(ColoursFragment.ARG_BACKGROUND))
+            accentColour = colours.getString(ColoursFragment.ARG_ACCENT);
 
         updateConfig();
     }
 
     @Override
-    public void onToggleChanged(Boolean toggleAmPm,
-                                Boolean toggleDayDate,
-                                Boolean toggleDimColour,
-                                Boolean toggleSolidText,
-                                Boolean toggleDigital,
-                                Boolean toggleAnalogue,
-                                Boolean toggleBattery,
-                                Boolean toggleFixChin,
-                                Boolean toggleDial,
-                                Boolean toggleWeather) {
-        this.toggleAmPm = toggleAmPm;
-        this.toggleDayDate = toggleDayDate;
-        this.toggleDimColour = toggleDimColour;
-        this.toggleSolidText = toggleSolidText;
-        this.toggleDigital = toggleDigital;
-        this.toggleAnalogue = toggleAnalogue;
-        this.toggleBattery = toggleBattery;
-        this.toggleFixChin = toggleFixChin;
-        this.toggleDial = toggleDial;
-        this.toggleWeather = toggleWeather;
+    public void onToggleChanged(Bundle toggles) {
+        if (toggles == null)
+            return;
+
+        if (toggles.containsKey(TogglesFragment.ARG_AM_PM))
+            toggleAmPm = toggles.getBoolean(TogglesFragment.ARG_AM_PM);
+
+        if (toggles.containsKey(TogglesFragment.ARG_DAY_DATE))
+            toggleDayDate = toggles.getBoolean(TogglesFragment.ARG_DAY_DATE);
+
+        if (toggles.containsKey(TogglesFragment.ARG_DIM_COLOUR))
+            toggleDimColour = toggles.getBoolean(TogglesFragment.ARG_DIM_COLOUR);
+
+        if (toggles.containsKey(TogglesFragment.ARG_SOLID_TEXT))
+            toggleSolidText = toggles.getBoolean(TogglesFragment.ARG_SOLID_TEXT);
+
+        if (toggles.containsKey(TogglesFragment.ARG_DIGITAL))
+            toggleDigital = toggles.getBoolean(TogglesFragment.ARG_DIGITAL);
+
+        if (toggles.containsKey(TogglesFragment.ARG_ANALOGUE))
+            toggleAnalogue = toggles.getBoolean(TogglesFragment.ARG_ANALOGUE);
+
+        if (toggles.containsKey(TogglesFragment.ARG_BATTERY))
+            toggleBattery = toggles.getBoolean(TogglesFragment.ARG_BATTERY);
+
+        if (toggles.containsKey(TogglesFragment.ARG_FIX_CHIN))
+            toggleFixChin = toggles.getBoolean(TogglesFragment.ARG_FIX_CHIN);
+
+        if (toggles.containsKey(TogglesFragment.ARG_DIAL))
+            toggleDial = toggles.getBoolean(TogglesFragment.ARG_DIAL);
+
+        if (toggles.containsKey(TogglesFragment.ARG_WEATHER))
+            toggleWeather = toggles.getBoolean(TogglesFragment.ARG_WEATHER);
 
         updateConfig();
     }
 
     @Override
-    public void onWeatherChanged(boolean autoLocation, boolean fahrenheit, String manualLocation) {
-        this.manualLocation = manualLocation;
-        this.autoLocation = autoLocation;
-        this.fahrenheit = fahrenheit;
+    public void onWeatherChanged(Bundle weather) {
+        if (weather == null)
+            return;
+
+        if (weather.containsKey(WeatherFragment.ARG_LOCATION))
+            manualLocation = weather.getString(WeatherFragment.ARG_LOCATION);
+
+        if (weather.containsKey(WeatherFragment.ARG_AUTO_LOCATION))
+            autoLocation = weather.getBoolean(WeatherFragment.ARG_AUTO_LOCATION);
+
+        if (weather.containsKey(WeatherFragment.ARG_FAHRENHEIT))
+            fahrenheit = weather.getBoolean(WeatherFragment.ARG_FAHRENHEIT);
 
         updateConfig();
     }
+
+    public static class TabAdapter extends FragmentPagerAdapter {
+        private Context context;
+        public TabAdapter(FragmentManager fm, Context context) {
+            super(fm);
+
+            this.context = context;
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return context.getString(R.string.colour_title);
+                case 1:
+                    return context.getString(R.string.toggles_title);
+                case 2:
+                    return context.getString(R.string.weather_title);
+
+                default:
+                    return  "";
+            }
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return coloursFragment;
+                case 1:
+                    return togglesFragment;
+                case 2:
+                    return weatherFragment;
+
+                default:
+                    return  new Fragment();
+            }
+        }
+    }
+
 }

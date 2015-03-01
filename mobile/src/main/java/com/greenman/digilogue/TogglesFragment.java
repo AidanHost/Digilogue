@@ -2,7 +2,7 @@ package com.greenman.digilogue;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,16 +10,16 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 public class TogglesFragment extends Fragment {
-    private static final String ARG_AM_PM = "toggleAmPm";
-    private static final String ARG_DAY_DATE = "toggleDayDate";
-    private static final String ARG_DIM_COLOUR = "toggleDimColour";
-    private static final String ARG_SOLID_TEXT = "toggleSolidText";
-    private static final String ARG_DIGITAL = "toggleDigital";
-    private static final String ARG_ANALOGUE = "toggleAnalogue";
-    private static final String ARG_BATTERY = "toggleBattery";
-    private static final String ARG_FIX_CHIN = "toggleFixChin";
-    private static final String ARG_DIAL = "toggleDial";
-    private static final String ARG_WEATHER = "toggleWeather";
+    public static final String ARG_AM_PM = "toggleAmPm";
+    public static final String ARG_DAY_DATE = "toggleDayDate";
+    public static final String ARG_DIM_COLOUR = "toggleDimColour";
+    public static final String ARG_SOLID_TEXT = "toggleSolidText";
+    public static final String ARG_DIGITAL = "toggleDigital";
+    public static final String ARG_ANALOGUE = "toggleAnalogue";
+    public static final String ARG_BATTERY = "toggleBattery";
+    public static final String ARG_FIX_CHIN = "toggleFixChin";
+    public static final String ARG_DIAL = "toggleDial";
+    public static final String ARG_WEATHER = "toggleWeather";
 
     private Boolean mToggleAmPm;
     private Boolean mToggleDayDate;
@@ -33,17 +33,6 @@ public class TogglesFragment extends Fragment {
     private Boolean mToggleWeather;
 
     private OnFragmentInteractionListener mListener;
-
-    private CheckBox toggle_am_pm;
-    private CheckBox toggle_day_date;
-    private CheckBox toggle_dim_colour;
-    private CheckBox toggle_solid_text;
-    private CheckBox toggle_digital;
-    private CheckBox toggle_analogue;
-    private CheckBox toggle_battery;
-    private CheckBox toggle_fix_chin;
-    private CheckBox toggle_dial;
-    private CheckBox toggle_weather;
 
     public static TogglesFragment newInstance(Boolean toggleAmPm,
                                               Boolean toggleDayDate,
@@ -100,16 +89,16 @@ public class TogglesFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstance) {
-        toggle_am_pm = (CheckBox) view.findViewById(R.id.toggle_am_pm);
-        toggle_day_date = (CheckBox) view.findViewById(R.id.toggle_date_day);
-        toggle_dim_colour = (CheckBox) view.findViewById(R.id.toggle_dim);
-        toggle_solid_text = (CheckBox) view.findViewById(R.id.toggle_solid_number);
-        toggle_digital = (CheckBox) view.findViewById(R.id.toggle_digital);
-        toggle_analogue = (CheckBox) view.findViewById(R.id.toggle_analogue);
-        toggle_battery = (CheckBox) view.findViewById(R.id.toggle_battery);
-        toggle_fix_chin = (CheckBox) view.findViewById(R.id.toggle_fix_chin);
-        toggle_dial = (CheckBox) view.findViewById(R.id.toggle_dial);
-        toggle_weather = (CheckBox) view.findViewById(R.id.toggle_weather);
+        final CheckBox toggle_am_pm = (CheckBox) view.findViewById(R.id.toggle_am_pm);
+        final CheckBox toggle_day_date = (CheckBox) view.findViewById(R.id.toggle_date_day);
+        final CheckBox toggle_dim_colour = (CheckBox) view.findViewById(R.id.toggle_dim);
+        final CheckBox toggle_solid_text = (CheckBox) view.findViewById(R.id.toggle_solid_number);
+        final CheckBox toggle_digital = (CheckBox) view.findViewById(R.id.toggle_digital);
+        final CheckBox toggle_analogue = (CheckBox) view.findViewById(R.id.toggle_analogue);
+        final CheckBox toggle_battery = (CheckBox) view.findViewById(R.id.toggle_battery);
+        final CheckBox toggle_fix_chin = (CheckBox) view.findViewById(R.id.toggle_fix_chin);
+        final CheckBox toggle_dial = (CheckBox) view.findViewById(R.id.toggle_dial);
+        final CheckBox toggle_weather = (CheckBox) view.findViewById(R.id.toggle_weather);
 
         setUpCheckBox(toggle_am_pm, mToggleAmPm);
         setUpCheckBox(toggle_day_date, mToggleDayDate);
@@ -126,16 +115,18 @@ public class TogglesFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (mListener != null) {
-                    mListener.onToggleChanged(toggle_am_pm.isSelected(),
-                            toggle_day_date.isSelected(),
-                            toggle_dim_colour.isSelected(),
-                            toggle_solid_text.isSelected(),
-                            toggle_digital.isSelected(),
-                            toggle_analogue.isSelected(),
-                            toggle_battery.isSelected(),
-                            toggle_fix_chin.isSelected(),
-                            toggle_dial.isSelected(),
-                            toggle_weather.isSelected());
+                    Bundle toggles = new Bundle();
+                    toggles.putBoolean(ARG_AM_PM, toggle_am_pm.isChecked());
+                    toggles.putBoolean(ARG_DAY_DATE, toggle_day_date.isChecked());
+                    toggles.putBoolean(ARG_DIM_COLOUR, toggle_dim_colour.isChecked());
+                    toggles.putBoolean(ARG_SOLID_TEXT, toggle_solid_text.isChecked());
+                    toggles.putBoolean(ARG_DIGITAL, toggle_digital.isChecked());
+                    toggles.putBoolean(ARG_ANALOGUE, toggle_analogue.isChecked());
+                    toggles.putBoolean(ARG_BATTERY, toggle_battery.isChecked());
+                    toggles.putBoolean(ARG_FIX_CHIN, toggle_fix_chin.isChecked());
+                    toggles.putBoolean(ARG_DIAL, toggle_dial.isChecked());
+                    toggles.putBoolean(ARG_WEATHER, toggle_weather.isChecked());
+                    mListener.onToggleChanged(toggles);
                 }
             }
         };
@@ -174,16 +165,7 @@ public class TogglesFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
-        public void onToggleChanged(Boolean toggleAmPm,
-                                    Boolean toggleDayDate,
-                                    Boolean toggleDimColour,
-                                    Boolean toggleSolidText,
-                                    Boolean toggleDigital,
-                                    Boolean toggleAnalogue,
-                                    Boolean toggleBattery,
-                                    Boolean toggleFixChin,
-                                    Boolean toggleDial,
-                                    Boolean toggleWeather);
+        public void onToggleChanged(Bundle toggles);
     }
 
 }

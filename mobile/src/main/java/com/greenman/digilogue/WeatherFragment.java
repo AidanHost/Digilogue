@@ -1,9 +1,8 @@
 package com.greenman.digilogue;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +13,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class WeatherFragment extends Fragment {
-    private static final String ARG_AUTO_LOCATION = "autoLocation";
-    private static final String ARG_FAHRENHEIT = "fahrenheit";
-    private static final String ARG_LOCATION = "location";
-    private static final String ARG_DATA = "data";
+    public static final String ARG_AUTO_LOCATION = "autoLocation";
+    public static final String ARG_FAHRENHEIT = "fahrenheit";
+    public static final String ARG_LOCATION = "location";
+    public static final String ARG_DATA = "data";
 
     private LinearLayout location;
     private TextView widget_weather_text_data;
@@ -64,6 +63,17 @@ public class WeatherFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_weather, container, false);
     }
 
+    private void fireWeatherChanged() {
+        if (mListener != null) {
+            Bundle weather = new Bundle();
+            weather.putBoolean(ARG_AUTO_LOCATION, widget_weather_auto_location.isChecked());
+            weather.putBoolean(ARG_FAHRENHEIT, widget_weather_fahrenheit.isChecked());
+            weather.putString(ARG_LOCATION, widget_weather_text_location.getText().toString());
+
+            mListener.onWeatherChanged(weather);
+        }
+    }
+
     @Override
     public void onViewCreated(View view, Bundle savedInstance) {
         widget_weather_text_data = (TextView) view.findViewById(R.id.widget_weather_text_data);
@@ -84,29 +94,21 @@ public class WeatherFragment extends Fragment {
                 else
                     location.setVisibility(View.VISIBLE);
 
-                if (mListener != null) {
-                    mListener.onWeatherChanged(widget_weather_auto_location.isSelected(), widget_weather_fahrenheit.isSelected(), widget_weather_text_location.getText().toString());
-                }
+                fireWeatherChanged();
             }
         });
 
         widget_weather_fahrenheit.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (mListener != null) {
-                    mListener.onWeatherChanged(widget_weather_auto_location.isSelected(), widget_weather_fahrenheit.isSelected(), widget_weather_text_location.getText().toString());
-                }
+                fireWeatherChanged();
             }
         });
 
         widget_weather_text_location.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    if (mListener != null) {
-                        mListener.onWeatherChanged(widget_weather_auto_location.isSelected(), widget_weather_fahrenheit.isSelected(), widget_weather_text_location.getText().toString());
-                    }
-                }
+                fireWeatherChanged();
             }
         });
 
@@ -142,7 +144,7 @@ public class WeatherFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
-        public void onWeatherChanged(boolean autoLocation, boolean fahrenheit, String manualLocation);
+        public void onWeatherChanged(Bundle weather);
     }
 
 }
