@@ -38,7 +38,7 @@ public class Utility {
     // boolean defaults
     public static final boolean CONFIG_DEFAULT_TOGGLE_AM_PM = false;
     public static final boolean CONFIG_DEFAULT_TOGGLE_ANALOGUE = true;
-    public static final boolean CONFIG_DEFAULT_TOGGLE_DRAW_DIAL = false;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_DIAL = false;
     public static final boolean CONFIG_DEFAULT_TOGGLE_DIGITAL = true;
     public static final boolean CONFIG_DEFAULT_TOGGLE_BATTERY = true;
     public static final boolean CONFIG_DEFAULT_TOGGLE_DAY_DATE = true;

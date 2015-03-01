@@ -7,42 +7,38 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link WeatherFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link WeatherFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class WeatherFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_AUTO_LOCATION = "autoLocation";
+    private static final String ARG_FAHRENHEIT = "fahrenheit";
+    private static final String ARG_LOCATION = "location";
+    private static final String ARG_DATA = "data";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private LinearLayout location;
+    private TextView widget_weather_text_data;
+    private EditText widget_weather_text_location;
+    private CheckBox widget_weather_fahrenheit;
+    private CheckBox widget_weather_auto_location;
+
+    private boolean mAutoLocation;
+    private boolean mFahrenheit;
+    private String mManualLocation;
+    private String mData;
 
     private OnFragmentInteractionListener mListener;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment WeatherFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static WeatherFragment newInstance(String param1, String param2) {
+    public static WeatherFragment newInstance(boolean autoLocation, boolean fahrenheit, String location, String data) {
         WeatherFragment fragment = new WeatherFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putBoolean(ARG_AUTO_LOCATION, autoLocation);
+        args.putBoolean(ARG_FAHRENHEIT, fahrenheit);
+        args.putString(ARG_LOCATION, location);
+        args.putString(ARG_DATA, data);
         fragment.setArguments(args);
         return fragment;
     }
@@ -55,23 +51,77 @@ public class WeatherFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mAutoLocation = getArguments().getBoolean(ARG_AUTO_LOCATION);
+            mFahrenheit = getArguments().getBoolean(ARG_FAHRENHEIT);
+            mManualLocation = getArguments().getString(ARG_LOCATION);
+            mData = getArguments().getString(ARG_DATA);
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_weather, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+    @Override
+    public void onViewCreated(View view, Bundle savedInstance) {
+        widget_weather_text_data = (TextView) view.findViewById(R.id.widget_weather_text_data);
+        widget_weather_fahrenheit = (CheckBox) view.findViewById(R.id.widget_weather_fahrenheit);
+        widget_weather_auto_location = (CheckBox) view.findViewById(R.id.widget_weather_auto_location);
+        widget_weather_text_location = (EditText) view.findViewById(R.id.widget_weather_text_location);
+        location = (LinearLayout) view.findViewById(R.id.location);
+
+        widget_weather_auto_location.setChecked(mAutoLocation);
+        widget_weather_fahrenheit.setChecked(mFahrenheit);
+        setText();
+
+        widget_weather_auto_location.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                    location.setVisibility(View.GONE);
+                else
+                    location.setVisibility(View.VISIBLE);
+
+                if (mListener != null) {
+                    mListener.onWeatherChanged(widget_weather_auto_location.isSelected(), widget_weather_fahrenheit.isSelected(), widget_weather_text_location.getText().toString());
+                }
+            }
+        });
+
+        widget_weather_fahrenheit.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mListener != null) {
+                    mListener.onWeatherChanged(widget_weather_auto_location.isSelected(), widget_weather_fahrenheit.isSelected(), widget_weather_text_location.getText().toString());
+                }
+            }
+        });
+
+        widget_weather_text_location.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    if (mListener != null) {
+                        mListener.onWeatherChanged(widget_weather_auto_location.isSelected(), widget_weather_fahrenheit.isSelected(), widget_weather_text_location.getText().toString());
+                    }
+                }
+            }
+        });
+
+        if (!mAutoLocation)
+            location.setVisibility(View.VISIBLE);
+    }
+
+    private void setText() {
+        if (!mData.isEmpty())
+            widget_weather_text_data.setText(mData);
+        else
+            widget_weather_text_data.setText(getString(R.string.weather_data_info));
+
+        if (!mManualLocation.isEmpty())
+            widget_weather_text_location.setText(mManualLocation);
     }
 
     @Override
@@ -91,19 +141,8 @@ public class WeatherFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        public void onWeatherChanged(boolean autoLocation, boolean fahrenheit, String manualLocation);
     }
 
 }

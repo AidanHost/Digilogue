@@ -10,12 +10,10 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/widget_weather_group"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:paddingBottom="10dp"
-            android:visibility="gone">
+            android:paddingBottom="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -35,40 +33,20 @@
                 android:orientation="horizontal"
                 android:paddingBottom="10dp">
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:text="@string/fahrenheit" />
-
                 <CheckBox
                     android:id="@+id/widget_weather_fahrenheit"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_weight="3" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="10dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:text="@string/weather_location" />
+                    android:layout_weight="2"
+                    android:text="@string/fahrenheit" />
 
                 <CheckBox
                     android:id="@+id/widget_weather_auto_location"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_weight="3"
+                    android:layout_weight="2"
                     android:text="@string/widget_weather_auto_location" />
             </LinearLayout>
 

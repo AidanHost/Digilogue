@@ -12,13 +12,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -34,7 +27,7 @@ import com.greenman.digilogue.view.PreviewWatchFace;
 
 import java.util.concurrent.TimeUnit;
 
-public class DigilogueConfigActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataApi.DataItemResult> {
+public class DigilogueConfigActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataApi.DataItemResult>, ColoursFragment.OnFragmentInteractionListener, TogglesFragment.OnFragmentInteractionListener, WeatherFragment.OnFragmentInteractionListener {
     private static final String TAG = "DigilogueConfigActivity";
 
     //region variables
@@ -45,52 +38,26 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
     private PreviewWatchFace preview;
 
-    private Spinner background;
-    private Spinner middle;
-    private Spinner foreground;
-    private Spinner accent;
-
-    private EditText widget_weather_text_location;
-
-    private CheckBox toggle_am_pm;
-    private CheckBox toggle_weather;
-    private CheckBox widget_weather_fahrenheit;
-    private CheckBox widget_weather_auto_location;
-
-    private CheckBox toggle_day_date;
-    private CheckBox toggle_dim_colour;
-    private CheckBox toggle_solid_text;
-    private CheckBox toggle_digital;
-    private CheckBox toggle_analogue;
-    private CheckBox toggle_battery;
-    private CheckBox toggle_fix_chin;
-    private CheckBox toggle_dial;
-
-    private LinearLayout weather_data;
-    private TextView widget_weather_text_data;
-    private LinearLayout widget_weather_group;
-    private LinearLayout location;
-
     private String backgroundColour = Utility.COLOUR_NAME_DEFAULT_BACKGROUND;
     private String middleColour = Utility.COLOUR_NAME_DEFAULT_MIDDLE;
     private String foregroundColour = Utility.COLOUR_NAME_DEFAULT_FOREGROUND;
     private String accentColour = Utility.COLOUR_NAME_DEFAULT_ACCENT;
 
-    private boolean showWeather = Utility.CONFIG_DEFAULT_TOGGLE_WEATHER;
-    private boolean fahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
-    private boolean autoLocation = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION;
     private boolean toggleAmPm = Utility.CONFIG_DEFAULT_TOGGLE_AM_PM;
-    private boolean toggleAnalogue = Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE;
-    private boolean toggleDigital = Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL;
     private boolean toggleDayDate = Utility.CONFIG_DEFAULT_TOGGLE_DAY_DATE;
-    private boolean toggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
     private boolean toggleDimColour = Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR;
     private boolean toggleSolidText = Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT;
+    private boolean toggleDigital = Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL;
+    private boolean toggleAnalogue = Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE;
+    private boolean toggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
     private boolean toggleFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
-    private boolean toggleDial = Utility.CONFIG_DEFAULT_TOGGLE_DRAW_DIAL;
+    private boolean toggleDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
+    private boolean toggleWeather = Utility.CONFIG_DEFAULT_TOGGLE_WEATHER;
 
+    private boolean fahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
+    private boolean autoLocation = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION;
     private String weatherData = "";
-    private String locationText = "";
+    private String manualLocation = "";
     //endregion
 
     //region Overrides
@@ -210,90 +177,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
     private void fetchControls() {
         preview = (PreviewWatchFace) findViewById(R.id.preview);
-        background = (Spinner) findViewById(R.id.background);
-        middle = (Spinner) findViewById(R.id.middle);
-        foreground = (Spinner) findViewById(R.id.foreground);
-        accent = (Spinner) findViewById(R.id.accent);
-
-        weather_data = (LinearLayout) findViewById(R.id.weather_data);
-        widget_weather_text_data = (TextView) findViewById(R.id.widget_weather_text_data);
-        toggle_am_pm = (CheckBox) findViewById(R.id.digital_format);
-        toggle_weather = (CheckBox) findViewById(R.id.widget_show_weather);
-        widget_weather_fahrenheit = (CheckBox) findViewById(R.id.widget_weather_fahrenheit);
-        widget_weather_auto_location = (CheckBox) findViewById(R.id.widget_weather_auto_location);
-
-        toggle_analogue = (CheckBox) findViewById(R.id.toggle_analogue);
-        toggle_digital = (CheckBox) findViewById(R.id.toggle_digital);
-        toggle_day_date = (CheckBox) findViewById(R.id.toggle_date_day);
-        toggle_battery = (CheckBox) findViewById(R.id.toggle_battery);
-        toggle_dim_colour = (CheckBox) findViewById(R.id.toggle_dim);
-        toggle_solid_text = (CheckBox) findViewById(R.id.toggle_solid_number);
-        toggle_fix_chin = (CheckBox) findViewById(R.id.toggle_fix_chin);
-        toggle_dial = (CheckBox) findViewById(R.id.toggle_dial);
-
-        widget_weather_text_location = (EditText) findViewById(R.id.widget_weather_text_location);
-
-        widget_weather_group = (LinearLayout) findViewById(R.id.widget_weather_group);
-        location = (LinearLayout) findViewById(R.id.location);
-    }
-
-    private void setUpUIChangeListeners() {
-        AdapterView.OnItemSelectedListener spinnerListener = new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                updateConfig();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        };
-
-        background.setOnItemSelectedListener(spinnerListener);
-        middle.setOnItemSelectedListener(spinnerListener);
-        foreground.setOnItemSelectedListener(spinnerListener);
-        accent.setOnItemSelectedListener(spinnerListener);
-
-        CompoundButton.OnCheckedChangeListener checkBoxListener = new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                updateConfig();
-            }
-        };
-
-        toggle_am_pm.setOnCheckedChangeListener(checkBoxListener);
-        toggle_day_date.setOnCheckedChangeListener(checkBoxListener);
-        toggle_dim_colour.setOnCheckedChangeListener(checkBoxListener);
-        toggle_solid_text.setOnCheckedChangeListener(checkBoxListener);
-        toggle_digital.setOnCheckedChangeListener(checkBoxListener);
-        toggle_analogue.setOnCheckedChangeListener(checkBoxListener);
-        toggle_battery.setOnCheckedChangeListener(checkBoxListener);
-        toggle_fix_chin.setOnCheckedChangeListener(checkBoxListener);
-        toggle_dial.setOnCheckedChangeListener(checkBoxListener);
-        widget_weather_fahrenheit.setOnCheckedChangeListener(checkBoxListener);
-
-        toggle_weather.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked)
-                    widget_weather_group.setVisibility(View.VISIBLE);
-                else
-                    widget_weather_group.setVisibility(View.GONE);
-
-                updateConfig();
-            }
-        });
-
-        widget_weather_auto_location.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked)
-                    location.setVisibility(View.GONE);
-                else
-                    location.setVisibility(View.VISIBLE);
-            }
-        });
     }
 
     private void fetchToggles(DataMap config) {
@@ -307,7 +190,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         toggleFixChin = config.containsKey(Utility.KEY_TOGGLE_FIX_CHIN) && config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN, false);
         toggleDial = config.containsKey(Utility.KEY_TOGGLE_DRAW_DIAL) && config.getBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, false);
 
-        showWeather = config.containsKey(Utility.KEY_TOGGLE_WEATHER) && config.getBoolean(Utility.KEY_TOGGLE_WEATHER, false);
+        toggleWeather = config.containsKey(Utility.KEY_TOGGLE_WEATHER) && config.getBoolean(Utility.KEY_TOGGLE_WEATHER, false);
         autoLocation = (config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, true) || !config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION));
         fahrenheit = config.containsKey(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, false);
     }
@@ -343,7 +226,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         if (!autoLocation) {
             if (config.containsKey(Utility.KEY_WIDGET_WEATHER_LOCATION))
-                locationText = config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION);
+                manualLocation = config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION);
         }
     }
 
@@ -359,38 +242,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         if (config.containsKey(Utility.KEY_ACCENT_COLOUR))
             accentColour = config.getString(Utility.KEY_ACCENT_COLOUR);
-    }
-
-    private void setChecked() {
-        widget_weather_auto_location.setChecked(autoLocation);
-        toggle_weather.setChecked(showWeather);
-        widget_weather_fahrenheit.setChecked(fahrenheit);
-        toggle_am_pm.setChecked(toggleAmPm);
-        toggle_analogue.setChecked(toggleAnalogue);
-        toggle_digital.setChecked(toggleDigital);
-        toggle_day_date.setChecked(toggleDayDate);
-        toggle_battery.setChecked(toggleBattery);
-        toggle_dim_colour.setChecked(toggleDimColour);
-        toggle_solid_text.setChecked(toggleSolidText);
-        toggle_fix_chin.setChecked(toggleFixChin);
-        toggle_dial.setChecked(toggleDial);
-    }
-
-    private void setText() {
-        if (!weatherData.isEmpty())
-            widget_weather_text_data.setText(weatherData);
-        else
-            widget_weather_text_data.setText(getString(R.string.weather_data_info));
-
-        if (!locationText.isEmpty())
-            widget_weather_text_location.setText(locationText);
-    }
-
-    private void setColours(DataMap config) {
-        setUpColorPickerSelection(R.id.background, Utility.KEY_BACKGROUND_COLOUR, config, backgroundColour);
-        setUpColorPickerSelection(R.id.middle, Utility.KEY_MIDDLE_COLOUR, config, middleColour);
-        setUpColorPickerSelection(R.id.foreground, Utility.KEY_FOREGROUND_COLOUR, config, foregroundColour);
-        setUpColorPickerSelection(R.id.accent, Utility.KEY_ACCENT_COLOUR, config, accentColour);
     }
 
     private void init(DataMap config) {
@@ -411,40 +262,9 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             e.printStackTrace();
         }
 
-        if (showWeather) {
-            widget_weather_group.setVisibility(View.VISIBLE);
-            weather_data.setVisibility(View.VISIBLE);
-
-            if (!autoLocation)
-                location.setVisibility(View.VISIBLE);
-        }
-
-        setChecked();
-
-        setText();
-
-        setColours(config);
-
-        setUpUIChangeListeners();
+        setUpFragments();
 
         Toast.makeText(getBaseContext(), getString(R.string.preview_tap), Toast.LENGTH_LONG).show();
-    }
-
-    private void setUpColorPickerSelection(int spinnerId, final String configKey, DataMap config, String defaultColorName) {
-        String color;
-        if (config != null) {
-            color = config.getString(configKey, defaultColorName);
-        } else {
-            color = defaultColorName;
-        }
-        Spinner spinner = (Spinner) findViewById(spinnerId);
-        String[] colorNames = getResources().getStringArray(R.array.color_array);
-        for (int i = 0; i < colorNames.length; i++) {
-            if (colorNames[i].toLowerCase().equals(color.toLowerCase())) {
-                spinner.setSelection(i);
-                break;
-            }
-        }
     }
 
     private void sendConfigUpdateMessage() {
@@ -461,29 +281,72 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         if (config == null)
             config = new DataMap();
 
-        config.putString(Utility.KEY_BACKGROUND_COLOUR, background.getSelectedItem().toString());
-        config.putString(Utility.KEY_MIDDLE_COLOUR, middle.getSelectedItem().toString());
-        config.putString(Utility.KEY_FOREGROUND_COLOUR, foreground.getSelectedItem().toString());
-        config.putString(Utility.KEY_ACCENT_COLOUR, accent.getSelectedItem().toString());
+        config.putString(Utility.KEY_BACKGROUND_COLOUR, backgroundColour);
+        config.putString(Utility.KEY_MIDDLE_COLOUR, middleColour);
+        config.putString(Utility.KEY_FOREGROUND_COLOUR, foregroundColour);
+        config.putString(Utility.KEY_ACCENT_COLOUR, accentColour);
 
-        config.putBoolean(Utility.KEY_TOGGLE_AM_PM, toggle_am_pm.isChecked());
-        config.putBoolean(Utility.KEY_TOGGLE_DAY_DATE, toggle_day_date.isChecked());
-        config.putBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, toggle_dim_colour.isChecked());
-        config.putBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, toggle_solid_text.isChecked());
-        config.putBoolean(Utility.KEY_TOGGLE_DIGITAL, toggle_digital.isChecked());
-        config.putBoolean(Utility.KEY_TOGGLE_ANALOGUE, toggle_analogue.isChecked());
-        config.putBoolean(Utility.KEY_TOGGLE_BATTERY, toggle_battery.isChecked());
-        config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, toggle_fix_chin.isChecked());
-        config.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, toggle_dial.isChecked());
-        config.putBoolean(Utility.KEY_TOGGLE_WEATHER, toggle_weather.isChecked());
+        config.putBoolean(Utility.KEY_TOGGLE_AM_PM, toggleAmPm);
+        config.putBoolean(Utility.KEY_TOGGLE_DAY_DATE, toggleDayDate);
+        config.putBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, toggleDimColour);
+        config.putBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, toggleSolidText);
+        config.putBoolean(Utility.KEY_TOGGLE_DIGITAL, toggleDigital);
+        config.putBoolean(Utility.KEY_TOGGLE_ANALOGUE, toggleAnalogue);
+        config.putBoolean(Utility.KEY_TOGGLE_BATTERY, toggleBattery);
+        config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, toggleFixChin);
+        config.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, toggleDial);
+        config.putBoolean(Utility.KEY_TOGGLE_WEATHER, toggleWeather);
 
-        config.putBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, widget_weather_fahrenheit.isChecked());
-        config.putBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, widget_weather_auto_location.isChecked());
+        config.putBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, fahrenheit);
+        config.putBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, autoLocation);
 
-        String manualLocation = widget_weather_text_location.getText().toString();
-        if (manualLocation.length() > 0 && !widget_weather_auto_location.isChecked())
+        if (manualLocation.length() > 0 && !autoLocation)
             config.putString(Utility.KEY_WIDGET_WEATHER_LOCATION, manualLocation);
 
         preview.setConfig(config);
+    }
+
+    @Override
+    public void onColourSelected(String background, String middle, String foreground, String accent) {
+        backgroundColour = background;
+        middleColour = middle;
+        foregroundColour = foreground;
+        accentColour = accent;
+
+        updateConfig();
+    }
+
+    @Override
+    public void onToggleChanged(Boolean toggleAmPm,
+                                Boolean toggleDayDate,
+                                Boolean toggleDimColour,
+                                Boolean toggleSolidText,
+                                Boolean toggleDigital,
+                                Boolean toggleAnalogue,
+                                Boolean toggleBattery,
+                                Boolean toggleFixChin,
+                                Boolean toggleDial,
+                                Boolean toggleWeather) {
+        this.toggleAmPm = toggleAmPm;
+        this.toggleDayDate = toggleDayDate;
+        this.toggleDimColour = toggleDimColour;
+        this.toggleSolidText = toggleSolidText;
+        this.toggleDigital = toggleDigital;
+        this.toggleAnalogue = toggleAnalogue;
+        this.toggleBattery = toggleBattery;
+        this.toggleFixChin = toggleFixChin;
+        this.toggleDial = toggleDial;
+        this.toggleWeather = toggleWeather;
+
+        updateConfig();
+    }
+
+    @Override
+    public void onWeatherChanged(boolean autoLocation, boolean fahrenheit, String manualLocation) {
+        this.manualLocation = manualLocation;
+        this.autoLocation = autoLocation;
+        this.fahrenheit = fahrenheit;
+
+        updateConfig();
     }
 }

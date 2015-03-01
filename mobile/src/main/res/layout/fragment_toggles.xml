@@ -16,7 +16,7 @@
             android:paddingBottom="10dp">
 
             <CheckBox
-                android:id="@+id/digital_format"
+                android:id="@+id/toggle_am_pm"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -116,7 +116,7 @@
                 android:text="@string/toggle_dial" />
 
             <CheckBox
-                android:id="@+id/widget_show_weather"
+                android:id="@+id/toggle_weather"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

@@ -7,42 +7,36 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ColoursFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ColoursFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ColoursFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_BACKGROUND = "background";
+    private static final String ARG_MIDDLE = "middle";
+    private static final String ARG_FOREGROUND = "foreground";
+    private static final String ARG_ACCENT = "accent";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    String[] colourNames;
+
+    private String mBackground;
+    private String mMiddle;
+    private String mForeground;
+    private String mAccent;
 
     private OnFragmentInteractionListener mListener;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ColoursFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ColoursFragment newInstance(String param1, String param2) {
+    Spinner background;
+    Spinner middle;
+    Spinner foreground;
+    Spinner accent;
+
+    public static ColoursFragment newInstance(String background, String middle, String foreground, String accent) {
         ColoursFragment fragment = new ColoursFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_BACKGROUND, background);
+        args.putString(ARG_MIDDLE, middle);
+        args.putString(ARG_FOREGROUND, foreground);
+        args.putString(ARG_ACCENT, accent);
         fragment.setArguments(args);
         return fragment;
     }
@@ -54,23 +48,62 @@ public class ColoursFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        colourNames = getResources().getStringArray(R.array.color_array);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mBackground = getArguments().getString(ARG_BACKGROUND);
+            mMiddle = getArguments().getString(ARG_MIDDLE);
+            mForeground = getArguments().getString(ARG_FOREGROUND);
+            mAccent = getArguments().getString(ARG_ACCENT);
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_colours, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+    @Override
+    public void onViewCreated(View view, Bundle savedInstance) {
+        background = (Spinner) view.findViewById(R.id.background);
+        middle = (Spinner) view.findViewById(R.id.middle);
+        foreground = (Spinner) view.findViewById(R.id.foreground);
+        accent = (Spinner) view.findViewById(R.id.accent);
+
+        setUpColorPickerSelection(background, mBackground);
+        setUpColorPickerSelection(middle, mMiddle);
+        setUpColorPickerSelection(foreground, mForeground);
+        setUpColorPickerSelection(accent, mAccent);
+
+        AdapterView.OnItemSelectedListener spinnerListener = new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (mListener != null) {
+                    mListener.onColourSelected(colourNames[background.getSelectedItemPosition()],
+                            colourNames[middle.getSelectedItemPosition()],
+                            colourNames[foreground.getSelectedItemPosition()],
+                            colourNames[accent.getSelectedItemPosition()]);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        };
+
+        background.setOnItemSelectedListener(spinnerListener);
+        middle.setOnItemSelectedListener(spinnerListener);
+        foreground.setOnItemSelectedListener(spinnerListener);
+        accent.setOnItemSelectedListener(spinnerListener);
+    }
+
+    private void setUpColorPickerSelection(Spinner spinner, final String defaultColorName) {
+        for (int i = 0; i < colourNames.length; i++) {
+            if (colourNames[i].toLowerCase().equals(defaultColorName.toLowerCase())) {
+                spinner.setSelection(i);
+                break;
+            }
         }
     }
 
@@ -91,19 +124,8 @@ public class ColoursFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        public void onColourSelected(String background, String middle, String foreground, String accent);
     }
 
 }

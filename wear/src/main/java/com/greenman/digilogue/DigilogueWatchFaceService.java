@@ -213,7 +213,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         boolean mFahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
         boolean mIsDayTime = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_DAYTIME;
         boolean mToggleAnalogue = Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE;
-        boolean mToggleDrawDial = Utility.CONFIG_DEFAULT_TOGGLE_DRAW_DIAL;
+        boolean mToggleDrawDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
         boolean mToggleDigital = Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL;
         boolean mToggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
         boolean mToggleDayDate = Utility.CONFIG_DEFAULT_TOGGLE_DAY_DATE;
