@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.greenman.common.Utility;
+
 public class WeatherFragment extends Fragment {
     public static final String ARG_TOGGLE_WEATHER = "toggleWeather";
     public static final String ARG_AUTO_LOCATION = "autoLocation";
@@ -27,45 +29,13 @@ public class WeatherFragment extends Fragment {
     private TextView widget_weather_text_data;
     private EditText widget_weather_text_location;
 
-    public boolean mToggleWeather;
-    public boolean mAutoLocation;
-    public boolean mFahrenheit;
-    public String mManualLocation;
-    public String mData;
-
-    /*public void setWeather(boolean weather) {
-        mToggleWeather = weather;
-        toggle_weather.setChecked(weather);
-    }
-
-    public void setAutoLocation(boolean autoLocation) {
-        mAutoLocation = autoLocation;
-        widget_weather_auto_location.setChecked(autoLocation);
-    }
-
-    public void setFahrenheit(boolean fahrenheit) {
-        mFahrenheit = fahrenheit;
-        widget_weather_fahrenheit.setChecked(fahrenheit);
-    }
-
-    public void setLocation(String location) {
-        mManualLocation = location;
-        widget_weather_text_location.setText(location);
-    }*/
+    private boolean mToggleWeather = Utility.CONFIG_DEFAULT_TOGGLE_WEATHER;
+    private boolean mAutoLocation = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION;
+    private boolean mFahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
+    private String mManualLocation = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_LOCATION;
+    private String mData = "";
 
     private OnFragmentInteractionListener mListener;
-
-    public static WeatherFragment newInstance(boolean toggleWeather, boolean autoLocation, boolean fahrenheit, String location, String data) {
-        WeatherFragment fragment = new WeatherFragment();
-        Bundle args = new Bundle();
-        args.putBoolean(ARG_TOGGLE_WEATHER, toggleWeather);
-        args.putBoolean(ARG_AUTO_LOCATION, autoLocation);
-        args.putBoolean(ARG_FAHRENHEIT, fahrenheit);
-        args.putString(ARG_LOCATION, location);
-        args.putString(ARG_DATA, data);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     public WeatherFragment() {
         // Required empty public constructor
@@ -74,46 +44,42 @@ public class WeatherFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mToggleWeather = getArguments().getBoolean(ARG_TOGGLE_WEATHER);
-            mAutoLocation = getArguments().getBoolean(ARG_AUTO_LOCATION);
-            mFahrenheit = getArguments().getBoolean(ARG_FAHRENHEIT);
-            mManualLocation = getArguments().getString(ARG_LOCATION);
-            mData = getArguments().getString(ARG_DATA);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (getActivity() instanceof DigilogueConfigActivity) {
+            mToggleWeather = ((DigilogueConfigActivity)getActivity()).toggleWeather;
+            mFahrenheit = ((DigilogueConfigActivity)getActivity()).fahrenheit;
+            mAutoLocation = ((DigilogueConfigActivity)getActivity()).autoLocation;
+            mData = ((DigilogueConfigActivity)getActivity()).weatherData;
+            mManualLocation = ((DigilogueConfigActivity)getActivity()).manualLocation;
+        }
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_weather, container, false);
     }
 
-    private void fireWeatherChanged() {
-        if (mListener != null) {
-            Bundle weather = new Bundle();
-            weather.putBoolean(ARG_TOGGLE_WEATHER, toggle_weather.isChecked());
-            weather.putBoolean(ARG_AUTO_LOCATION, widget_weather_auto_location.isChecked());
-            weather.putBoolean(ARG_FAHRENHEIT, widget_weather_fahrenheit.isChecked());
-            weather.putString(ARG_LOCATION, widget_weather_text_location.getText().toString());
-
-            mListener.onWeatherChanged(weather);
-        }
-    }
-
     @Override
-    public void onViewCreated(View view, Bundle savedInstance) {
-        toggle_weather = (CheckBox) view.findViewById(R.id.toggle_weather);
-        widget_weather_text_data = (TextView) view.findViewById(R.id.widget_weather_text_data);
-        widget_weather_fahrenheit = (CheckBox) view.findViewById(R.id.widget_weather_fahrenheit);
-        widget_weather_auto_location = (CheckBox) view.findViewById(R.id.widget_weather_auto_location);
-        widget_weather_text_location = (EditText) view.findViewById(R.id.widget_weather_text_location);
-        location = (LinearLayout) view.findViewById(R.id.location);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        toggle_weather.setOnCheckedChangeListener(null);
+        widget_weather_auto_location.setOnCheckedChangeListener(null);
+        widget_weather_fahrenheit.setOnCheckedChangeListener(null);
 
         toggle_weather.setChecked(mToggleWeather);
         widget_weather_auto_location.setChecked(mAutoLocation);
         widget_weather_fahrenheit.setChecked(mFahrenheit);
         setText();
+
+        toggle_weather.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mToggleWeather = toggle_weather.isChecked();
+                fireWeatherChanged();
+            }
+        });
 
         widget_weather_auto_location.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -123,14 +89,6 @@ public class WeatherFragment extends Fragment {
                 else
                     location.setVisibility(View.VISIBLE);
 
-                fireWeatherChanged();
-            }
-        });
-
-        toggle_weather.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mToggleWeather = toggle_weather.isChecked();
                 fireWeatherChanged();
             }
         });
@@ -153,19 +111,22 @@ public class WeatherFragment extends Fragment {
             location.setVisibility(View.VISIBLE);
     }
 
-    private void setText() {
-        if (!mData.isEmpty())
-            widget_weather_text_data.setText(mData);
-        else
-            widget_weather_text_data.setText(getString(R.string.weather_data_info));
+    @Override
+    public void onViewCreated(View view, Bundle savedInstance) {
+        super.onViewCreated(view, savedInstance);
 
-        if (!mManualLocation.isEmpty())
-            widget_weather_text_location.setText(mManualLocation);
+        toggle_weather = (CheckBox) view.findViewById(R.id.toggle_weather);
+        widget_weather_text_data = (TextView) view.findViewById(R.id.widget_weather_text_data);
+        widget_weather_fahrenheit = (CheckBox) view.findViewById(R.id.widget_weather_fahrenheit);
+        widget_weather_auto_location = (CheckBox) view.findViewById(R.id.widget_weather_auto_location);
+        widget_weather_text_location = (EditText) view.findViewById(R.id.widget_weather_text_location);
+        location = (LinearLayout) view.findViewById(R.id.location);
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
         try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
@@ -180,8 +141,30 @@ public class WeatherFragment extends Fragment {
         mListener = null;
     }
 
+    private void fireWeatherChanged() {
+        if (mListener != null) {
+            Bundle weather = new Bundle();
+            weather.putBoolean(ARG_TOGGLE_WEATHER, toggle_weather.isChecked());
+            weather.putBoolean(ARG_AUTO_LOCATION, widget_weather_auto_location.isChecked());
+            weather.putBoolean(ARG_FAHRENHEIT, widget_weather_fahrenheit.isChecked());
+            weather.putString(ARG_LOCATION, widget_weather_text_location.getText().toString());
+
+            mListener.onWeatherChanged(weather);
+        }
+    }
+
     public interface OnFragmentInteractionListener {
         public void onWeatherChanged(Bundle weather);
+    }
+
+    private void setText() {
+        if (!mData.isEmpty())
+            widget_weather_text_data.setText(mData);
+        else
+            widget_weather_text_data.setText(getString(R.string.weather_data_info));
+
+        if (!mManualLocation.isEmpty())
+            widget_weather_text_location.setText(mManualLocation);
     }
 
 }

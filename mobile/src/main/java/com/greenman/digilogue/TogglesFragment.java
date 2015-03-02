@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
+import com.greenman.common.Utility;
+
 public class TogglesFragment extends Fragment {
     public static final String ARG_AM_PM = "toggleAmPm";
     public static final String ARG_DAY_DATE = "toggleDayDate";
@@ -20,15 +22,15 @@ public class TogglesFragment extends Fragment {
     public static final String ARG_FIX_CHIN = "toggleFixChin";
     public static final String ARG_DIAL = "toggleDial";
 
-    private boolean mToggleAmPm;
-    private boolean mToggleDayDate;
-    private boolean mToggleDimColour;
-    private boolean mToggleSolidText;
-    private boolean mToggleDigital;
-    private boolean mToggleAnalogue;
-    private boolean mToggleBattery;
-    private boolean mToggleFixChin;
-    private boolean mToggleDial;
+    private boolean mToggleAmPm = Utility.CONFIG_DEFAULT_TOGGLE_AM_PM;
+    private boolean mToggleDayDate = Utility.CONFIG_DEFAULT_TOGGLE_DAY_DATE;
+    private boolean mToggleDimColour = Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR;
+    private boolean mToggleSolidText = Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT;
+    private boolean mToggleDigital = Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL;
+    private boolean mToggleAnalogue = Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE;
+    private boolean mToggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
+    private boolean mToggleFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
+    private boolean mToggleDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
 
     private OnFragmentInteractionListener mListener;
 
@@ -41,75 +43,6 @@ public class TogglesFragment extends Fragment {
     private CheckBox toggle_battery;
     private CheckBox toggle_fix_chin;
     private CheckBox toggle_dial;
-
-    /*public void setAmPm(boolean amPm) {
-        mToggleAmPm = amPm;
-        toggle_am_pm.setChecked(amPm);
-    }
-
-    public void setDayDate(boolean dayDate) {
-        mToggleDayDate = dayDate;
-        toggle_day_date.setChecked(dayDate);
-    }
-
-    public void setDimColour(boolean dimColour) {
-        mToggleDimColour = dimColour;
-        toggle_dim_colour.setChecked(dimColour);
-    }
-
-    public void setSolidText(boolean solidText) {
-        mToggleSolidText = solidText;
-        toggle_solid_text.setChecked(solidText);
-    }
-
-    public void setDigital(boolean digital) {
-        mToggleDigital = digital;
-        toggle_digital.setChecked(digital);
-    }
-
-    public void setAnalogue(boolean analogue) {
-        mToggleAnalogue = analogue;
-        toggle_analogue.setChecked(analogue);
-    }
-
-    public void setBattery(boolean battery) {
-        mToggleBattery = battery;
-        toggle_battery.setChecked(battery);
-    }
-
-    public void setFixChin(boolean fixChin) {
-        mToggleFixChin = fixChin;
-        toggle_fix_chin.setChecked(fixChin);
-    }
-
-    public void setDial(boolean dial) {
-        mToggleDial = dial;
-        toggle_dial.setChecked(dial);
-    }*/
-
-    public static TogglesFragment newInstance(boolean toggleAmPm,
-                                              boolean toggleDayDate,
-                                              boolean toggleDimColour,
-                                              boolean toggleSolidText,
-                                              boolean toggleDigital,
-                                              boolean toggleAnalogue,
-                                              boolean toggleBattery,
-                                              boolean toggleFixChin,
-                                              boolean toggleDial) {
-        TogglesFragment fragment = new TogglesFragment();
-        Bundle args = new Bundle();
-        args.putBoolean(ARG_AM_PM, toggleAmPm);
-        args.putBoolean(ARG_DAY_DATE, toggleDayDate);
-        args.putBoolean(ARG_DIM_COLOUR, toggleDimColour);
-        args.putBoolean(ARG_SOLID_TEXT, toggleSolidText);
-        args.putBoolean(ARG_DIGITAL, toggleDigital);
-        args.putBoolean(ARG_ANALOGUE, toggleAnalogue);
-        args.putBoolean(ARG_BATTERY, toggleBattery);
-        args.putBoolean(ARG_FIX_CHIN, toggleFixChin);
-        args.putBoolean(ARG_DIAL, toggleDial);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     public TogglesFragment() {
         // Required empty public constructor
@@ -133,21 +66,35 @@ public class TogglesFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (getActivity() instanceof DigilogueConfigActivity) {
+            mToggleAmPm = ((DigilogueConfigActivity) getActivity()).toggleAmPm;
+            mToggleDayDate = ((DigilogueConfigActivity) getActivity()).toggleDayDate;
+            mToggleDimColour = ((DigilogueConfigActivity) getActivity()).toggleDimColour;
+            mToggleSolidText = ((DigilogueConfigActivity) getActivity()).toggleSolidText;
+            mToggleDigital = ((DigilogueConfigActivity) getActivity()).toggleDigital;
+            mToggleAnalogue = ((DigilogueConfigActivity) getActivity()).toggleAnalogue;
+            mToggleBattery = ((DigilogueConfigActivity) getActivity()).toggleBattery;
+            mToggleFixChin = ((DigilogueConfigActivity) getActivity()).toggleFixChin;
+            mToggleDial = ((DigilogueConfigActivity) getActivity()).toggleDial;
+        }
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_toggles, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstance) {
-        toggle_am_pm = (CheckBox) view.findViewById(R.id.toggle_am_pm);
-        toggle_day_date = (CheckBox) view.findViewById(R.id.toggle_date_day);
-        toggle_dim_colour = (CheckBox) view.findViewById(R.id.toggle_dim);
-        toggle_solid_text = (CheckBox) view.findViewById(R.id.toggle_solid_number);
-        toggle_digital = (CheckBox) view.findViewById(R.id.toggle_digital);
-        toggle_analogue = (CheckBox) view.findViewById(R.id.toggle_analogue);
-        toggle_battery = (CheckBox) view.findViewById(R.id.toggle_battery);
-        toggle_fix_chin = (CheckBox) view.findViewById(R.id.toggle_fix_chin);
-        toggle_dial = (CheckBox) view.findViewById(R.id.toggle_dial);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        toggle_am_pm.setOnCheckedChangeListener(null);
+        toggle_day_date.setOnCheckedChangeListener(null);
+        toggle_dim_colour.setOnCheckedChangeListener(null);
+        toggle_solid_text.setOnCheckedChangeListener(null);
+        toggle_digital.setOnCheckedChangeListener(null);
+        toggle_analogue.setOnCheckedChangeListener(null);
+        toggle_battery.setOnCheckedChangeListener(null);
+        toggle_fix_chin.setOnCheckedChangeListener(null);
+        toggle_dial.setOnCheckedChangeListener(null);
 
         setUpCheckBox(toggle_am_pm, mToggleAmPm);
         setUpCheckBox(toggle_day_date, mToggleDayDate);
@@ -189,13 +136,25 @@ public class TogglesFragment extends Fragment {
         toggle_dial.setOnCheckedChangeListener(checkBoxListener);
     }
 
-    private void setUpCheckBox(CheckBox checkBox, boolean toggle) {
-        checkBox.setChecked(toggle);
+    @Override
+    public void onViewCreated(View view, Bundle savedInstance) {
+        super.onViewCreated(view, savedInstance);
+
+        toggle_am_pm = (CheckBox) view.findViewById(R.id.toggle_am_pm);
+        toggle_day_date = (CheckBox) view.findViewById(R.id.toggle_date_day);
+        toggle_dim_colour = (CheckBox) view.findViewById(R.id.toggle_dim);
+        toggle_solid_text = (CheckBox) view.findViewById(R.id.toggle_solid_number);
+        toggle_digital = (CheckBox) view.findViewById(R.id.toggle_digital);
+        toggle_analogue = (CheckBox) view.findViewById(R.id.toggle_analogue);
+        toggle_battery = (CheckBox) view.findViewById(R.id.toggle_battery);
+        toggle_fix_chin = (CheckBox) view.findViewById(R.id.toggle_fix_chin);
+        toggle_dial = (CheckBox) view.findViewById(R.id.toggle_dial);
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
         try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
@@ -208,6 +167,10 @@ public class TogglesFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    private void setUpCheckBox(CheckBox checkBox, boolean toggle) {
+        checkBox.setChecked(toggle);
     }
 
     public interface OnFragmentInteractionListener {

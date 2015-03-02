@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
+import com.greenman.common.Utility;
+
 public class ColoursFragment extends Fragment {
     public static final String ARG_BACKGROUND = "background";
     public static final String ARG_MIDDLE = "middle";
@@ -18,10 +20,10 @@ public class ColoursFragment extends Fragment {
 
     private String[] colourNames;
 
-    private String mBackground;
-    private String mMiddle;
-    private String mForeground;
-    private String mAccent;
+    private String mBackground = Utility.COLOUR_NAME_DEFAULT_BACKGROUND;
+    private String mMiddle = Utility.COLOUR_NAME_DEFAULT_MIDDLE;
+    private String mForeground = Utility.COLOUR_NAME_DEFAULT_FOREGROUND;
+    private String mAccent = Utility.COLOUR_NAME_DEFAULT_ACCENT;
 
     private OnFragmentInteractionListener mListener;
 
@@ -50,46 +52,6 @@ public class ColoursFragment extends Fragment {
         }
     };
 
-    /*public void setBackground(String colour) {
-        mBackground = colour;
-        background.setOnItemSelectedListener(null);
-        setUpColorPickerSelection(background, colour);
-        background.setOnItemSelectedListener(spinnerListener);
-
-    }
-
-    public void setMiddle(String colour) {
-        mMiddle = colour;
-        middle.setOnItemSelectedListener(null);
-        setUpColorPickerSelection(middle, colour);
-        middle.setOnItemSelectedListener(spinnerListener);
-    }
-
-    public void setForeground(String colour) {
-        mForeground = colour;
-        foreground.setOnItemSelectedListener(null);
-        setUpColorPickerSelection(foreground, colour);
-        foreground.setOnItemSelectedListener(spinnerListener);
-    }
-
-    public void setAccent(String colour) {
-        mAccent = colour;
-        accent.setOnItemSelectedListener(null);
-        setUpColorPickerSelection(accent, colour);
-        accent.setOnItemSelectedListener(spinnerListener);
-    }*/
-
-    public static ColoursFragment newInstance(String background, String middle, String foreground, String accent) {
-        ColoursFragment fragment = new ColoursFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_BACKGROUND, background);
-        args.putString(ARG_MIDDLE, middle);
-        args.putString(ARG_FOREGROUND, foreground);
-        args.putString(ARG_ACCENT, accent);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     public ColoursFragment() {
         // Required empty public constructor
     }
@@ -108,16 +70,25 @@ public class ColoursFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (getActivity() instanceof DigilogueConfigActivity) {
+            mBackground = ((DigilogueConfigActivity) getActivity()).backgroundColour;
+            mMiddle = ((DigilogueConfigActivity) getActivity()).middleColour;
+            mForeground = ((DigilogueConfigActivity) getActivity()).foregroundColour;
+            mAccent = ((DigilogueConfigActivity) getActivity()).accentColour;
+        }
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_colours, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstance) {
-        background = (Spinner) view.findViewById(R.id.background);
-        middle = (Spinner) view.findViewById(R.id.middle);
-        foreground = (Spinner) view.findViewById(R.id.foreground);
-        accent = (Spinner) view.findViewById(R.id.accent);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        background.setOnItemSelectedListener(null);
+        middle.setOnItemSelectedListener(null);
+        foreground.setOnItemSelectedListener(null);
+        accent.setOnItemSelectedListener(null);
 
         setUpColorPickerSelection(background, mBackground);
         setUpColorPickerSelection(middle, mMiddle);
@@ -130,16 +101,14 @@ public class ColoursFragment extends Fragment {
         accent.setOnItemSelectedListener(spinnerListener);
     }
 
-    private void setUpColorPickerSelection(Spinner spinner, final String defaultColorName) {
-        if (colourNames == null)
-            colourNames = getResources().getStringArray(R.array.color_array);
+    @Override
+    public void onViewCreated(View view, Bundle savedInstance) {
+        super.onViewCreated(view, savedInstance);
 
-        for (int i = 0; i < colourNames.length; i++) {
-            if (colourNames[i].toLowerCase().equals(defaultColorName.toLowerCase())) {
-                spinner.setSelection(i);
-                break;
-            }
-        }
+        background = (Spinner) view.findViewById(R.id.background);
+        middle = (Spinner) view.findViewById(R.id.middle);
+        foreground = (Spinner) view.findViewById(R.id.foreground);
+        accent = (Spinner) view.findViewById(R.id.accent);
     }
 
     @Override
@@ -157,6 +126,20 @@ public class ColoursFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    private void setUpColorPickerSelection(Spinner spinner, final String defaultColorName) {
+        if (colourNames == null)
+            colourNames = getResources().getStringArray(R.array.color_array);
+
+        if (colourNames != null) {
+            for (int i = 0; i < colourNames.length; i++) {
+                if (colourNames[i].toLowerCase().equals(defaultColorName.toLowerCase())) {
+                    spinner.setSelection(i);
+                    break;
+                }
+            }
+        }
     }
 
     public interface OnFragmentInteractionListener {
