@@ -60,12 +60,6 @@ public class ColoursFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         colourNames = getResources().getStringArray(R.array.color_array);
-        if (getArguments() != null) {
-            mBackground = getArguments().getString(ARG_BACKGROUND);
-            mMiddle = getArguments().getString(ARG_MIDDLE);
-            mForeground = getArguments().getString(ARG_FOREGROUND);
-            mAccent = getArguments().getString(ARG_ACCENT);
-        }
     }
 
     @Override
@@ -84,11 +78,6 @@ public class ColoursFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        background.setOnItemSelectedListener(null);
-        middle.setOnItemSelectedListener(null);
-        foreground.setOnItemSelectedListener(null);
-        accent.setOnItemSelectedListener(null);
 
         setUpColorPickerSelection(background, mBackground);
         setUpColorPickerSelection(middle, mMiddle);
@@ -142,8 +131,27 @@ public class ColoursFragment extends Fragment {
         }
     }
 
+    public void setBackground(String colour) {
+        mBackground = colour;
+        setUpColorPickerSelection(background, mBackground);
+    }
+
+    public void setMiddle(String colour) {
+        mMiddle = colour;
+        setUpColorPickerSelection(middle, mMiddle);
+    }
+
+    public void setForeground(String colour) {
+        mForeground = colour;
+        setUpColorPickerSelection(foreground, mForeground);
+    }
+
+    public void setAccent(String colour) {
+        mAccent = colour;
+        setUpColorPickerSelection(accent, mAccent);
+    }
+
     public interface OnFragmentInteractionListener {
         public void onColourSelected(Bundle colours);
     }
-
 }

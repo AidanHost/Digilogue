@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.wearable.companion.WatchFaceCompanion;
@@ -42,6 +43,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     private static ColoursFragment coloursFragment;
     private static TogglesFragment togglesFragment;
     private static WeatherFragment weatherFragment;
+    private static String[] tabs = new String[0];
 
     private DataMap config;
 
@@ -72,7 +74,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     public String weatherData = "";
     public String manualLocation = "";
     private TabAdapter mAdapter;
-    private ArrayList<String> tabs;
     //endregion
 
     //region Overrides
@@ -94,10 +95,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 .addApi(Wearable.API)
                 .build();
 
-        tabs = new ArrayList<>();
-        tabs.add(getBaseContext().getString(R.string.colour_title));
-        tabs.add(getBaseContext().getString(R.string.toggles_title));
-        tabs.add(getBaseContext().getString(R.string.weather_title));
+        tabs = getResources().getStringArray(R.array.tab_array);
 
         coloursFragment = new ColoursFragment();
         togglesFragment = new TogglesFragment();
@@ -127,8 +125,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 return true;
             case R.id.button_reset:
                 resetConfig();
-
-                // TODO: update fragments on page
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -354,7 +350,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         preview.setConfig(config);
         preview.setVisibility(View.VISIBLE);
 
-        mAdapter = new TabAdapter(getSupportFragmentManager(), tabs);
+        mAdapter = new TabAdapter(getSupportFragmentManager());
 
         pager.setAdapter(mAdapter);
     }
@@ -436,8 +432,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         config.putBoolean(Utility.KEY_TOGGLE_BATTERY, Utility.CONFIG_DEFAULT_TOGGLE_BATTERY);
         config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN);
         config.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, Utility.CONFIG_DEFAULT_TOGGLE_DIAL);
-        config.putBoolean(Utility.KEY_TOGGLE_WEATHER, Utility.CONFIG_DEFAULT_TOGGLE_WEATHER);
 
+        config.putBoolean(Utility.KEY_TOGGLE_WEATHER, Utility.CONFIG_DEFAULT_TOGGLE_WEATHER);
         config.putBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT);
         config.putBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION);
 
@@ -445,8 +441,38 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             config.putString(Utility.KEY_WIDGET_WEATHER_LOCATION, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_LOCATION);
 
         preview.setConfig(config);
-        mAdapter.notifyDataSetChanged();
 
+        try {
+            coloursFragment.setBackground(backgroundColour);
+            coloursFragment.setMiddle(middleColour);
+            coloursFragment.setForeground(foregroundColour);
+            coloursFragment.setAccent(accentColour);
+        } catch (Exception e) {
+            // ignore
+        }
+
+        try {
+            togglesFragment.setAmPm(toggleAmPm);
+            togglesFragment.setDayDate(toggleDayDate);
+            togglesFragment.setDimColour(toggleDimColour);
+            togglesFragment.setSolidText(toggleSolidText);
+            togglesFragment.setDigital(toggleDigital);
+            togglesFragment.setAnalogue(toggleAnalogue);
+            togglesFragment.setBattery(toggleBattery);
+            togglesFragment.setFixChin(toggleFixChin);
+            togglesFragment.setDial(toggleDial);
+        } catch (Exception e) {
+            // ignore
+        }
+
+        try {
+            weatherFragment.setWeather(toggleWeather);
+            weatherFragment.setAutoLocation(autoLocation);
+            weatherFragment.setFahrenheit(fahrenheit);
+            weatherFragment.setManualLocation(manualLocation);
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     private void updateConfig() {
@@ -479,11 +505,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     }
 
     public static class TabAdapter extends FragmentPagerAdapter {
-        private ArrayList<String> tabs;
-        public TabAdapter(FragmentManager fm, ArrayList<String> tabs) {
+        public TabAdapter(FragmentManager fm) {
             super(fm);
-
-            this.tabs = tabs;
         }
 
         @Override
@@ -493,7 +516,10 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return tabs.get(position);
+            if (tabs.length <= 0 || position > tabs.length)
+                return "";
+
+            return tabs[position];
         }
 
         @Override
@@ -507,7 +533,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                     return weatherFragment;
 
                 default:
-                    return  new Fragment();
+                    return new Fragment();
             }
         }
     }

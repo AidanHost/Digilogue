@@ -64,10 +64,6 @@ public class WeatherFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        toggle_weather.setOnCheckedChangeListener(null);
-        widget_weather_auto_location.setOnCheckedChangeListener(null);
-        widget_weather_fahrenheit.setOnCheckedChangeListener(null);
-
         toggle_weather.setChecked(mToggleWeather);
         widget_weather_auto_location.setChecked(mAutoLocation);
         widget_weather_fahrenheit.setChecked(mFahrenheit);
@@ -153,10 +149,6 @@ public class WeatherFragment extends Fragment {
         }
     }
 
-    public interface OnFragmentInteractionListener {
-        public void onWeatherChanged(Bundle weather);
-    }
-
     private void setText() {
         if (!mData.isEmpty())
             widget_weather_text_data.setText(mData);
@@ -167,4 +159,27 @@ public class WeatherFragment extends Fragment {
             widget_weather_text_location.setText(mManualLocation);
     }
 
+    public void setWeather(boolean toggle) {
+        mToggleWeather = toggle;
+        toggle_weather.setChecked(mToggleWeather);
+    }
+
+    public void setAutoLocation(boolean toggle) {
+        mAutoLocation = toggle;
+        widget_weather_auto_location.setChecked(mAutoLocation);
+    }
+
+    public void setFahrenheit(boolean toggle) {
+        mFahrenheit = toggle;
+        widget_weather_fahrenheit.setChecked(mFahrenheit);
+    }
+
+    public void setManualLocation(String location) {
+        mManualLocation = location;
+        setText();
+    }
+
+    public interface OnFragmentInteractionListener {
+        public void onWeatherChanged(Bundle weather);
+    }
 }

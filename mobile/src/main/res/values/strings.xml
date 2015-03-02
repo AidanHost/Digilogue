@@ -74,4 +74,10 @@
         <item>@string/color_white</item>
     </string-array>
 
+    <string-array name="tab_array">
+        <item>@string/colour_title</item>
+        <item>@string/toggles_title</item>
+        <item>@string/weather_title</item>
+    </string-array>
+
 </resources>

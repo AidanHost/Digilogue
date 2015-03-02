@@ -51,17 +51,6 @@ public class TogglesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mToggleAmPm = getArguments().getBoolean(ARG_AM_PM);
-            mToggleDayDate = getArguments().getBoolean(ARG_DAY_DATE);
-            mToggleDimColour = getArguments().getBoolean(ARG_DIM_COLOUR);
-            mToggleSolidText = getArguments().getBoolean(ARG_SOLID_TEXT);
-            mToggleDigital = getArguments().getBoolean(ARG_DIGITAL);
-            mToggleAnalogue = getArguments().getBoolean(ARG_ANALOGUE);
-            mToggleBattery = getArguments().getBoolean(ARG_BATTERY);
-            mToggleFixChin = getArguments().getBoolean(ARG_FIX_CHIN);
-            mToggleDial = getArguments().getBoolean(ARG_DIAL);
-        }
     }
 
     @Override
@@ -85,16 +74,6 @@ public class TogglesFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        toggle_am_pm.setOnCheckedChangeListener(null);
-        toggle_day_date.setOnCheckedChangeListener(null);
-        toggle_dim_colour.setOnCheckedChangeListener(null);
-        toggle_solid_text.setOnCheckedChangeListener(null);
-        toggle_digital.setOnCheckedChangeListener(null);
-        toggle_analogue.setOnCheckedChangeListener(null);
-        toggle_battery.setOnCheckedChangeListener(null);
-        toggle_fix_chin.setOnCheckedChangeListener(null);
-        toggle_dial.setOnCheckedChangeListener(null);
 
         setUpCheckBox(toggle_am_pm, mToggleAmPm);
         setUpCheckBox(toggle_day_date, mToggleDayDate);
@@ -173,8 +152,52 @@ public class TogglesFragment extends Fragment {
         checkBox.setChecked(toggle);
     }
 
+    public void setAmPm(boolean toggle) {
+        mToggleAmPm = toggle;
+        setUpCheckBox(toggle_am_pm, mToggleAmPm);
+    }
+
+    public void setDayDate(boolean toggle) {
+        mToggleDayDate = toggle;
+        setUpCheckBox(toggle_day_date, mToggleDayDate);
+    }
+
+    public void setDimColour(boolean toggle) {
+        mToggleDimColour = toggle;
+        setUpCheckBox(toggle_dim_colour, mToggleDimColour);
+    }
+
+    public void setSolidText(boolean toggle) {
+        mToggleSolidText = toggle;
+        setUpCheckBox(toggle_solid_text, mToggleSolidText);
+    }
+
+    public void setDigital(boolean toggle) {
+        mToggleDigital = toggle;
+        setUpCheckBox(toggle_digital, mToggleDigital);
+    }
+
+    public void setAnalogue(boolean toggle) {
+        mToggleAnalogue = toggle;
+        setUpCheckBox(toggle_analogue, mToggleAnalogue);
+    }
+
+    public void setBattery(boolean toggle) {
+        mToggleBattery = toggle;
+        setUpCheckBox(toggle_battery, mToggleBattery);
+    }
+
+    public void setFixChin(boolean toggle) {
+        mToggleFixChin = toggle;
+        setUpCheckBox(toggle_fix_chin, mToggleFixChin);
+    }
+
+    public void setDial(boolean toggle) {
+        mToggleDial = toggle;
+        setUpCheckBox(toggle_dial, mToggleDial);
+    }
+
     public interface OnFragmentInteractionListener {
         public void onToggleChanged(Bundle toggles);
     }
-
 }
