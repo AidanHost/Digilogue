@@ -83,7 +83,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         preview = (PreviewWatchFace) findViewById(R.id.preview);
         preview.setHintText(getString(R.string.preview_tap), true);
         pager = (ViewPager) findViewById(R.id.pager);
-        pager.setOffscreenPageLimit(2);
+        pager.setOffscreenPageLimit(tabs.length - 1);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -605,7 +605,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         @Override
         public int getCount() {
-            return 3;
+            return tabs.length;
         }
 
         @Override

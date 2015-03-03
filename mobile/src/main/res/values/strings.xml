@@ -63,8 +63,9 @@
     <string name="colour_title">Colours</string>
     <string name="toggles_title">Options</string>
     <string name="weather_title">Weather</string>
+    <string name="settings_title">Settings</string>
     <string name="warning"><b>Warning:</b> changing the settings below could possibly cause screen burn-in. Change them at your own risk.</string>
-    <string name="analogue_size">Analogue Size: %d%%</string>
+    <string name="analogue_size">Analogue line width: %d%%</string>
     <string name="digital_size">Digital Size: %d%%</string>
 
     <string-array name="color_array">
@@ -81,6 +82,7 @@
         <item>@string/colour_title</item>
         <item>@string/toggles_title</item>
         <item>@string/weather_title</item>
+        <!--<item>@string/settings_title</item>-->
     </string-array>
 
 </resources>
