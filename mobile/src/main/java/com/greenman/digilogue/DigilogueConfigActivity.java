@@ -435,6 +435,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         preview.setConfig(config);
         preview.setVisibility(View.VISIBLE);
 
+        // TODO: preview blank on update
+
         pager.setAdapter(new TabAdapter(getSupportFragmentManager()));
     }
 

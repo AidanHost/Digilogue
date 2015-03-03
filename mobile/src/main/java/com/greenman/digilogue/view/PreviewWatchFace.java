@@ -286,6 +286,8 @@ public class PreviewWatchFace extends View {
         mAmString = "AM";
         mPmString = "PM";
 
+        // TODO: double thick
+        // TODO: hour text size
         mHourPaint = new Paint();
         mHourPaint.setColor(Color.parseColor(mForegroundColour));
         mHourPaint.setStrokeWidth(getPixelsFromDp(3));
