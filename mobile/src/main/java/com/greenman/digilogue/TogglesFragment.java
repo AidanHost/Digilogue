@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.greenman.common.Utility;
 
@@ -21,6 +23,8 @@ public class TogglesFragment extends Fragment {
     public static final String ARG_BATTERY = "toggleBattery";
     public static final String ARG_FIX_CHIN = "toggleFixChin";
     public static final String ARG_DIAL = "toggleDial";
+    public static final String ARG_ANALOGUE_ELEMENT_SIZE = "analogueElementSize";
+    public static final String ARG_DIGITAL_ELEMENT_SIZE = "digitalElementSize";
 
     private boolean mToggleAmPm = Utility.CONFIG_DEFAULT_TOGGLE_AM_PM;
     private boolean mToggleDayDate = Utility.CONFIG_DEFAULT_TOGGLE_DAY_DATE;
@@ -31,6 +35,8 @@ public class TogglesFragment extends Fragment {
     private boolean mToggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
     private boolean mToggleFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
     private boolean mToggleDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
+    private int mAnalogueElementSize = 100;
+    private int mDigitalElementSize = 100;
 
     private OnFragmentInteractionListener mListener;
 
@@ -43,6 +49,10 @@ public class TogglesFragment extends Fragment {
     private CheckBox toggle_battery;
     private CheckBox toggle_fix_chin;
     private CheckBox toggle_dial;
+    private TextView analogue_element_size_text;
+    private TextView digital_element_size_text;
+    private SeekBar analogue_element_size;
+    private SeekBar digital_element_size;
 
     public TogglesFragment() {
         // Required empty public constructor
@@ -65,6 +75,8 @@ public class TogglesFragment extends Fragment {
             mToggleBattery = ((DigilogueConfigActivity) getActivity()).toggleBattery;
             mToggleFixChin = ((DigilogueConfigActivity) getActivity()).toggleFixChin;
             mToggleDial = ((DigilogueConfigActivity) getActivity()).toggleDial;
+            mAnalogueElementSize = ((DigilogueConfigActivity) getActivity()).analogueElementSize;
+            mDigitalElementSize = ((DigilogueConfigActivity) getActivity()).digitalElementSize;
         }
 
         // Inflate the layout for this fragment
@@ -84,6 +96,10 @@ public class TogglesFragment extends Fragment {
         toggle_battery.setChecked(mToggleBattery);
         toggle_fix_chin.setChecked(mToggleFixChin);
         toggle_dial.setChecked(mToggleDial);
+        analogue_element_size_text.setText(String.format(getActivity().getString(R.string.analogue_size), mAnalogueElementSize));
+        analogue_element_size.setProgress(mAnalogueElementSize);
+        digital_element_size_text.setText(String.format(getActivity().getString(R.string.digital_size), mDigitalElementSize));
+        digital_element_size.setProgress(mDigitalElementSize);
 
         CompoundButton.OnCheckedChangeListener checkBoxListener = new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -99,6 +115,8 @@ public class TogglesFragment extends Fragment {
                     toggles.putBoolean(ARG_BATTERY, toggle_battery.isChecked());
                     toggles.putBoolean(ARG_FIX_CHIN, toggle_fix_chin.isChecked());
                     toggles.putBoolean(ARG_DIAL, toggle_dial.isChecked());
+                    toggles.putInt(ARG_ANALOGUE_ELEMENT_SIZE, analogue_element_size.getProgress());
+                    toggles.putInt(ARG_DIGITAL_ELEMENT_SIZE, digital_element_size.getProgress());
                     mListener.onToggleChanged(toggles);
                 }
             }
@@ -113,6 +131,72 @@ public class TogglesFragment extends Fragment {
         toggle_battery.setOnCheckedChangeListener(checkBoxListener);
         toggle_fix_chin.setOnCheckedChangeListener(checkBoxListener);
         toggle_dial.setOnCheckedChangeListener(checkBoxListener);
+
+        analogue_element_size.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                analogue_element_size_text.setText(String.format(getActivity().getString(R.string.analogue_size), progress));
+
+                if (mListener != null) {
+                    Bundle toggles = new Bundle();
+                    toggles.putBoolean(ARG_AM_PM, toggle_am_pm.isChecked());
+                    toggles.putBoolean(ARG_DAY_DATE, toggle_day_date.isChecked());
+                    toggles.putBoolean(ARG_DIM_COLOUR, toggle_dim_colour.isChecked());
+                    toggles.putBoolean(ARG_SOLID_TEXT, toggle_solid_text.isChecked());
+                    toggles.putBoolean(ARG_DIGITAL, toggle_digital.isChecked());
+                    toggles.putBoolean(ARG_ANALOGUE, toggle_analogue.isChecked());
+                    toggles.putBoolean(ARG_BATTERY, toggle_battery.isChecked());
+                    toggles.putBoolean(ARG_FIX_CHIN, toggle_fix_chin.isChecked());
+                    toggles.putBoolean(ARG_DIAL, toggle_dial.isChecked());
+                    toggles.putInt(ARG_ANALOGUE_ELEMENT_SIZE, analogue_element_size.getProgress());
+                    toggles.putInt(ARG_DIGITAL_ELEMENT_SIZE, digital_element_size.getProgress());
+                    mListener.onToggleChanged(toggles);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        digital_element_size.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                digital_element_size_text.setText(String.format(getActivity().getString(R.string.digital_size), progress));
+
+                if (mListener != null) {
+                    Bundle toggles = new Bundle();
+                    toggles.putBoolean(ARG_AM_PM, toggle_am_pm.isChecked());
+                    toggles.putBoolean(ARG_DAY_DATE, toggle_day_date.isChecked());
+                    toggles.putBoolean(ARG_DIM_COLOUR, toggle_dim_colour.isChecked());
+                    toggles.putBoolean(ARG_SOLID_TEXT, toggle_solid_text.isChecked());
+                    toggles.putBoolean(ARG_DIGITAL, toggle_digital.isChecked());
+                    toggles.putBoolean(ARG_ANALOGUE, toggle_analogue.isChecked());
+                    toggles.putBoolean(ARG_BATTERY, toggle_battery.isChecked());
+                    toggles.putBoolean(ARG_FIX_CHIN, toggle_fix_chin.isChecked());
+                    toggles.putBoolean(ARG_DIAL, toggle_dial.isChecked());
+                    toggles.putInt(ARG_ANALOGUE_ELEMENT_SIZE, analogue_element_size.getProgress());
+                    toggles.putInt(ARG_DIGITAL_ELEMENT_SIZE, digital_element_size.getProgress());
+                    mListener.onToggleChanged(toggles);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
     @Override
@@ -128,6 +212,10 @@ public class TogglesFragment extends Fragment {
         toggle_battery = (CheckBox) view.findViewById(R.id.toggle_battery);
         toggle_fix_chin = (CheckBox) view.findViewById(R.id.toggle_fix_chin);
         toggle_dial = (CheckBox) view.findViewById(R.id.toggle_dial);
+        analogue_element_size_text = (TextView) view.findViewById(R.id.analogue_element_size_text);
+        analogue_element_size = (SeekBar) view.findViewById(R.id.analogue_element_size);
+        digital_element_size_text = (TextView) view.findViewById(R.id.digital_element_size_text);
+        digital_element_size = (SeekBar) view.findViewById(R.id.digital_element_size);
     }
 
     @Override
@@ -191,6 +279,16 @@ public class TogglesFragment extends Fragment {
     public void setDial(boolean toggle) {
         mToggleDial = toggle;
         toggle_dial.setChecked(mToggleDial);
+    }
+
+    public void setAnalogueElementSize(int size) {
+        mAnalogueElementSize = size;
+        analogue_element_size.setProgress(mAnalogueElementSize);
+    }
+
+    public void setDigitalElementSize(int size) {
+        mDigitalElementSize = size;
+        digital_element_size.setProgress(mDigitalElementSize);
     }
 
     public interface OnFragmentInteractionListener {

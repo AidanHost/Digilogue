@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.text.format.Time;
@@ -116,6 +115,7 @@ public class PreviewWatchFace extends View {
     private float hrLength;
     private float analogueHandOffset;
     private float x;
+    private float y;
     private float secX;
     private float secY;
     private float secStartX;
@@ -148,18 +148,20 @@ public class PreviewWatchFace extends View {
 
     //region config data defaults
     boolean mToggleAmPm = Utility.CONFIG_DEFAULT_TOGGLE_AM_PM;
-    boolean mToggleWeather = Utility.CONFIG_DEFAULT_TOGGLE_WEATHER;
-    boolean mFahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
-    boolean mIsDayTime = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_DAYTIME;
-    boolean mToggleAnalogue = Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE;
-    boolean mToggleDrawDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
-    boolean mToggleDigital = Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL;
-    boolean mToggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
     boolean mToggleDayDate = Utility.CONFIG_DEFAULT_TOGGLE_DAY_DATE;
     boolean mToggleDimColour = Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR;
     boolean mToggleSolidText = Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT;
+    boolean mToggleDigital = Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL;
+    boolean mToggleAnalogue = Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE;
+    boolean mToggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
     boolean mFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
+    boolean mToggleDrawDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
+    private float mAnalogueElementSize = 100f;
+    private float mDigitalElementSize = 100f;
 
+    boolean mToggleWeather = Utility.CONFIG_DEFAULT_TOGGLE_WEATHER;
+    boolean mFahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
+    boolean mIsDayTime = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_DAYTIME;
     int mTemperatureC = Utility.WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_C;
     int mTemperatureF = Utility.WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_F;
     int mCode = Utility.WIDGET_WEATHER_DATA_DEFAULT_CODE;
@@ -168,6 +170,7 @@ public class PreviewWatchFace extends View {
     String mMiddleColour = Utility.COLOUR_NAME_DEFAULT_MIDDLE;
     String mForegroundColour = Utility.COLOUR_NAME_DEFAULT_FOREGROUND;
     String mAccentColour = Utility.COLOUR_NAME_DEFAULT_ACCENT;
+
     //endregion
 
     public PreviewWatchFace(Context context) {
@@ -230,8 +233,10 @@ public class PreviewWatchFace extends View {
         mToggleBattery = config.getBoolean(Utility.KEY_TOGGLE_BATTERY);
         mFixChin = config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN);
         mToggleDrawDial = config.getBoolean(Utility.KEY_TOGGLE_DRAW_DIAL);
-        mToggleWeather = config.getBoolean(Utility.KEY_TOGGLE_WEATHER);
+        mAnalogueElementSize = config.getInt(Utility.KEY_ANALOGUE_ELEMENT_SIZE);
+        mDigitalElementSize = config.getInt(Utility.KEY_DIGITAL_ELEMENT_SIZE);
 
+        mToggleWeather = config.getBoolean(Utility.KEY_TOGGLE_WEATHER);
         mFahrenheit = config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT);
 
         mTemperatureC = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C);
@@ -260,6 +265,8 @@ public class PreviewWatchFace extends View {
             mAccentOpacityLevel = 255;
         }
 
+        setUpPaints();
+
         invalidate();
     }
 
@@ -272,51 +279,73 @@ public class PreviewWatchFace extends View {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()) * (206f / 320f);
     }
 
-    private void init() {
-        r = getResources();
+    private void setUpPaints() {
+        float analogueSizeModifier = (mAnalogueElementSize / 100f);
+        float digitalSizeModifier = (mDigitalElementSize / 100f);
 
-        mXOffset = getPixelsFromDp(45);
-        mYOffset = getPixelsFromDp(12);
-        float textSize = getPixelsFromDp(36);
-
-        mSmallTextXOffset = getPixelsFromDp(3);
-        mSmallTextYOffset = mYOffset / 2f;
-
-        // TODO: get from resources
-        mAmString = "AM";
-        mPmString = "PM";
-
-        // TODO: double thick
-        // TODO: hour text size
         mHourPaint = new Paint();
         mHourPaint.setColor(Color.parseColor(mForegroundColour));
-        mHourPaint.setStrokeWidth(getPixelsFromDp(3));
+        mHourPaint.setStrokeWidth(getPixelsFromDp(3 * analogueSizeModifier));
         mHourPaint.setAntiAlias(true);
         mHourPaint.setStrokeCap(Paint.Cap.ROUND);
 
         mMinutePaint = new Paint();
         mMinutePaint.setColor(Color.parseColor(mForegroundColour));
-        mMinutePaint.setStrokeWidth(getPixelsFromDp(3));
+        mMinutePaint.setStrokeWidth(getPixelsFromDp(3 * analogueSizeModifier));
         mMinutePaint.setAntiAlias(true);
         mMinutePaint.setStrokeCap(Paint.Cap.ROUND);
 
         mSecondPaint = new Paint();
         mSecondPaint.setColor(Color.parseColor(mAccentColour));
-        mSecondPaint.setStrokeWidth(getPixelsFromDp(2));
+        mSecondPaint.setStrokeWidth(getPixelsFromDp(2 * analogueSizeModifier));
         mSecondPaint.setAntiAlias(true);
         mSecondPaint.setStrokeCap(Paint.Cap.ROUND);
 
         mHourTickPaint = new Paint();
         mHourTickPaint.setColor(Color.parseColor(mForegroundColour));
         mHourTickPaint.setAlpha(100);
-        mHourTickPaint.setStrokeWidth(getPixelsFromDp(2));
+        mHourTickPaint.setStrokeWidth(getPixelsFromDp(2 * analogueSizeModifier));
         mHourTickPaint.setAntiAlias(true);
 
         mMinuteTickPaint = new Paint();
         mMinuteTickPaint.setColor(Color.parseColor(mForegroundColour));
         mMinuteTickPaint.setAlpha(100);
-        mMinuteTickPaint.setStrokeWidth(getPixelsFromDp(1));
+        mMinuteTickPaint.setStrokeWidth(getPixelsFromDp(1 * analogueSizeModifier));
         mMinuteTickPaint.setAntiAlias(true);
+
+        float textSize = getPixelsFromDp(36);
+
+        mDigitalHourPaint = createTextPaint(Color.parseColor(mForegroundColour));
+        mDigitalMinutePaint = createTextPaint(Color.parseColor(mForegroundColour));
+        mDigitalAmPmPaint = createTextPaint(Color.parseColor(mForegroundColour));
+        mTextElementPaint = createTextPaint(Color.parseColor(mForegroundColour));
+        mColonPaint = createTextPaint(Color.parseColor(mMiddleColour));
+        mDialPaint = createTextPaint(Color.parseColor(mMiddleColour));
+
+        mDigitalHourPaint.setTextSize(textSize * digitalSizeModifier);
+        mDigitalMinutePaint.setTextSize(textSize * digitalSizeModifier);
+        mColonPaint.setTextSize(textSize * digitalSizeModifier);
+        mTextElementPaint.setTextSize(textSize / 2f);
+        mDialPaint.setTextSize(textSize / 2f);
+        mDigitalAmPmPaint.setTextSize((textSize / 4f) * digitalSizeModifier);
+    }
+
+    private void init() {
+        r = getResources();
+
+        float digitalSizeModifier = (mDigitalElementSize / 100f);
+
+        mXOffset = getPixelsFromDp(45 * digitalSizeModifier);
+        mYOffset = getPixelsFromDp(12 * digitalSizeModifier);
+
+        mSmallTextXOffset = getPixelsFromDp(5 * digitalSizeModifier);
+        mSmallTextYOffset = mYOffset / 2f;
+
+        // TODO: get from resources
+        mAmString = "AM";
+        mPmString = "PM";
+
+        setUpPaints();
 
         mBatteryFullPaint = new Paint();
         mBatteryFullPaint.setColor(Color.parseColor(mMiddleColour));
@@ -332,20 +361,6 @@ public class PreviewWatchFace extends View {
 
         mBackgroundPaint = new Paint();
         mBackgroundPaint.setColor(Color.parseColor(mBackgroundColour));
-
-        mDigitalHourPaint = createTextPaint(Color.parseColor(mForegroundColour));
-        mDigitalMinutePaint = createTextPaint(Color.parseColor(mForegroundColour));
-        mDigitalAmPmPaint = createTextPaint(Color.parseColor(mForegroundColour));
-        mTextElementPaint = createTextPaint(Color.parseColor(mForegroundColour));
-        mColonPaint = createTextPaint(Color.parseColor(mMiddleColour));
-        mDialPaint = createTextPaint(Color.parseColor(mMiddleColour));
-
-        mDigitalHourPaint.setTextSize(textSize);
-        mDigitalMinutePaint.setTextSize(textSize);
-        mColonPaint.setTextSize(textSize);
-        mTextElementPaint.setTextSize(textSize / 2f);
-        mDialPaint.setTextSize(textSize / 2f);
-        mDigitalAmPmPaint.setTextSize(textSize / 4f);
 
         mColonWidth = mColonPaint.measureText(COLON_STRING);
 
@@ -575,8 +590,11 @@ public class PreviewWatchFace extends View {
 
     private void drawDigital(Canvas canvas) {
         if (mToggleDigital) {
+            float digitalSizeModifier = (mDigitalElementSize / 100f);
+
             // Digital
-            x = centerX - mXOffset;
+            x = centerX - (mXOffset * digitalSizeModifier);
+            y = centerY + (mYOffset * digitalSizeModifier);
 
             // Draw the hours.
             drawHourText(canvas);
@@ -598,14 +616,14 @@ public class PreviewWatchFace extends View {
         mDigitalHourPaint.setStyle(Paint.Style.STROKE);
         mDigitalHourPaint.setColor(Color.parseColor(backgroundColour));
         mDigitalHourPaint.setAlpha(mIsInAmbientMode ? mForegroundOpacityLevel : 255);
-        canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
+        canvas.drawText(hourString, x, y, mDigitalHourPaint);
 
         foregroundColour = mToggleSolidText ? mForegroundColour : mIsInAmbientMode ? mBackgroundColour : mForegroundColour;
 
         mDigitalHourPaint.setStyle(Paint.Style.FILL);
         mDigitalHourPaint.setColor(Color.parseColor(foregroundColour));
         mDigitalHourPaint.setAlpha(mForegroundOpacityLevel);
-        canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
+        canvas.drawText(hourString, x, y, mDigitalHourPaint);
 
         x += mDigitalHourPaint.measureText(hourString);
     }
@@ -616,14 +634,14 @@ public class PreviewWatchFace extends View {
         mColonPaint.setStyle(Paint.Style.STROKE);
         mColonPaint.setColor(Color.parseColor(middleBackgroundColour));
         mColonPaint.setAlpha(mIsInAmbientMode ? mForegroundOpacityLevel : 255);
-        canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
+        canvas.drawText(COLON_STRING, x, y, mColonPaint);
 
         middleForegroundColour = mToggleSolidText ? mMiddleColour : mIsInAmbientMode ? mBackgroundColour : mMiddleColour;
 
         mColonPaint.setStyle(Paint.Style.FILL);
         mColonPaint.setColor(Color.parseColor(middleForegroundColour));
         mColonPaint.setAlpha(mForegroundOpacityLevel);
-        canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
+        canvas.drawText(COLON_STRING, x, y, mColonPaint);
 
         x += mColonWidth;
     }
@@ -634,12 +652,12 @@ public class PreviewWatchFace extends View {
         mDigitalMinutePaint.setStyle(Paint.Style.STROKE);
         mDigitalMinutePaint.setColor(Color.parseColor(backgroundColour));
         mDigitalMinutePaint.setAlpha(mIsInAmbientMode ? mForegroundOpacityLevel : 255);
-        canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
+        canvas.drawText(minuteString, x, y, mDigitalMinutePaint);
 
         mDigitalMinutePaint.setStyle(Paint.Style.FILL);
         mDigitalMinutePaint.setColor(Color.parseColor(foregroundColour));
         mDigitalMinutePaint.setAlpha(mForegroundOpacityLevel);
-        canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
+        canvas.drawText(minuteString, x, y, mDigitalMinutePaint);
     }
 
     private void drawAmPm(Canvas canvas) {
@@ -649,12 +667,12 @@ public class PreviewWatchFace extends View {
             mDigitalAmPmPaint.setStyle(Paint.Style.STROKE);
             mDigitalAmPmPaint.setColor(Color.parseColor(mBackgroundColour));
             mDigitalAmPmPaint.setAlpha(255);
-            canvas.drawText(getAmPmString(mTime.hour), x, centerY + mYOffset, mDigitalAmPmPaint);
+            canvas.drawText(getAmPmString(mTime.hour), x, y, mDigitalAmPmPaint);
 
             mDigitalAmPmPaint.setStyle(Paint.Style.FILL);
             mDigitalAmPmPaint.setColor(Color.parseColor(mForegroundColour));
             mDigitalAmPmPaint.setAlpha(mForegroundOpacityLevel);
-            canvas.drawText(getAmPmString(mTime.hour), x, centerY + mYOffset, mDigitalAmPmPaint);
+            canvas.drawText(getAmPmString(mTime.hour), x, y, mDigitalAmPmPaint);
         }
     }
 

@@ -20,6 +20,9 @@ public class Utility {
     public static final String KEY_WIDGET_WEATHER_AUTO_LOCATION = "com.greenman.digilogue.AUTO_LOCATION";
     public static final String KEY_WIDGET_WEATHER_DATA_ISDAYTIME = "com.greenman.digilogue.WEATHER_ISDAYTIME";
 
+    public static final String KEY_ANALOGUE_ELEMENT_SIZE = "com.greenman.digilogue.ANALOGUE_ELEMENT_SIZE";
+    public static final String KEY_DIGITAL_ELEMENT_SIZE = "com.greenman.digilogue.DIGITAL_ELEMENT_SIZE";
+
     // string keys
     public static final String KEY_BACKGROUND_COLOUR = "com.greenman.digilogue.BACKGROUND_COLOUR";
     public static final String KEY_MIDDLE_COLOUR = "com.greenman.digilogue.MIDDLE_COLOUR";

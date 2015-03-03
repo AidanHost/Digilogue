@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.wearable.companion.WatchFaceCompanion;
@@ -17,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -26,17 +24,10 @@ import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
-import com.google.android.gms.wearable.PutDataMapRequest;
-import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.greenman.common.Utility;
 import com.greenman.digilogue.view.PreviewWatchFace;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class DigilogueConfigActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<DataApi.DataItemResult>, ColoursFragment.OnFragmentInteractionListener, TogglesFragment.OnFragmentInteractionListener, WeatherFragment.OnFragmentInteractionListener {
@@ -78,6 +69,9 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     public boolean autoLocation = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION;
     public String weatherData = "";
     public String manualLocation = "";
+
+    public int analogueElementSize = 100;
+    public int digitalElementSize = 100;
     //endregion
 
     //region Overrides
@@ -264,6 +258,12 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         if (toggles.containsKey(TogglesFragment.ARG_DIAL))
             toggleDial = toggles.getBoolean(TogglesFragment.ARG_DIAL);
 
+        if (toggles.containsKey(TogglesFragment.ARG_ANALOGUE_ELEMENT_SIZE))
+            analogueElementSize = toggles.getInt(TogglesFragment.ARG_ANALOGUE_ELEMENT_SIZE);
+
+        if (toggles.containsKey(TogglesFragment.ARG_DIGITAL_ELEMENT_SIZE))
+            digitalElementSize = toggles.getInt(TogglesFragment.ARG_DIGITAL_ELEMENT_SIZE);
+
         try {
             config.putBoolean(Utility.KEY_TOGGLE_AM_PM, toggleAmPm);
             config.putBoolean(Utility.KEY_TOGGLE_DAY_DATE, toggleDayDate);
@@ -274,6 +274,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             config.putBoolean(Utility.KEY_TOGGLE_BATTERY, toggleBattery);
             config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, toggleFixChin);
             config.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, toggleDial);
+            config.putInt(Utility.KEY_ANALOGUE_ELEMENT_SIZE, analogueElementSize);
+            config.putInt(Utility.KEY_DIGITAL_ELEMENT_SIZE, digitalElementSize);
             preview.setConfig(config);
         } catch (Exception e) {
             // ignore
@@ -337,6 +339,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         toggleSolidText = config.containsKey(Utility.KEY_TOGGLE_SOLID_TEXT) && config.getBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, false);
         toggleFixChin = config.containsKey(Utility.KEY_TOGGLE_FIX_CHIN) && config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN, false);
         toggleDial = config.containsKey(Utility.KEY_TOGGLE_DRAW_DIAL) && config.getBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, false);
+        analogueElementSize = config.containsKey(Utility.KEY_ANALOGUE_ELEMENT_SIZE) ? config.getInt(Utility.KEY_ANALOGUE_ELEMENT_SIZE) : 100;
+        digitalElementSize = config.containsKey(Utility.KEY_DIGITAL_ELEMENT_SIZE) ? config.getInt(Utility.KEY_DIGITAL_ELEMENT_SIZE) : 100;
 
         try {
             togglesFragment = (TogglesFragment) getSupportFragmentManager().getFragments().get(1);
@@ -349,6 +353,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             togglesFragment.setBattery(toggleBattery);
             togglesFragment.setFixChin(toggleFixChin);
             togglesFragment.setDial(toggleDial);
+            togglesFragment.setAnalogueElementSize(analogueElementSize);
+            togglesFragment.setDigitalElementSize(digitalElementSize);
         } catch (Exception e) {
             // ignore
         }
@@ -457,6 +463,9 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, toggleFixChin);
             config.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, toggleDial);
 
+            config.putInt(Utility.KEY_ANALOGUE_ELEMENT_SIZE, analogueElementSize);
+            config.putInt(Utility.KEY_DIGITAL_ELEMENT_SIZE, digitalElementSize);
+
             config.putBoolean(Utility.KEY_TOGGLE_WEATHER, toggleWeather);
             config.putBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, fahrenheit);
             config.putBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, autoLocation);
@@ -489,6 +498,9 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         defaults.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, Utility.CONFIG_DEFAULT_TOGGLE_DIAL);
         defaults.putBoolean(Utility.KEY_TOGGLE_WEATHER, Utility.CONFIG_DEFAULT_TOGGLE_WEATHER);
 
+        defaults.putInt(Utility.KEY_ANALOGUE_ELEMENT_SIZE, 100);
+        defaults.putInt(Utility.KEY_DIGITAL_ELEMENT_SIZE, 100);
+
         defaults.putBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT);
         defaults.putBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION);
 
@@ -513,6 +525,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         toggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
         toggleFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
         toggleDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
+        analogueElementSize = 100;
+        digitalElementSize = 100;
 
         toggleWeather = Utility.CONFIG_DEFAULT_TOGGLE_WEATHER;
         fahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
@@ -533,6 +547,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         config.putBoolean(Utility.KEY_TOGGLE_BATTERY, Utility.CONFIG_DEFAULT_TOGGLE_BATTERY);
         config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN);
         config.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, Utility.CONFIG_DEFAULT_TOGGLE_DIAL);
+        config.putInt(Utility.KEY_ANALOGUE_ELEMENT_SIZE, analogueElementSize);
+        config.putInt(Utility.KEY_DIGITAL_ELEMENT_SIZE, digitalElementSize);
 
         config.putBoolean(Utility.KEY_TOGGLE_WEATHER, Utility.CONFIG_DEFAULT_TOGGLE_WEATHER);
         config.putBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT);
@@ -564,6 +580,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             togglesFragment.setBattery(toggleBattery);
             togglesFragment.setFixChin(toggleFixChin);
             togglesFragment.setDial(toggleDial);
+            togglesFragment.setAnalogueElementSize(analogueElementSize);
+            togglesFragment.setDigitalElementSize(digitalElementSize);
         } catch (Exception e) {
             // ignore
         }
