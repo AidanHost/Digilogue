@@ -168,6 +168,7 @@
                 android:text="@string/toggle_solid_number" />
         </LinearLayout>
 
+        <!-- // TODO: connection indicator-->
         <!-- // TODO: 420 mode?-->
         <!--<LinearLayout
             android:layout_width="match_parent"
