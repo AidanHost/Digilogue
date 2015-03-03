@@ -87,6 +87,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         setContentView(R.layout.activity_digilogue_config);
 
         preview = (PreviewWatchFace) findViewById(R.id.preview);
+        preview.setHintText(getString(R.string.preview_tap), true);
         pager = (ViewPager) findViewById(R.id.pager);
         pager.setOffscreenPageLimit(2);
 
@@ -107,9 +108,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         coloursFragment = new ColoursFragment();
         togglesFragment = new TogglesFragment();
         weatherFragment = new WeatherFragment();
-
-        // TODO: better way
-        Toast.makeText(getBaseContext(), getString(R.string.preview_tap), Toast.LENGTH_LONG).show();
     }
 
     @Override

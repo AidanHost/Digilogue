@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.text.format.Time;
@@ -140,6 +141,9 @@ public class PreviewWatchFace extends View {
 
     private final ArrayList<Integer> seconds = new ArrayList<>();
     private final SimpleDateFormat sdf = new SimpleDateFormat("EEE, d", Resources.getSystem().getConfiguration().locale);
+
+    private String mHintText = "";
+    private boolean mShowHint = false;
     //endregion
 
     //region config data defaults
@@ -176,6 +180,89 @@ public class PreviewWatchFace extends View {
         init();
     }
 
+    //region overrides
+    @Override
+    public void onDraw(Canvas canvas) {
+        // for new preview picture
+        mTime.set(35, 10, 10, 5, 8, 2014);
+        mBatteryLevel = 100;
+
+        width = getWidth();
+        height = getHeight();
+
+        canvas.drawRect(0, 0, width, height, mBackgroundPaint);
+
+        // Find the center. Ignore the window insets so that, on round watches with a
+        // "chin", the watch face is centered on the entire screen, not just the usable
+        // portion.
+        centerX = width / 2f;
+        centerY = height / 2f;
+        float ratio = centerX / (centerX - (float)mChinHeight);
+        modifier = ratio - ((float)mChinHeight / centerX);
+
+        drawAnalogue(canvas);
+        drawDigital(canvas);
+
+        drawIndicators(canvas);
+
+        drawHint(canvas);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            mIsInAmbientMode = !mIsInAmbientMode;
+            updateUI(mConfig);
+        }
+
+        return true;
+    }
+    //endregion
+
+    //region custom methods
+    private void updateUI(DataMap config) {
+        mToggleAmPm = config.getBoolean(Utility.KEY_TOGGLE_AM_PM);
+        mToggleDayDate = config.getBoolean(Utility.KEY_TOGGLE_DAY_DATE);
+        mToggleDimColour = config.getBoolean(Utility.KEY_TOGGLE_DIM_COLOUR);
+        mToggleSolidText = config.getBoolean(Utility.KEY_TOGGLE_SOLID_TEXT);
+        mToggleDigital = config.getBoolean(Utility.KEY_TOGGLE_DIGITAL);
+        mToggleAnalogue = config.getBoolean(Utility.KEY_TOGGLE_ANALOGUE);
+        mToggleBattery = config.getBoolean(Utility.KEY_TOGGLE_BATTERY);
+        mFixChin = config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN);
+        mToggleDrawDial = config.getBoolean(Utility.KEY_TOGGLE_DRAW_DIAL);
+        mToggleWeather = config.getBoolean(Utility.KEY_TOGGLE_WEATHER);
+
+        mFahrenheit = config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT);
+
+        mTemperatureC = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C);
+        mTemperatureF = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F);
+        mCode = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE);
+        mIsDayTime = config.getBoolean(Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME);
+
+        if (!mIsInAmbientMode) {
+            setBackgroundColor(config.getString(Utility.KEY_BACKGROUND_COLOUR));
+            setMiddleColor(config.getString(Utility.KEY_MIDDLE_COLOUR));
+            setForegroundColor(config.getString(Utility.KEY_FOREGROUND_COLOUR));
+            setAccentColor(config.getString(Utility.KEY_ACCENT_COLOUR));
+        } else {
+            setBackgroundColor(Utility.COLOUR_NAME_DEFAULT_BACKGROUND);
+            setMiddleColor(Utility.COLOUR_NAME_DEFAULT_MIDDLE);
+            setForegroundColor(Utility.COLOUR_NAME_DEFAULT_FOREGROUND);
+            setAccentColor(Utility.COLOUR_NAME_DEFAULT_ACCENT);
+        }
+
+        // Dim all elements on screen
+        mForegroundOpacityLevel = mIsInAmbientMode ? 125 : 255;
+        mAccentOpacityLevel = mIsInAmbientMode ? 100 : 255;
+
+        if (!mToggleDimColour) {
+            mForegroundOpacityLevel = 255;
+            mAccentOpacityLevel = 255;
+        }
+
+        invalidate();
+    }
+
     public void setConfig(DataMap config) {
         mConfig = config;
         updateUI(mConfig);
@@ -195,6 +282,7 @@ public class PreviewWatchFace extends View {
         mSmallTextXOffset = getPixelsFromDp(3);
         mSmallTextYOffset = mYOffset / 2f;
 
+        // TODO: get from resources
         mAmString = "AM";
         mPmString = "PM";
 
@@ -269,91 +357,7 @@ public class PreviewWatchFace extends View {
             mAccentOpacityLevel = 255;
         }
     }
-
-    @Override
-    public void onDraw(Canvas canvas) {
-        // for new preview picture
-        mTime.set(35, 10, 10, 5, 8, 2014);
-        mBatteryLevel = 100;
-
-        width = getWidth();
-        height = getHeight();
-
-        canvas.drawRect(0, 0, width, height, mBackgroundPaint);
-
-        // Find the center. Ignore the window insets so that, on round watches with a
-        // "chin", the watch face is centered on the entire screen, not just the usable
-        // portion.
-        centerX = width / 2f;
-        centerY = height / 2f;
-        float ratio = centerX / (centerX - (float)mChinHeight);
-        modifier = ratio - ((float)mChinHeight / centerX);
-
-        drawAnalogue(canvas);
-        drawDigital(canvas);
-
-        drawIndicators(canvas);
-
-        /*Paint redLine = new Paint();
-        redLine.setStrokeWidth(getPixelsFromDp(2));
-        redLine.setColor(Color.parseColor("red"));
-
-        canvas.drawLine(0, centerY, width, centerY, redLine);
-        canvas.drawLine(centerX, 0, centerX, height, redLine);*/
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            mIsInAmbientMode = !mIsInAmbientMode;
-            updateUI(mConfig);
-        }
-
-        return true;
-    }
-
-    private void updateUI(DataMap config) {
-        mToggleAmPm = config.getBoolean(Utility.KEY_TOGGLE_AM_PM);
-        mToggleDayDate = config.getBoolean(Utility.KEY_TOGGLE_DAY_DATE);
-        mToggleDimColour = config.getBoolean(Utility.KEY_TOGGLE_DIM_COLOUR);
-        mToggleSolidText = config.getBoolean(Utility.KEY_TOGGLE_SOLID_TEXT);
-        mToggleDigital = config.getBoolean(Utility.KEY_TOGGLE_DIGITAL);
-        mToggleAnalogue = config.getBoolean(Utility.KEY_TOGGLE_ANALOGUE);
-        mToggleBattery = config.getBoolean(Utility.KEY_TOGGLE_BATTERY);
-        mFixChin = config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN);
-        mToggleDrawDial = config.getBoolean(Utility.KEY_TOGGLE_DRAW_DIAL);
-        mToggleWeather = config.getBoolean(Utility.KEY_TOGGLE_WEATHER);
-
-        mFahrenheit = config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT);
-
-        mTemperatureC = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C);
-        mTemperatureF = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F);
-        mCode = config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_CODE);
-        mIsDayTime = config.getBoolean(Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME);
-
-        if (!mIsInAmbientMode) {
-            setBackgroundColor(config.getString(Utility.KEY_BACKGROUND_COLOUR));
-            setMiddleColor(config.getString(Utility.KEY_MIDDLE_COLOUR));
-            setForegroundColor(config.getString(Utility.KEY_FOREGROUND_COLOUR));
-            setAccentColor(config.getString(Utility.KEY_ACCENT_COLOUR));
-        } else {
-            setBackgroundColor(Utility.COLOUR_NAME_DEFAULT_BACKGROUND);
-            setMiddleColor(Utility.COLOUR_NAME_DEFAULT_MIDDLE);
-            setForegroundColor(Utility.COLOUR_NAME_DEFAULT_FOREGROUND);
-            setAccentColor(Utility.COLOUR_NAME_DEFAULT_ACCENT);
-        }
-
-        // Dim all elements on screen
-        mForegroundOpacityLevel = mIsInAmbientMode ? 125 : 255;
-        mAccentOpacityLevel = mIsInAmbientMode ? 100 : 255;
-
-        if (!mToggleDimColour) {
-            mForegroundOpacityLevel = 255;
-            mAccentOpacityLevel = 255;
-        }
-
-        invalidate();
-    }
+    //endregion
 
     //region draw methods
     private void drawAnalogue(Canvas canvas) {
@@ -927,6 +931,26 @@ public class PreviewWatchFace extends View {
             }
         }
     }
+
+    private void drawHint(Canvas canvas) {
+        if (mShowHint) {
+            Paint hintTextPaint = new Paint();
+            hintTextPaint.setColor(Color.parseColor(Utility.COLOUR_NAME_DEFAULT_FOREGROUND));
+            hintTextPaint.setStrokeWidth(getPixelsFromDp(2));
+            hintTextPaint.setTextSize(getPixelsFromDp(15));
+            hintTextPaint.setAntiAlias(true);
+
+            float textWidth = (hintTextPaint.measureText(mHintText) / 2f);
+
+            Paint hintBackgroundPaint = new Paint();
+            hintBackgroundPaint.setColor(Color.parseColor(Utility.COLOUR_NAME_DEFAULT_MIDDLE));
+            hintBackgroundPaint.setAlpha(150);
+
+            RectF rect = new RectF((centerX - textWidth) - getPixelsFromDp(5), height - getPixelsFromDp(25), (centerX + textWidth) + getPixelsFromDp(5), height - getPixelsFromDp(5));
+            canvas.drawRoundRect(rect, getPixelsFromDp(5), getPixelsFromDp(5), hintBackgroundPaint);
+            canvas.drawText(mHintText, centerX - textWidth, height - getPixelsFromDp(10), hintTextPaint);
+        }
+    }
     //endregion
 
     //region Drawing icon methods
@@ -1171,6 +1195,11 @@ public class PreviewWatchFace extends View {
         paint.setStrokeJoin(Paint.Join.BEVEL);
         paint.setStrokeWidth(getPixelsFromDp(2));
         return paint;
+    }
+
+    public void setHintText(String text, boolean showHint) {
+        mShowHint = showHint;
+        mHintText = text;
     }
     //endregion
 }
