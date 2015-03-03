@@ -14,9 +14,7 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.greenman.common.Utility;
 
-import java.util.concurrent.TimeUnit;
-
-public class WatchFaceUtil {
+class WatchFaceUtil {
     private static final String TAG = "WatchFaceUtil";
     private WatchFaceUtil() { }
 
@@ -95,7 +93,7 @@ public class WatchFaceUtil {
      * Overwrites the current config {@link com.google.android.gms.wearable.DataItem}'s {@link DataMap} with {@code newConfig}.
      * If the config DataItem doesn't exist, it's created.
      */
-    public static void putConfigDataItem(GoogleApiClient googleApiClient, DataMap newConfig) {
+    private static void putConfigDataItem(GoogleApiClient googleApiClient, DataMap newConfig) {
         PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(Utility.PATH_DIGILOGUE_SETTINGS);
         DataMap configToPut = putDataMapRequest.getDataMap();
         configToPut.putAll(newConfig);

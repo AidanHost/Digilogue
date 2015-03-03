@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="color_black">Black</string>
+    <string name="color_blue">Blue</string>
+    <string name="color_gray">Gray</string>
+    <string name="color_green">Green</string>
+    <string name="color_navy">Navy</string>
+    <string name="color_red">Red</string>
+    <string name="color_white">White</string>
+
     <!-- TODO: translations-->
     <string name="app_name">Digilogue</string>
     <string name="digital_config_background">Background</string>
-    <string name="digital_config_foreground">Foreground</string>
-    <string name="title_activity_digilogue_config">DigilogueConfigActivity</string>
-    <string name="digital_config_format">AM/PM</string>
-    <string name="digital_config_accent">Accent</string>
     <string name="digital_config_middle">Middle</string>
-    <string name="update_watch">Update watchface</string>
-    <string name="header_colours">Colours</string>
-    <string name="header_toggles">Toggles</string>
-    <string name="weather_location">Location</string>
-    <string name="widget_weather_auto_location">Auto detect</string>
-    <string name="widget_show_weather">Weather</string>
-    <string name="weather_header">Weather</string>
-    <string name="location_hint">City, Country (Eg. Cape Town, ZA)</string>
+    <string name="digital_config_foreground">Foreground</string>
+    <string name="digital_config_accent">Accent</string>
+    <string name="digital_config_format">AM/PM</string>
     <string name="fahrenheit">Fahrenheit</string>
-    <string name="widget_weather_frequency">Update weather every %02d hours</string>
+    <string name="widget_weather_auto_location">Auto detect location</string>
+    <string name="location_hint">City, Country (Eg. Cape Town, ZA)</string>
+    <!--<string name="widget_weather_frequency">Update weather every %02d hours</string>-->
     <string name="weather_api_credit">Weather by World Weather Online</string>
     <string name="play_store_description_instruction">View the Play Store description for more info.</string>
     <string name="weather_data_info">Weather data will be displayed here once fetched.</string>
@@ -55,16 +56,13 @@
     <string name="toggle_analogue">Analogue</string>
     <string name="toggle_date_day">Day, Date</string>
     <string name="moto_mode">Moto 360 compatibility</string>
-
-    <string name="color_black">Black</string>
-    <string name="color_blue">Blue</string>
-    <string name="color_gray">Gray</string>
-    <string name="color_green">Green</string>
-    <string name="color_navy">Navy</string>
-    <string name="color_red">Red</string>
-    <string name="color_white">White</string>
+    <string name="toggle_dial">Dial numbers</string>
+    <string name="preview_tap">Tap on the preview to toggle Ambient Mode</string>
     <string name="reset_defaults">Reset defaults</string>
     <string name="save">Save</string>
+    <string name="colour_title">Colours</string>
+    <string name="toggles_title">Toggles</string>
+    <string name="weather_title">Weather</string>
 
     <string-array name="color_array">
         <item>@string/color_black</item>
@@ -74,6 +72,12 @@
         <item>@string/color_navy</item>
         <item>@string/color_red</item>
         <item>@string/color_white</item>
+    </string-array>
+
+    <string-array name="tab_array">
+        <item>@string/colour_title</item>
+        <item>@string/toggles_title</item>
+        <item>@string/weather_title</item>
     </string-array>
 
 </resources>

@@ -71,100 +71,166 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
     }
 
     private class Engine extends CanvasWatchFaceService.Engine implements DataApi.DataListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-        static final int MSG_UPDATE_TIME = 0;
-        static final int MSG_REFRESH_WEATHER = 1;
+        //region class member variables
+        private static final int MSG_UPDATE_TIME = 0;
+        private static final int MSG_REFRESH_WEATHER = 1;
+        private static final float HOUR_TICK_LENGTH = 10;
+        private static final float HOUR_TICK_GAP = 3;
 
-        static final String COLON_STRING = ":";
+        private static final String COLON_STRING = ":";
 
         private RefreshWeatherTask mRefreshWeatherTask;
 
         private DataMap mConfig;
 
-        /** How often {@link #mUpdateHandler} ticks in milliseconds. */
+        private Time mTime;
+
+        /**
+         * How often {@link #mUpdateHandler} ticks in milliseconds.
+         */
         long mInteractiveUpdateRateMs = INTERACTIVE_UPDATE_RATE_MS;
 
         /**
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
          * disable anti-aliasing in ambient mode.
          */
-        boolean mLowBitAmbient;
-        boolean mMute;
-        boolean mRegisteredTimeZoneReceiver = false;
-        boolean mToggleAmPm = Utility.CONFIG_TOGGLE_AM_PM_DEFAULT;
-        boolean mToggleWeather = Utility.CONFIG_TOGGLE_WEATHER_DEFAULT;
-        boolean mFahrenheit = Utility.CONFIG_WIDGET_WEATHER_FAHRENHEIT_DEFAULT;
-        boolean mIsDayTime = Utility.CONFIG_WIDGET_WEATHER_DAYTIME_DEFAULT;
-        boolean mRunWeather = true;
+        private boolean mLowBitAmbient;
+        private boolean mMute;
+        private boolean mRegisteredTimeZoneReceiver = false;
+        private boolean mRunWeather = true;
 
-        boolean mToggleAnalogue = Utility.CONFIG_TOGGLE_ANALOGUE_DEFAULT;
-        boolean mToggleDigital = Utility.CONFIG_TOGGLE_DIGITAL_DEFAULT;
-        boolean mToggleBattery = Utility.CONFIG_TOGGLE_BATTERY_DEFAULT;
-        boolean mToggleDayDate = Utility.CONFIG_TOGGLE_DAY_DATE_DEFAULT;
-        boolean mToggleDimColour = Utility.CONFIG_TOGGLE_DIM_COLOUR_DEFAULT;
-        boolean mToggleSolidText = Utility.CONFIG_TOGGLE_SOLID_TEXT_DEFAULT;
+        private float mXOffset;
+        private float mYOffset;
+        private float mSmallTextYOffset;
+        private float mSmallTextXOffset;
+        private float mColonWidth;
 
-        Time mTime;
-
-        float mXOffset;
-        float mYOffset;
-        float mSmallTextOffset;
-        float mColonWidth;
-
-        int mBatteryLevel = 100;
-        int mForegroundOpacityLevel;
-        int mAccentOpacityLevel;
-
-        int mTemperatureC = Utility.WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT;
-        int mTemperatureF = Utility.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT;
-        int mCode = Utility.WIDGET_WEATHER_DATA_CODE_DEFAULT;
-        long mLastTime = Utility.WIDGET_WEATHER_DATA_DATETIME_DEFAULT;
+        private int mBatteryLevel = 100;
+        private int mForegroundOpacityLevel;
+        private int mAccentOpacityLevel;
 
         private int mChinHeight = 0;
         private boolean mGotChin = false;
-        boolean mFixChin = Utility.CONFIG_TOGGLE_FIX_CHIN;
-
-        String mAmString;
-        String mPmString;
-
-        String mBackgroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND;
-        String mMiddleColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE;
-        String mForegroundColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND;
-        String mAccentColour = Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT;
+        private String mAmString;
+        private String mPmString;
 
         // Face
-        Paint mBackgroundPaint;
-        Paint mHourTickPaint;
-        Paint mMinuteTickPaint;
-        Paint mBatteryFullPaint;
-        Paint mBatteryPaint;
-        Paint mTextElementPaint;
-        Paint mWidgetWeatherPaint;
+        private Paint mBackgroundPaint;
+        private Paint mHourTickPaint;
+        private Paint mMinuteTickPaint;
+        private Paint mBatteryFullPaint;
+        private Paint mBatteryPaint;
+        private Paint mTextElementPaint;
+        private Paint mWidgetWeatherPaint;
+        private Paint mDialPaint;
 
         // Analogue
-        Paint mHourPaint;
-        Paint mMinutePaint;
-        Paint mSecondPaint;
+        private Paint mHourPaint;
+        private Paint mMinutePaint;
+        private Paint mSecondPaint;
 
         // Digital
-        Paint mDigitalHourPaint;
-        Paint mDigitalMinutePaint;
-        Paint mDigitalAmPmPaint;
-        Paint mColonPaint;
+        private Paint mDigitalHourPaint;
+        private Paint mDigitalMinutePaint;
+        private Paint mDigitalAmPmPaint;
+        private Paint mColonPaint;
 
         // Paths
-        Path batteryIcon = new Path();
-        Path batteryIconLevel = new Path();
-        Path moonPath = new Path();
-        Path cloudPath = new Path();
-        Path linePath = new Path();
-        Path flakePath = new Path();
-        Path lightningPath = new Path();
+        private final Path batteryIcon = new Path();
+        private final Path batteryIconLevel = new Path();
+        private final Path moonPath = new Path();
+        private final Path cloudPath = new Path();
+        private final Path linePath = new Path();
+        private final Path flakePath = new Path();
+        private final Path lightningPath = new Path();
 
-        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(DigilogueWatchFaceService.this)
+        // draw variables
+        private int width;
+        private int height;
+        private float centerX;
+        private float centerY;
+        private float modifier;
+        private float innerTickRadius;
+        private float innerShortTickRadius;
+        private float outerShortTickRadius;
+        private float dialRadius;
+        private float tickRot;
+        private float dialX;
+        private float dialY;
+        private float innerX;
+        private float innerY;
+        private float outerX;
+        private float outerY;
+        private float difference;
+        private float innerShortX;
+        private float innerShortY;
+        private float outerShortX;
+        private float outerShortY;
+        private float secRot;
+        private float minRot;
+        private float hrRot;
+        private float secLength;
+        private float minLength;
+        private float hrLength;
+        private float analogueHandOffset;
+        private float x;
+        private float secX;
+        private float secY;
+        private float secStartX;
+        private float secStartY;
+        private float minX;
+        private float minY;
+        private float minStartX;
+        private float minStartY;
+        private float hrX;
+        private float hrY;
+        private float hrStartX;
+        private float hrStartY;
+        private String hourString;
+        private String backgroundColour;
+        private String foregroundColour;
+        private String middleBackgroundColour;
+        private String middleForegroundColour;
+        private String minuteString;
+        private String dayString;
+        private float batteryHeight;
+        private float weatherIconCenterX;
+        private float weatherIconCenterY;
+
+        private final ArrayList<Integer> seconds = new ArrayList<>();
+        private final SimpleDateFormat sdf = new SimpleDateFormat("EEE, d", Resources.getSystem().getConfiguration().locale);
+
+        final private GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(DigilogueWatchFaceService.this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(Wearable.API)
                 .build();
+        //endregion
+
+        //region config data defaults
+        boolean mToggleAmPm = Utility.CONFIG_DEFAULT_TOGGLE_AM_PM;
+        boolean mToggleWeather = Utility.CONFIG_DEFAULT_TOGGLE_WEATHER;
+        boolean mFahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
+        boolean mIsDayTime = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_DAYTIME;
+        boolean mToggleAnalogue = Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE;
+        boolean mToggleDrawDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
+        boolean mToggleDigital = Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL;
+        boolean mToggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
+        boolean mToggleDayDate = Utility.CONFIG_DEFAULT_TOGGLE_DAY_DATE;
+        boolean mToggleDimColour = Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR;
+        boolean mToggleSolidText = Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT;
+        boolean mFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
+
+        int mTemperatureC = Utility.WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_C;
+        int mTemperatureF = Utility.WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_F;
+        int mCode = Utility.WIDGET_WEATHER_DATA_DEFAULT_CODE;
+        long mLastTime = Utility.WIDGET_WEATHER_DATA_DEFAULT_DATETIME;
+
+        String mBackgroundColour = Utility.COLOUR_NAME_DEFAULT_BACKGROUND;
+        String mMiddleColour = Utility.COLOUR_NAME_DEFAULT_MIDDLE;
+        String mForegroundColour = Utility.COLOUR_NAME_DEFAULT_FOREGROUND;
+        String mAccentColour = Utility.COLOUR_NAME_DEFAULT_ACCENT;
+        //endregion
 
         //region Handler, Callbacks and Receivers
         /**
@@ -203,14 +269,14 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
         };
 
-        private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
+        private final BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context arg0, Intent intent) {
                 mBatteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
             }
         };
 
-        private WatchFaceUtil.FetchConfigDataMapCallback fetchConfigCallback = new WatchFaceUtil.FetchConfigDataMapCallback() {
+        private final WatchFaceUtil.FetchConfigDataMapCallback fetchConfigCallback = new WatchFaceUtil.FetchConfigDataMapCallback() {
             @Override
             public void onConfigDataMapFetched(DataMap config) {
                 DigilogueWatchFaceService.Engine.this.mConfig = config;
@@ -225,6 +291,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onCreate");
             }
+
             super.onCreate(holder);
 
             setWatchFaceStyle(new WatchFaceStyle.Builder(DigilogueWatchFaceService.this)
@@ -236,7 +303,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     .build());
 
             Resources resources = DigilogueWatchFaceService.this.getResources();
-            mYOffset = resources.getDimension(R.dimen.digital_y_offset);
             mAmString = resources.getString(R.string.digital_am);
             mPmString = resources.getString(R.string.digital_pm);
 
@@ -290,6 +356,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mDigitalAmPmPaint = createTextPaint(Color.parseColor(mForegroundColour));
             mTextElementPaint = createTextPaint(Color.parseColor(mForegroundColour));
             mColonPaint = createTextPaint(Color.parseColor(mMiddleColour));
+            mDialPaint = createTextPaint(Color.parseColor(mMiddleColour));
 
             mTime = new Time();
 
@@ -321,20 +388,23 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             Resources resources = DigilogueWatchFaceService.this.getResources();
             boolean isRound = insets.isRound();
             mXOffset = resources.getDimension(isRound ? R.dimen.digital_x_offset_round : R.dimen.digital_x_offset);
+            mYOffset = resources.getDimension(isRound ? R.dimen.digital_y_offset_round : R.dimen.digital_y_offset);
             float textSize = resources.getDimension(isRound ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
 
             mDigitalHourPaint.setTextSize(textSize);
             mDigitalMinutePaint.setTextSize(textSize);
-            mTextElementPaint.setTextSize(textSize / 2f);
             mColonPaint.setTextSize(textSize);
+            mTextElementPaint.setTextSize(textSize / 2f);
+            mDialPaint.setTextSize(textSize / 2f);
+            mDigitalAmPmPaint.setTextSize(textSize / 3f);
 
             mColonWidth = mColonPaint.measureText(COLON_STRING);
 
-            mSmallTextOffset = textSize / 4f;
+            mSmallTextXOffset = resources.getDimension(R.dimen.digital_x_small_text_offset);
+            mSmallTextYOffset = mYOffset / 2f;
 
             mGotChin = insets.hasSystemWindowInsets();
             mChinHeight = insets.getSystemWindowInsetBottom();
-            // mChinHeight = 30
         }
 
         @Override
@@ -389,10 +459,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             }
 
             if (isInAmbientMode()) {
-                setBackgroundColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
-                setMiddleColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE);
-                setForegroundColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
-                setAccentColor(Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT);
+                setBackgroundColor(Utility.COLOUR_NAME_DEFAULT_BACKGROUND);
+                setMiddleColor(Utility.COLOUR_NAME_DEFAULT_MIDDLE);
+                setForegroundColor(Utility.COLOUR_NAME_DEFAULT_FOREGROUND);
+                setAccentColor(Utility.COLOUR_NAME_DEFAULT_ACCENT);
                 invalidate();
             } else {
                 WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
@@ -438,46 +508,158 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
-            // for new preview time
+            // for new preview picture
             //mTime.set(35, 10, 10, 5, 8, 2014);
             //mBatteryLevel = 100;
-            mTime.setToNow();;
 
-            if (!mFixChin) {
-                mGotChin = false;
-                mChinHeight = 0;
-            }
+            mTime.setToNow();
 
-            // TODO: refactor assignments out of draw method - check if more can be done
-
-            int width = bounds.width();
-            int height = bounds.height();
+            width = bounds.width();
+            height = bounds.height();
 
             canvas.drawRect(0, 0, width, height, mBackgroundPaint);
 
             // Find the center. Ignore the window insets so that, on round watches with a
             // "chin", the watch face is centered on the entire screen, not just the usable
             // portion.
-            float centerX = width / 2f;
-            float centerY = height / 2f;
-            float modifier = 1.15f - (mChinHeight / centerX);
+            centerX = width / 2f;
+            centerY = height / 2f;
+            float ratio = centerX / (centerX - (float)mChinHeight);
+            modifier = ratio - ((float)mChinHeight / centerX);
 
+            drawAnalogue(canvas);
+            drawDigital(canvas);
+
+            drawIndicators(canvas);
+        }
+
+        @Override
+        public void onVisibilityChanged(boolean visible) {
+            super.onVisibilityChanged(visible);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onVisibilityChanged: " + visible);
+            }
+
+            if (visible) {
+                mGoogleApiClient.connect();
+
+                registerReceiver();
+
+                // Update time zone in case it changed while we weren't visible.
+                mTime.clear(TimeZone.getDefault().getID());
+                mTime.setToNow();
+            } else {
+                unregisterReceiver();
+
+                if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+                    Wearable.DataApi.removeListener(mGoogleApiClient, this);
+                    //Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+                    mGoogleApiClient.disconnect();
+                }
+            }
+
+            // Whether the timer should be running depends on whether we're visible (as well as
+            // whether we're in ambient mode), so we may need to start or stop the timer.
+            updateTimer();
+        }
+
+        @Override  // GoogleApiClient.ConnectionCallbacks
+        public void onConnected(Bundle connectionHint) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onConnected: " + connectionHint);
+            }
+
+            Wearable.DataApi.addListener(mGoogleApiClient, Engine.this);
+            //Wearable.MessageApi.addListener(mGoogleApiClient, Engine.this);
+
+            WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
+        }
+
+        @Override  // GoogleApiClient.ConnectionCallbacks
+        public void onConnectionSuspended(int cause) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onConnectionSuspended: " + cause);
+            }
+
+            Wearable.DataApi.removeListener(mGoogleApiClient, this);
+            //Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+            mGoogleApiClient.disconnect();
+        }
+
+        @Override  // GoogleApiClient.OnConnectionFailedListener
+        public void onConnectionFailed(ConnectionResult result) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "onConnectionFailed: " + result);
+            }
+
+            Wearable.DataApi.removeListener(mGoogleApiClient, this);
+            //Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+            mGoogleApiClient.disconnect();
+        }
+
+        @Override
+        public void onDataChanged(DataEventBuffer dataEvents) {
+            try {
+                for (DataEvent dataEvent : dataEvents) {
+                    if (dataEvent.getType() != DataEvent.TYPE_CHANGED) {
+                        continue;
+                    }
+
+                    DataItem dataItem = dataEvent.getDataItem();
+                    DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
+                    DataMap config = dataMapItem.getDataMap();
+                    this.mConfig = config;
+
+                    updateUI(config);
+
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Log.d(TAG, "Config DataItem updated:" + config);
+                    }
+                }
+            } finally {
+                dataEvents.close();
+            }
+        }
+        //endregion
+
+        //region draw methods
+        private void drawAnalogue(Canvas canvas) {
             if (mToggleAnalogue) {
-
                 // Analogue
                 // Draw the ticks.
-                float innerTickRadius = centerX - 10;
-                float innerShortTickRadius = centerX - 13;
-                float outerShortTickRadius = centerX - 23;
+                drawHourTicks(canvas);
 
-                for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
-                    float tickRot = (float) (tickIndex * Math.PI * 2 / 12);
-                    float innerX = (float) Math.sin(tickRot) * innerTickRadius;
-                    float innerY = (float) -Math.cos(tickRot) * innerTickRadius;
-                    float outerX = (float) Math.sin(tickRot) * centerX;
-                    float outerY = (float) -Math.cos(tickRot) * centerX;
+                seconds.clear();
 
-                    float difference = centerY + outerY - (height - mChinHeight);
+                // Draw the minute ticks.
+                drawMinuteTicks(canvas);
+
+                drawDialNumbers(canvas);
+
+                analogueHandOffset = centerX / 4f;
+
+                drawSecondHand(canvas);
+
+                drawMinuteHand(canvas);
+
+                drawHourHand(canvas);
+            }
+        }
+
+        private void drawHourTicks(Canvas canvas) {
+            innerTickRadius = centerX - HOUR_TICK_LENGTH;
+            innerShortTickRadius = innerTickRadius - HOUR_TICK_GAP;
+            outerShortTickRadius = innerShortTickRadius - HOUR_TICK_LENGTH;
+
+            for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
+                tickRot = (float) (tickIndex * Math.PI * 2f / 12f);
+                innerX = (float) Math.sin(tickRot) * innerTickRadius;
+                innerY = (float) -Math.cos(tickRot) * innerTickRadius;
+                outerX = (float) Math.sin(tickRot) * centerX;
+                outerY = (float) -Math.cos(tickRot) * centerX;
+
+                if (mFixChin) {
+                    difference = centerY + outerY - (height - mChinHeight);
 
                     if (difference > 0) {
                         innerX = (float) Math.sin(tickRot) * (innerTickRadius * modifier);
@@ -485,38 +667,41 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                         outerX = (float) Math.sin(tickRot) * (centerX * modifier);
                         outerY = (float) -Math.cos(tickRot) * centerX - difference;
                     }
+                }
 
-                    if (!isInAmbientMode())
-                        canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mHourTickPaint);
+                if (!isInAmbientMode())
+                    canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mHourTickPaint);
 
-                    float innerShortX = (float) Math.sin(tickRot) * innerShortTickRadius;
-                    float innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius;
-                    float outerShortX = (float) Math.sin(tickRot) * outerShortTickRadius;
-                    float outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius;
+                innerShortX = (float) Math.sin(tickRot) * innerShortTickRadius;
+                innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius;
+                outerShortX = (float) Math.sin(tickRot) * outerShortTickRadius;
+                outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius;
 
+                if (mFixChin) {
                     if (mGotChin && centerY + (-Math.cos(tickRot) * centerX) > height - mChinHeight) {
                         innerShortX = (float) Math.sin(tickRot) * (innerShortTickRadius * modifier);
                         innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius - difference;
                         outerShortX = (float) Math.sin(tickRot) * (outerShortTickRadius * modifier);
                         outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius - difference;
                     }
-
-                    canvas.drawLine(centerX + innerShortX, centerY + innerShortY, centerX + outerShortX, centerY + outerShortY, mHourTickPaint);
                 }
 
-                ArrayList<Integer> seconds = new ArrayList<Integer>();
+                canvas.drawLine(centerX + innerShortX, centerY + innerShortY, centerX + outerShortX, centerY + outerShortY, mHourTickPaint);
+            }
+        }
 
-                // Draw the minute ticks.
-                if (!isInAmbientMode()) {
-                    float innerMinuteTickRadius = centerX - 7;
-                    for (int tickIndex = 0; tickIndex < 60; tickIndex++) {
-                        float tickRot = (float) (tickIndex * Math.PI * 2 / 60);
-                        float innerX = (float) Math.sin(tickRot) * innerMinuteTickRadius;
-                        float innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius;
-                        float outerX = (float) Math.sin(tickRot) * centerX;
-                        float outerY = (float) -Math.cos(tickRot) * centerX;
+        private void drawMinuteTicks(Canvas canvas) {
+            if (!isInAmbientMode()) {
+                float innerMinuteTickRadius = centerX - 7f;
+                for (int tickIndex = 0; tickIndex < 60; tickIndex++) {
+                    tickRot = (float) (tickIndex * Math.PI * 2f / 60f);
+                    innerX = (float) Math.sin(tickRot) * innerMinuteTickRadius;
+                    innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius;
+                    outerX = (float) Math.sin(tickRot) * centerX;
+                    outerY = (float) -Math.cos(tickRot) * centerX;
 
-                        float difference = centerY + outerY - (height - mChinHeight);
+                    if (mFixChin) {
+                        difference = centerY + outerY - (height - mChinHeight);
                         if (difference > 0) {
                             innerX = (float) Math.sin(tickRot) * (innerMinuteTickRadius * modifier);
                             innerY = (float) -Math.cos(tickRot) * innerMinuteTickRadius - difference;
@@ -525,172 +710,250 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
                             seconds.add(tickIndex);
                         }
-
-                        canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mMinuteTickPaint);
                     }
+
+                    canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mMinuteTickPaint);
                 }
+            }
+        }
 
-                float secRot = mTime.second / 30f * (float) Math.PI;
-                float minRot = mTime.minute / 30f * (float) Math.PI;
-                float hrRot = ((mTime.hour + (mTime.minute / 60f)) / 6f) * (float) Math.PI;
+        private void drawDialNumbers(Canvas canvas) {
+            if (mToggleDrawDial) {
+                dialRadius = innerTickRadius - (mYOffset * 2f) - 5f;
+                for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
+                    if (tickIndex == 3 && mToggleDayDate)
+                        continue;
 
-                float secLength = centerX - 20;
-                float minLength = centerX - 35;
-                float hrLength = centerX - 75;
-                float offset = centerX / 4;
+                    if (tickIndex == 9 && mToggleBattery)
+                        continue;
 
-                if (!isInAmbientMode()) {
-                    float secX = (float) Math.sin(secRot) * secLength;
-                    float secY = (float) -Math.cos(secRot) * secLength;
-                    float secStartX = (float) Math.sin(secRot) * offset;
-                    float secStartY = (float) -Math.cos(secRot) * offset;
+                    tickRot = (float) (tickIndex * Math.PI * 2f / 12f);
+                    dialX = (float) Math.sin(tickRot) * dialRadius;
+                    dialY = (float) -Math.cos(tickRot) * dialRadius;
 
-                    float difference = centerY + secY - (height - mChinHeight);
+                    if (mFixChin) {
+                        difference = centerY + ((float) -Math.cos(tickRot) * centerX) - (height - mChinHeight);
+
+                        if (difference > 0) {
+                            dialX = (float) Math.sin(tickRot) * (dialRadius * modifier);
+                            dialY = (float) -Math.cos(tickRot) * dialRadius - difference;
+                        }
+                    }
+
+                    dialX -= mSmallTextXOffset;
+
+                    if (tickIndex == 0 || tickIndex == 10 || tickIndex == 11) {
+                        dialX -= mSmallTextXOffset;
+                    }
+
+                    dialY += mSmallTextYOffset;
+
+                    mTextElementPaint.setStyle(Paint.Style.STROKE);
+                    mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
+                    mTextElementPaint.setAlpha(255);
+                    canvas.drawText(tickIndex == 0 ? "12" : tickIndex + "", centerX + dialX, centerY + dialY, mDialPaint);
+
+                    mTextElementPaint.setStyle(Paint.Style.FILL);
+                    mTextElementPaint.setColor(Color.parseColor(mForegroundColour));
+                    mTextElementPaint.setAlpha(mForegroundOpacityLevel);
+                    canvas.drawText(tickIndex == 0 ? "12" : tickIndex + "", centerX + dialX, centerY + dialY, mDialPaint);
+                }
+            }
+        }
+
+        private void drawSecondHand(Canvas canvas) {
+            if (!isInAmbientMode()) {
+                secLength = centerX - 20f;
+                secRot = mTime.second / 30f * (float) Math.PI;
+
+                secX = (float) Math.sin(secRot) * secLength;
+                secY = (float) -Math.cos(secRot) * secLength;
+                secStartX = (float) Math.sin(secRot) * analogueHandOffset;
+                secStartY = (float) -Math.cos(secRot) * analogueHandOffset;
+
+                if (mFixChin) {
+                    difference = centerY + secY - (height - mChinHeight);
 
                     if (mGotChin && difference > 0 || seconds.contains(mTime.second)) {
                         secX = (float) Math.sin(secRot) * (secLength * modifier);
                         secY = (float) -Math.cos(secRot) * secLength - difference - 18f;
                     }
-
-                    mSecondPaint.setStyle(Paint.Style.STROKE);
-                    mSecondPaint.setColor(Color.parseColor(mBackgroundColour));
-                    mSecondPaint.setAlpha(255);
-                    canvas.drawLine(centerX + secStartX, centerY + secStartY, centerX + secX, centerY + secY, mSecondPaint);
-
-                    mSecondPaint.setStyle(Paint.Style.FILL);
-                    mSecondPaint.setColor(Color.parseColor(mAccentColour));
-                    mSecondPaint.setAlpha(mForegroundOpacityLevel);
-                    canvas.drawLine(centerX + secStartX, centerY + secStartY, centerX + secX, centerY + secY, mSecondPaint);
                 }
 
-                float minX = (float) Math.sin(minRot) * minLength;
-                float minY = (float) -Math.cos(minRot) * minLength;
-                float minStartX = (float) Math.sin(minRot) * offset;
-                float minStartY = (float) -Math.cos(minRot) * offset;
+                mSecondPaint.setStyle(Paint.Style.STROKE);
+                mSecondPaint.setColor(Color.parseColor(mBackgroundColour));
+                mSecondPaint.setAlpha(255);
+                canvas.drawLine(centerX + secStartX, centerY + secStartY, centerX + secX, centerY + secY, mSecondPaint);
 
-                float difference = centerY + ((float) -Math.cos(minRot) * secLength) - (height - mChinHeight);
+                mSecondPaint.setStyle(Paint.Style.FILL);
+                mSecondPaint.setColor(Color.parseColor(mAccentColour));
+                mSecondPaint.setAlpha(mForegroundOpacityLevel);
+                canvas.drawLine(centerX + secStartX, centerY + secStartY, centerX + secX, centerY + secY, mSecondPaint);
+            }
+        }
+
+        private void drawMinuteHand(Canvas canvas) {
+            minLength = centerX - 35;
+            minRot = mTime.minute / 30f * (float) Math.PI;
+
+            minX = (float) Math.sin(minRot) * minLength;
+            minY = (float) -Math.cos(minRot) * minLength;
+            minStartX = (float) Math.sin(minRot) * analogueHandOffset;
+            minStartY = (float) -Math.cos(minRot) * analogueHandOffset;
+
+            if (mFixChin) {
+                difference = centerY + ((float) -Math.cos(minRot) * secLength) - (height - mChinHeight);
 
                 if (mGotChin && seconds.contains(mTime.minute)) {
                     minX = (float) Math.sin(minRot) * (secLength * modifier);
                     minY = (float) -Math.cos(minRot) * secLength - difference - 18f;
                 }
-
-                mMinutePaint.setStyle(Paint.Style.STROKE);
-                mMinutePaint.setColor(Color.parseColor(mBackgroundColour));
-                mMinutePaint.setAlpha(255);
-                canvas.drawLine(centerX + minStartX, centerY + minStartY, centerX + minX, centerY + minY, mMinutePaint);
-
-                mMinutePaint.setStyle(Paint.Style.FILL);
-                mMinutePaint.setColor(Color.parseColor(mForegroundColour));
-                mMinutePaint.setAlpha(mForegroundOpacityLevel);
-                canvas.drawLine(centerX + minStartX, centerY + minStartY, centerX + minX, centerY + minY, mMinutePaint);
-
-                float hrX = (float) Math.sin(hrRot) * hrLength;
-                float hrY = (float) -Math.cos(hrRot) * hrLength;
-                float hrStartX = (float) Math.sin(hrRot) * offset;
-                float hrStartY = (float) -Math.cos(hrRot) * offset;
-
-                mHourPaint.setStyle(Paint.Style.STROKE);
-                mHourPaint.setColor(Color.parseColor(mBackgroundColour));
-                mHourPaint.setAlpha(255);
-                canvas.drawLine(centerX + hrStartX, centerY + hrStartY, centerX + hrX, centerY + hrY, mHourPaint);
-
-                mHourPaint.setStyle(Paint.Style.FILL);
-                mHourPaint.setColor(Color.parseColor(mForegroundColour));
-                mHourPaint.setAlpha(mForegroundOpacityLevel);
-                canvas.drawLine(centerX + hrStartX, centerY + hrStartY, centerX + hrX, centerY + hrY, mHourPaint);
             }
 
+            mMinutePaint.setStyle(Paint.Style.STROKE);
+            mMinutePaint.setColor(Color.parseColor(mBackgroundColour));
+            mMinutePaint.setAlpha(255);
+            canvas.drawLine(centerX + minStartX, centerY + minStartY, centerX + minX, centerY + minY, mMinutePaint);
+
+            mMinutePaint.setStyle(Paint.Style.FILL);
+            mMinutePaint.setColor(Color.parseColor(mForegroundColour));
+            mMinutePaint.setAlpha(mForegroundOpacityLevel);
+            canvas.drawLine(centerX + minStartX, centerY + minStartY, centerX + minX, centerY + minY, mMinutePaint);
+        }
+
+        private void drawHourHand(Canvas canvas) {
+            hrLength = centerX - 75;
+            hrRot = ((mTime.hour + (mTime.minute / 60f)) / 6f) * (float) Math.PI;
+
+            hrX = (float) Math.sin(hrRot) * hrLength;
+            hrY = (float) -Math.cos(hrRot) * hrLength;
+            hrStartX = (float) Math.sin(hrRot) * analogueHandOffset;
+            hrStartY = (float) -Math.cos(hrRot) * analogueHandOffset;
+
+            mHourPaint.setStyle(Paint.Style.STROKE);
+            mHourPaint.setColor(Color.parseColor(mBackgroundColour));
+            mHourPaint.setAlpha(255);
+            canvas.drawLine(centerX + hrStartX, centerY + hrStartY, centerX + hrX, centerY + hrY, mHourPaint);
+
+            mHourPaint.setStyle(Paint.Style.FILL);
+            mHourPaint.setColor(Color.parseColor(mForegroundColour));
+            mHourPaint.setAlpha(mForegroundOpacityLevel);
+            canvas.drawLine(centerX + hrStartX, centerY + hrStartY, centerX + hrX, centerY + hrY, mHourPaint);
+        }
+
+        private void drawDigital(Canvas canvas) {
             if (mToggleDigital) {
-
                 // Digital
+                x = centerX - mXOffset;
+
                 // Draw the hours.
-                float x = centerX - mXOffset;
-                String hourString = formatTwoDigitHourNumber(mTime.hour);
+                drawHourText(canvas);
 
-                String backgroundColour = mToggleSolidText ? mBackgroundColour : isInAmbientMode() ? mForegroundColour : mBackgroundColour;
-
-                mDigitalHourPaint.setStyle(Paint.Style.STROKE);
-                mDigitalHourPaint.setColor(Color.parseColor(backgroundColour));
-                mDigitalHourPaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
-                canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
-
-                String foregroundColour = mToggleSolidText ? mForegroundColour : isInAmbientMode() ? mBackgroundColour : mForegroundColour;
-
-                mDigitalHourPaint.setStyle(Paint.Style.FILL);
-                mDigitalHourPaint.setColor(Color.parseColor(foregroundColour));
-                mDigitalHourPaint.setAlpha(mForegroundOpacityLevel);
-                canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
-
-                x += mDigitalHourPaint.measureText(hourString);
-
-                String middleBackgroundColour = mToggleSolidText ? mBackgroundColour : isInAmbientMode() ? mMiddleColour : mBackgroundColour;
-
-                mColonPaint.setStyle(Paint.Style.STROKE);
-                mColonPaint.setColor(Color.parseColor(middleBackgroundColour));
-                mColonPaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
-                canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
-
-                String middleForegroudColour = mToggleSolidText ? mMiddleColour : isInAmbientMode() ? mBackgroundColour : mMiddleColour;
-
-                mColonPaint.setStyle(Paint.Style.FILL);
-                mColonPaint.setColor(Color.parseColor(middleForegroudColour));
-                mColonPaint.setAlpha(mForegroundOpacityLevel);
-                canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
-
-                x += mColonWidth;
+                drawColon(canvas);
 
                 // Draw the minutes.
-                String minuteString = formatTwoDigitNumber(mTime.minute);
-
-                mDigitalMinutePaint.setStyle(Paint.Style.STROKE);
-                mDigitalMinutePaint.setColor(Color.parseColor(backgroundColour));
-                mDigitalMinutePaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
-                canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
-
-                mDigitalMinutePaint.setStyle(Paint.Style.FILL);
-                mDigitalMinutePaint.setColor(Color.parseColor(foregroundColour));
-                mDigitalMinutePaint.setAlpha(mForegroundOpacityLevel);
-                canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
+                drawMinuteText(canvas);
 
                 // Draw AM/PM indicator
-                if (mToggleAmPm) {
-                    x += mDigitalMinutePaint.measureText(minuteString);
-
-                    mDigitalAmPmPaint.setStyle(Paint.Style.STROKE);
-                    mDigitalAmPmPaint.setColor(Color.parseColor(mBackgroundColour));
-                    mDigitalAmPmPaint.setAlpha(255);
-                    canvas.drawText(getAmPmString(mTime.hour), x, centerY + mYOffset, mDigitalAmPmPaint);
-
-                    mDigitalAmPmPaint.setStyle(Paint.Style.FILL);
-                    mDigitalAmPmPaint.setColor(Color.parseColor(mForegroundColour));
-                    mDigitalAmPmPaint.setAlpha(mForegroundOpacityLevel);
-                    canvas.drawText(getAmPmString(mTime.hour), x, centerY + mYOffset, mDigitalAmPmPaint);
-                }
+                drawAmPm(canvas);
             }
+        }
 
+        private void drawHourText(Canvas canvas) {
+            hourString = formatTwoDigitHourNumber(mTime.hour);
+            backgroundColour = mToggleSolidText ? mBackgroundColour : isInAmbientMode() ? mForegroundColour : mBackgroundColour;
+
+            mDigitalHourPaint.setStyle(Paint.Style.STROKE);
+            mDigitalHourPaint.setColor(Color.parseColor(backgroundColour));
+            mDigitalHourPaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
+            canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
+
+            foregroundColour = mToggleSolidText ? mForegroundColour : isInAmbientMode() ? mBackgroundColour : mForegroundColour;
+
+            mDigitalHourPaint.setStyle(Paint.Style.FILL);
+            mDigitalHourPaint.setColor(Color.parseColor(foregroundColour));
+            mDigitalHourPaint.setAlpha(mForegroundOpacityLevel);
+            canvas.drawText(hourString, x, centerY + mYOffset, mDigitalHourPaint);
+
+            x += mDigitalHourPaint.measureText(hourString);
+        }
+
+        private void drawColon(Canvas canvas) {
+            middleBackgroundColour = mToggleSolidText ? mBackgroundColour : isInAmbientMode() ? mMiddleColour : mBackgroundColour;
+
+            mColonPaint.setStyle(Paint.Style.STROKE);
+            mColonPaint.setColor(Color.parseColor(middleBackgroundColour));
+            mColonPaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
+            canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
+
+            middleForegroundColour = mToggleSolidText ? mMiddleColour : isInAmbientMode() ? mBackgroundColour : mMiddleColour;
+
+            mColonPaint.setStyle(Paint.Style.FILL);
+            mColonPaint.setColor(Color.parseColor(middleForegroundColour));
+            mColonPaint.setAlpha(mForegroundOpacityLevel);
+            canvas.drawText(COLON_STRING, x, centerY + mYOffset, mColonPaint);
+
+            x += mColonWidth;
+        }
+
+        private void drawMinuteText(Canvas canvas) {
+            minuteString = formatTwoDigitNumber(mTime.minute);
+
+            mDigitalMinutePaint.setStyle(Paint.Style.STROKE);
+            mDigitalMinutePaint.setColor(Color.parseColor(backgroundColour));
+            mDigitalMinutePaint.setAlpha(isInAmbientMode() ? mForegroundOpacityLevel : 255);
+            canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
+
+            mDigitalMinutePaint.setStyle(Paint.Style.FILL);
+            mDigitalMinutePaint.setColor(Color.parseColor(foregroundColour));
+            mDigitalMinutePaint.setAlpha(mForegroundOpacityLevel);
+            canvas.drawText(minuteString, x, centerY + mYOffset, mDigitalMinutePaint);
+        }
+
+        private void drawAmPm(Canvas canvas) {
+            if (mToggleAmPm) {
+                x += mDigitalMinutePaint.measureText(minuteString);
+
+                mDigitalAmPmPaint.setStyle(Paint.Style.STROKE);
+                mDigitalAmPmPaint.setColor(Color.parseColor(mBackgroundColour));
+                mDigitalAmPmPaint.setAlpha(255);
+                canvas.drawText(getAmPmString(mTime.hour), x, centerY + mYOffset, mDigitalAmPmPaint);
+
+                mDigitalAmPmPaint.setStyle(Paint.Style.FILL);
+                mDigitalAmPmPaint.setColor(Color.parseColor(mForegroundColour));
+                mDigitalAmPmPaint.setAlpha(mForegroundOpacityLevel);
+                canvas.drawText(getAmPmString(mTime.hour), x, centerY + mYOffset, mDigitalAmPmPaint);
+            }
+        }
+
+        private void drawIndicators(Canvas canvas) {
+            drawDayDate(canvas);
+            drawBattery(canvas);
+            drawWeather(canvas);
+        }
+
+        private void drawDayDate(Canvas canvas) {
             if (mToggleDayDate) {
-
                 // Draw the Day, Date.
-                SimpleDateFormat sdf = new SimpleDateFormat("EEE, d", Resources.getSystem().getConfiguration().locale);
-                String dayString = sdf.format(new Date(mTime.toMillis(true)));
+                dayString = sdf.format(new Date(mTime.toMillis(true)));
 
                 mTextElementPaint.setStyle(Paint.Style.STROKE);
                 mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
                 mTextElementPaint.setAlpha(255);
-                canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextOffset, mTextElementPaint);
+                canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextYOffset, mTextElementPaint);
 
                 mTextElementPaint.setStyle(Paint.Style.FILL);
                 mTextElementPaint.setColor(Color.parseColor(mForegroundColour));
                 mTextElementPaint.setAlpha(mForegroundOpacityLevel);
-                canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextOffset, mTextElementPaint);
+                canvas.drawText(dayString, (centerX * 1.5f) - 10f, centerY + mSmallTextYOffset, mTextElementPaint);
             }
+        }
 
+        private void drawBattery(Canvas canvas) {
             if (mToggleBattery) {
-
                 // Draw Battery icon
                 batteryIcon.reset();
-                batteryIcon.moveTo((centerX / 2f) - 35f, centerY + mSmallTextOffset);
+                batteryIcon.moveTo((centerX / 2f) - 35f, centerY + mSmallTextYOffset);
                 batteryIcon.rLineTo(0, -13);
                 batteryIcon.rLineTo(2, 0);
                 batteryIcon.rLineTo(0, -2);
@@ -708,10 +971,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mBatteryFullPaint.setAlpha(mForegroundOpacityLevel);
                 canvas.drawPath(batteryIcon, mBatteryFullPaint);
 
-                float batteryHeight = (float) Math.ceil(15f * mBatteryLevel / 100f);
+                batteryHeight = (float) Math.ceil(15f * mBatteryLevel / 100f);
 
                 batteryIconLevel.reset();
-                batteryIconLevel.moveTo((centerX / 2f) - 35f, centerY + mSmallTextOffset);
+                batteryIconLevel.moveTo((centerX / 2f) - 35f, centerY + mSmallTextYOffset);
 
                 if (batteryHeight >= 13) {
                     batteryIconLevel.rLineTo(0, -13);
@@ -729,25 +992,31 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
                 batteryIconLevel.close();
 
+                mBatteryPaint.setColor(Color.parseColor(mBackgroundColour));
+                mBatteryPaint.setAlpha(255);
+                canvas.drawPath(batteryIconLevel, mBatteryPaint);
+
+                mBatteryPaint.setColor(Color.parseColor(mForegroundColour));
+                mBatteryPaint.setAlpha(mForegroundOpacityLevel);
                 canvas.drawPath(batteryIconLevel, mBatteryPaint);
 
                 // Battery level
                 mTextElementPaint.setStyle(Paint.Style.STROKE);
                 mTextElementPaint.setColor(Color.parseColor(mBackgroundColour));
                 mTextElementPaint.setAlpha(255);
-                canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextOffset, mTextElementPaint);
+                canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextYOffset, mTextElementPaint);
 
                 mTextElementPaint.setStyle(Paint.Style.FILL);
                 mTextElementPaint.setColor(Color.parseColor(mForegroundColour));
                 mTextElementPaint.setAlpha(mForegroundOpacityLevel);
-                canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextOffset, mTextElementPaint);
+                canvas.drawText(String.valueOf(mBatteryLevel), (centerX / 2f) - 20f, centerY + mSmallTextYOffset, mTextElementPaint);
             }
+        }
 
-            // Widgets
-            // weather widget
+        private void drawWeather(Canvas canvas) {
             if (mToggleWeather) {
-                float weatherIconCenterX = centerX - 15f;
-                float weatherIconCenterY = (centerY * 0.6f) - 8;
+                weatherIconCenterX = centerX - 15f;
+                weatherIconCenterY = (centerY * 0.6f) - 8;
 
                 if (mTemperatureC != -999 && mTemperatureF != -999 && mCode != Utility.WeatherCodes.UNKNOWN) {
                     // Draw temperature
@@ -928,104 +1197,16 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 }
             }
         }
-
-        @Override
-        public void onVisibilityChanged(boolean visible) {
-            super.onVisibilityChanged(visible);
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onVisibilityChanged: " + visible);
-            }
-
-            if (visible) {
-                mGoogleApiClient.connect();
-
-                registerReceiver();
-
-                // Update time zone in case it changed while we weren't visible.
-                mTime.clear(TimeZone.getDefault().getID());
-                mTime.setToNow();
-            } else {
-                unregisterReceiver();
-
-                if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-                    Wearable.DataApi.removeListener(mGoogleApiClient, this);
-                    //Wearable.MessageApi.removeListener(mGoogleApiClient, this);
-                    mGoogleApiClient.disconnect();
-                }
-            }
-
-            // Whether the timer should be running depends on whether we're visible (as well as
-            // whether we're in ambient mode), so we may need to start or stop the timer.
-            updateTimer();
-        }
-
-        @Override  // GoogleApiClient.ConnectionCallbacks
-        public void onConnected(Bundle connectionHint) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onConnected: " + connectionHint);
-            }
-
-            Wearable.DataApi.addListener(mGoogleApiClient, Engine.this);
-            //Wearable.MessageApi.addListener(mGoogleApiClient, Engine.this);
-
-            WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
-        }
-
-        @Override  // GoogleApiClient.ConnectionCallbacks
-        public void onConnectionSuspended(int cause) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onConnectionSuspended: " + cause);
-            }
-
-            Wearable.DataApi.removeListener(mGoogleApiClient, this);
-            //Wearable.MessageApi.removeListener(mGoogleApiClient, this);
-            mGoogleApiClient.disconnect();
-        }
-
-        @Override  // GoogleApiClient.OnConnectionFailedListener
-        public void onConnectionFailed(ConnectionResult result) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onConnectionFailed: " + result);
-            }
-
-            Wearable.DataApi.removeListener(mGoogleApiClient, this);
-            //Wearable.MessageApi.removeListener(mGoogleApiClient, this);
-            mGoogleApiClient.disconnect();
-        }
-
-        @Override
-        public void onDataChanged(DataEventBuffer dataEvents) {
-            try {
-                for (DataEvent dataEvent : dataEvents) {
-                    if (dataEvent.getType() != DataEvent.TYPE_CHANGED) {
-                        continue;
-                    }
-
-                    DataItem dataItem = dataEvent.getDataItem();
-                    DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
-                    DataMap config = dataMapItem.getDataMap();
-                    this.mConfig = config;
-
-                    updateUI(config);
-
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "Config DataItem updated:" + config);
-                    }
-                }
-            } finally {
-                dataEvents.close();
-            }
-        }
         //endregion
 
         //region Drawing icon methods
         private void drawSun(Canvas canvas, float x, float y) {
             for (int beam = 0; beam < 8; beam++) {
-                float beamRot = (float) (beam * Math.PI * 2 / 8);
-                float innerX = (float) Math.sin(beamRot) * 8;
-                float innerY = (float) -Math.cos(beamRot) * 8;
-                float outerX = (float) Math.sin(beamRot) * 12;
-                float outerY = (float) -Math.cos(beamRot) * 12;
+                float beamRot = (float) (beam * Math.PI * 2f / 8f);
+                float innerX = (float) Math.sin(beamRot) * 8f;
+                float innerY = (float) -Math.cos(beamRot) * 8f;
+                float outerX = (float) Math.sin(beamRot) * 12f;
+                float outerY = (float) -Math.cos(beamRot) * 12f;
 
                 mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
                 mWidgetWeatherPaint.setAlpha(255);
@@ -1041,19 +1222,19 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
             mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
             mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-            canvas.drawCircle(x, y, 6, mWidgetWeatherPaint);
+            canvas.drawCircle(x, y, 6f, mWidgetWeatherPaint);
 
             mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
             mWidgetWeatherPaint.setAlpha(255);
             mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
-            canvas.drawCircle(x, y, 6, mWidgetWeatherPaint);
+            canvas.drawCircle(x, y, 6f, mWidgetWeatherPaint);
         }
 
         private void drawMoon(Canvas canvas, float x, float y) {
             moonPath.reset();
             moonPath.moveTo(x, y - 8f);
-            moonPath.arcTo(x - 8f, y - 8f, x + 8f, y + 8f, 270, -270, false);
-            moonPath.arcTo(x - 4f, y - 8f, x + 8f, y + 4f, 0, 270, false);
+            moonPath.arcTo(x - 8f, y - 8f, x + 8f, y + 8f, 270f, -270f, false);
+            moonPath.arcTo(x - 4f, y - 8f, x + 8f, y + 4f, 0f, 270f, false);
 
             mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
             mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
@@ -1069,9 +1250,9 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void drawCloud(Canvas canvas, float x, float y) {
             cloudPath.reset();
             cloudPath.moveTo(x - 8f, y + 16f);
-            cloudPath.arcTo(x, y + 6f, x + 10f, y + 16f, 90, -250, false);
-            cloudPath.arcTo(x - 8f, y, x + 4f, y + 9f, 0, -210, false);
-            cloudPath.arcTo(x - 14f, y + 8f, x - 6f, y + 16f, 340, -230, false);
+            cloudPath.arcTo(x, y + 6f, x + 10f, y + 16f, 90f, -250f, false);
+            cloudPath.arcTo(x - 8f, y, x + 4f, y + 9f, 0f, -210f, false);
+            cloudPath.arcTo(x - 14f, y + 8f, x - 6f, y + 16f, 340f, -230f, false);
             cloudPath.close();
 
             mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
@@ -1112,10 +1293,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             flakePath.reset();
             flakePath.moveTo(x - 2f, y + 19f);
             flakePath.rMoveTo(-2f, 4f);
-            flakePath.rLineTo(6f, 0);
+            flakePath.rLineTo(6f, 0f);
             flakePath.rMoveTo(-5f, -4f);
             flakePath.rLineTo(4f, 8f);
-            flakePath.rMoveTo(0, -8f);
+            flakePath.rMoveTo(0f, -8f);
             flakePath.rLineTo(-4f, 8f);
             flakePath.close();
 
@@ -1136,13 +1317,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void drawLightning(Canvas canvas, float x, float y) {
             lightningPath.reset();
             lightningPath.moveTo(x, y + 11f);
-            lightningPath.rLineTo(-1f, 0);
+            lightningPath.rLineTo(-1f, 0f);
             lightningPath.rLineTo(-7f, 10f);
-            lightningPath.rLineTo(4f, 0);
+            lightningPath.rLineTo(4f, 0f);
             lightningPath.rLineTo(-2f, 7f);
-            lightningPath.rLineTo(1f, 0);
+            lightningPath.rLineTo(1f, 0f);
             lightningPath.rLineTo(6f, -9f);
-            lightningPath.rLineTo(-4f, 0);
+            lightningPath.rLineTo(-4f, 0f);
             lightningPath.close();
 
             mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
@@ -1159,7 +1340,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         private void drawFog(Canvas canvas, float x, float y) {
             float left = x - 5f;
             float top = y - 4f;
-            float length = 14;
+            float length = 14f;
 
             mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
             mWidgetWeatherPaint.setAlpha(255);
@@ -1187,6 +1368,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         }
         //endregion
 
+        //region custom methods
         private void registerReceiver() {
             if (mRegisteredTimeZoneReceiver) {
                 return;
@@ -1213,6 +1395,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mFahrenheit = config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT);
 
             mToggleAnalogue = config.getBoolean(Utility.KEY_TOGGLE_ANALOGUE);
+            mToggleDrawDial = config.getBoolean(Utility.KEY_TOGGLE_DRAW_DIAL);
             mToggleDigital = config.getBoolean(Utility.KEY_TOGGLE_DIGITAL);
             mToggleBattery = config.getBoolean(Utility.KEY_TOGGLE_BATTERY);
             mToggleDayDate = config.getBoolean(Utility.KEY_TOGGLE_DAY_DATE);
@@ -1249,7 +1432,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mAccentOpacityLevel = 255;
             }
 
-            // weather test data
+            // test data
             /*mTemperatureC = 16;
             mTemperatureF = 66;
             mToggleWeather = true;
@@ -1261,7 +1444,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             mToggleBattery  = false;
             mToggleDayDate = false;
             mToggleDimColour = false;
-            mToggleSolidText = true;*/
+            mToggleSolidText = true;
+            mToggleDrawDial = true;*/
 
             /*mFixChin = true;
             mGotChin = true;
@@ -1275,6 +1459,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 mRefreshWeatherTask.cancel(true);
             }
         }
+        //endregion
 
         //region Timer methods
         /**
@@ -1317,6 +1502,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             paint.setColor(Color.parseColor(colour));
             paint.setAlpha(opacityLevel);
         }
+
         private void updatePaint(Paint paint, String colour, int opacityLevel, float strokeWidth) {
             updatePaint(paint, colour, opacityLevel);
             paint.setStrokeWidth(isInAmbientMode() ? 2f : strokeWidth);
@@ -1367,30 +1553,30 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
         //region Config Data methods
         private void setDefaultValuesForMissingConfigKeys(DataMap config) {
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_AM_PM, Utility.CONFIG_TOGGLE_AM_PM_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_WEATHER, Utility.CONFIG_TOGGLE_WEATHER_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, Utility.CONFIG_WIDGET_WEATHER_FAHRENHEIT_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, Utility.CONFIG_WIDGET_WEATHER_AUTO_LOCATION_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME, Utility.CONFIG_WIDGET_WEATHER_DAYTIME_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_AM_PM, Utility.CONFIG_DEFAULT_TOGGLE_AM_PM);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_WEATHER, Utility.CONFIG_DEFAULT_TOGGLE_WEATHER);
+            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT);
+            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION);
+            addBooleanKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_ISDAYTIME, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_DAYTIME);
 
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_ANALOGUE, Utility.CONFIG_TOGGLE_ANALOGUE_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DIGITAL, Utility.CONFIG_TOGGLE_DIGITAL_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_BATTERY, Utility.CONFIG_TOGGLE_BATTERY_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DAY_DATE, Utility.CONFIG_TOGGLE_DAY_DATE_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DIM_COLOUR, Utility.CONFIG_TOGGLE_DIM_COLOUR_DEFAULT);
-            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_SOLID_TEXT, Utility.CONFIG_TOGGLE_SOLID_TEXT_DEFAULT);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_ANALOGUE, Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DIGITAL, Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_BATTERY, Utility.CONFIG_DEFAULT_TOGGLE_BATTERY);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DAY_DATE, Utility.CONFIG_DEFAULT_TOGGLE_DAY_DATE);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_DIM_COLOUR, Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR);
+            addBooleanKeyIfMissing(config, Utility.KEY_TOGGLE_SOLID_TEXT, Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT);
 
-            addStringKeyIfMissing(config, Utility.KEY_BACKGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
-            addStringKeyIfMissing(config, Utility.KEY_MIDDLE_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_MIDDLE);
-            addStringKeyIfMissing(config, Utility.KEY_FOREGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_FOREGROUND);
-            addStringKeyIfMissing(config, Utility.KEY_ACCENT_COLOUR, Utility.COLOUR_NAME_DEFAULT_AND_AMBIENT_ACCENT);
-            addStringKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_LOCATION, Utility.CONFIG_LOCATION_DEFAULT);
+            addStringKeyIfMissing(config, Utility.KEY_BACKGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_BACKGROUND);
+            addStringKeyIfMissing(config, Utility.KEY_MIDDLE_COLOUR, Utility.COLOUR_NAME_DEFAULT_MIDDLE);
+            addStringKeyIfMissing(config, Utility.KEY_FOREGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_FOREGROUND);
+            addStringKeyIfMissing(config, Utility.KEY_ACCENT_COLOUR, Utility.COLOUR_NAME_DEFAULT_ACCENT);
+            addStringKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_LOCATION, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_LOCATION);
 
-            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C, Utility.WIDGET_WEATHER_DATA_TEMPERATURE_C_DEFAULT);
-            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F, Utility.WIDGET_WEATHER_DATA_TEMPERATURE_F_DEFAULT);
-            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_CODE, Utility.WIDGET_WEATHER_DATA_CODE_DEFAULT);
+            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C, Utility.WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_C);
+            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F, Utility.WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_F);
+            addIntKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_CODE, Utility.WIDGET_WEATHER_DATA_DEFAULT_CODE);
 
-            addLongKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_DATETIME, 0);
+            addLongKeyIfMissing(config, Utility.KEY_WIDGET_WEATHER_DATA_DATETIME, Utility.WIDGET_WEATHER_DATA_DEFAULT_DATETIME);
         }
 
         private void addBooleanKeyIfMissing(DataMap config, String key, boolean value) {
