@@ -1,4 +1,4 @@
-<!-- TODO: preview and improved layout (tablet)--><!-- TODO: connection indicator-->
+<!-- TODO: tablet layout--><!-- TODO: connection indicator-->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
