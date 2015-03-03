@@ -637,7 +637,6 @@ public class PreviewWatchFace extends View {
     }
 
     private void drawAmPm(Canvas canvas) {
-        // TODO: check size
         if (mToggleAmPm) {
             x += mDigitalMinutePaint.measureText(minuteString);
 
@@ -745,10 +744,9 @@ public class PreviewWatchFace extends View {
     }
 
     private void drawWeather(Canvas canvas) {
-        // TODO: Weather tweaks (blank check)
         if (mToggleWeather) {
             weatherIconCenterX = centerX - getPixelsFromDp(15);
-            weatherIconCenterY = (centerY * 0.6f) - getPixelsFromDp(8);
+            weatherIconCenterY = (centerY * 0.6f) - getPixelsFromDp(6);
 
             if (mTemperatureC != -999 && mTemperatureF != -999 && mCode != Utility.WeatherCodes.UNKNOWN) {
                 // Draw temperature
@@ -907,12 +905,12 @@ public class PreviewWatchFace extends View {
                         mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
                         mWidgetWeatherPaint.setAlpha(255);
                         mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                        canvas.drawLine(centerX - getPixelsFromDp(5), weatherIconCenterY, centerX + getPixelsFromDp(5), (centerY * 0.6f) - getPixelsFromDp(8), mWidgetWeatherPaint);
+                        canvas.drawLine(weatherIconCenterX, weatherIconCenterY, weatherIconCenterX + getPixelsFromDp(10), weatherIconCenterY, mWidgetWeatherPaint);
 
                         mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
                         mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
                         mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
-                        canvas.drawLine(centerX - getPixelsFromDp(5), weatherIconCenterY, centerX + getPixelsFromDp(5), (centerY * 0.6f) - getPixelsFromDp(8), mWidgetWeatherPaint);
+                        canvas.drawLine(weatherIconCenterX, weatherIconCenterY, weatherIconCenterX + getPixelsFromDp(10), weatherIconCenterY, mWidgetWeatherPaint);
                         break;
                 }
             } else {
@@ -920,12 +918,12 @@ public class PreviewWatchFace extends View {
                 mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
                 mWidgetWeatherPaint.setAlpha(255);
                 mWidgetWeatherPaint.setStyle(Paint.Style.STROKE);
-                canvas.drawLine(centerX - getPixelsFromDp(5), weatherIconCenterY, centerX + getPixelsFromDp(5), (centerY * 0.6f) - getPixelsFromDp(8), mWidgetWeatherPaint);
+                canvas.drawLine(weatherIconCenterX, weatherIconCenterY, weatherIconCenterX + getPixelsFromDp(10), weatherIconCenterY, mWidgetWeatherPaint);
 
                 mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
                 mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
                 mWidgetWeatherPaint.setStyle(Paint.Style.FILL);
-                canvas.drawLine(centerX - getPixelsFromDp(5), weatherIconCenterY, centerX + getPixelsFromDp(5), (centerY * 0.6f) - getPixelsFromDp(8), mWidgetWeatherPaint);
+                canvas.drawLine(weatherIconCenterX, weatherIconCenterY, weatherIconCenterX + getPixelsFromDp(10), weatherIconCenterY, mWidgetWeatherPaint);
             }
         }
     }
