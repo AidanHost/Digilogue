@@ -176,7 +176,16 @@ public class WeatherFragment extends Fragment {
 
     public void setManualLocation(String location) {
         mManualLocation = location;
-        setText();
+        if (!mManualLocation.isEmpty())
+            widget_weather_text_location.setText(mManualLocation);
+    }
+
+    public void setWeatherData(String data) {
+        mData = data;
+        if (!mData.isEmpty())
+            widget_weather_text_data.setText(mData);
+        else
+            widget_weather_text_data.setText(getString(R.string.weather_data_info));
     }
 
     public interface OnFragmentInteractionListener {

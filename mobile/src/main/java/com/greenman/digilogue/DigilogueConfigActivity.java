@@ -32,6 +32,9 @@ import com.google.android.gms.wearable.Wearable;
 import com.greenman.common.Utility;
 import com.greenman.digilogue.view.PreviewWatchFace;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +76,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     public boolean autoLocation = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION;
     public String weatherData = "";
     public String manualLocation = "";
-    private TabAdapter mAdapter;
     //endregion
 
     //region Overrides
@@ -97,12 +99,52 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         tabs = getResources().getStringArray(R.array.tab_array);
 
+        if (savedInstanceState != null) {
+            for (int i = 0 ; i < savedInstanceState.size(); i++) {
+                String key = savedInstanceState.keySet().toArray()[i].toString();
+                Object value = savedInstanceState.get(key);
+
+                if (config == null)
+                    config = new DataMap();
+
+                if (value instanceof Integer) {
+                    config.putInt(key, (int)value);
+                } else if (value instanceof Long) {
+                    config.putLong(key, (long) value);
+                } else if (value instanceof Boolean) {
+                    config.putBoolean(key, (boolean) value);
+                } else if (value instanceof String) {
+                    config.putString(key, (String) value);
+                }
+            }
+        }
+
         coloursFragment = new ColoursFragment();
         togglesFragment = new TogglesFragment();
         weatherFragment = new WeatherFragment();
 
         // TODO: better way
         Toast.makeText(getBaseContext(), getString(R.string.preview_tap), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onSaveInstanceState (Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        for (int i = 0; i < config.keySet().size(); i++) {
+            String key = config.keySet().toArray()[i].toString();
+            Object value = config.get(key);
+
+            if (value instanceof Integer) {
+                outState.putInt(key, (int)value);
+            } else if (value instanceof Long) {
+                outState.putLong(key, (long)value);
+            } else if (value instanceof Boolean) {
+                outState.putBoolean(key, (boolean)value);
+            } else if (value instanceof String) {
+                outState.putString(key, (String)value);
+            }
+        }
     }
 
     @Override
@@ -150,12 +192,16 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             Log.d(TAG, "onConnected: " + connectionHint);
         }
 
-        if (mPeerId != null) {
-            Uri.Builder builder = new Uri.Builder();
-            Uri uri = builder.scheme("wear").path(Utility.PATH_DIGILOGUE_SETTINGS).authority(mPeerId).build();
-            Wearable.DataApi.getDataItem(mGoogleApiClient, uri).setResultCallback(this);
+        if (config == null) {
+            if (mPeerId != null) {
+                Uri.Builder builder = new Uri.Builder();
+                Uri uri = builder.scheme("wear").path(Utility.PATH_DIGILOGUE_SETTINGS).authority(mPeerId).build();
+                Wearable.DataApi.getDataItem(mGoogleApiClient, uri).setResultCallback(this);
+            } else {
+                displayNoConnectedDeviceDialog();
+            }
         } else {
-            displayNoConnectedDeviceDialog();
+            init();
         }
     }
 
@@ -164,14 +210,14 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         if (dataItemResult.getStatus().isSuccess() && dataItemResult.getDataItem() != null) {
             DataItem configDataItem = dataItemResult.getDataItem();
             DataMapItem dataMapItem = DataMapItem.fromDataItem(configDataItem);
-            DataMap config = dataMapItem.getDataMap();
-            this.config = config;
-            init(config);
+            this.config = dataMapItem.getDataMap();
         } else {
             // If DataItem with the current config can't be retrieved, select the default items on
             // each picker.
-            init(defaultDataMap());
+            config = defaultDataMap();
         }
+
+        init();
     }
 
     @Override // GoogleApiClient.ConnectionCallbacks
@@ -205,7 +251,15 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         if (colours.containsKey(ColoursFragment.ARG_BACKGROUND))
             accentColour = colours.getString(ColoursFragment.ARG_ACCENT);
 
-        updateConfig();
+        try {
+            config.putString(Utility.KEY_BACKGROUND_COLOUR, backgroundColour);
+            config.putString(Utility.KEY_MIDDLE_COLOUR, middleColour);
+            config.putString(Utility.KEY_FOREGROUND_COLOUR, foregroundColour);
+            config.putString(Utility.KEY_ACCENT_COLOUR, accentColour);
+            preview.setConfig(config);
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     @Override
@@ -240,7 +294,20 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         if (toggles.containsKey(TogglesFragment.ARG_DIAL))
             toggleDial = toggles.getBoolean(TogglesFragment.ARG_DIAL);
 
-        updateConfig();
+        try {
+            config.putBoolean(Utility.KEY_TOGGLE_AM_PM, toggleAmPm);
+            config.putBoolean(Utility.KEY_TOGGLE_DAY_DATE, toggleDayDate);
+            config.putBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, toggleDimColour);
+            config.putBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, toggleSolidText);
+            config.putBoolean(Utility.KEY_TOGGLE_DIGITAL, toggleDigital);
+            config.putBoolean(Utility.KEY_TOGGLE_ANALOGUE, toggleAnalogue);
+            config.putBoolean(Utility.KEY_TOGGLE_BATTERY, toggleBattery);
+            config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, toggleFixChin);
+            config.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, toggleDial);
+            preview.setConfig(config);
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     @Override
@@ -260,7 +327,18 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         if (weather.containsKey(WeatherFragment.ARG_FAHRENHEIT))
             fahrenheit = weather.getBoolean(WeatherFragment.ARG_FAHRENHEIT);
 
-        updateConfig();
+        try {
+            config.putBoolean(Utility.KEY_TOGGLE_WEATHER, toggleWeather);
+            config.putBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, fahrenheit);
+            config.putBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, autoLocation);
+
+            if (manualLocation.length() > 0 && !autoLocation)
+                config.putString(Utility.KEY_WIDGET_WEATHER_LOCATION, manualLocation);
+
+            preview.setConfig(config);
+        } catch (Exception e) {
+            // ignore
+        }
     }
     //endregion
 
@@ -272,13 +350,14 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 .setCancelable(false)
                 .setPositiveButton(okText, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        finish();
                     }
                 });
         AlertDialog alert = builder.create();
         alert.show();
     }
 
-    private void fetchToggles(DataMap config) {
+    private void fetchToggles() {
         toggleAmPm = config.containsKey(Utility.KEY_TOGGLE_AM_PM) && config.getBoolean(Utility.KEY_TOGGLE_AM_PM, false);
         toggleAnalogue = config.containsKey(Utility.KEY_TOGGLE_ANALOGUE) && config.getBoolean(Utility.KEY_TOGGLE_ANALOGUE, true) || !config.containsKey(Utility.KEY_TOGGLE_ANALOGUE);
         toggleDigital = config.containsKey(Utility.KEY_TOGGLE_DIGITAL) && config.getBoolean(Utility.KEY_TOGGLE_DIGITAL, true) || !config.containsKey(Utility.KEY_TOGGLE_DIGITAL);
@@ -289,12 +368,27 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         toggleFixChin = config.containsKey(Utility.KEY_TOGGLE_FIX_CHIN) && config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN, false);
         toggleDial = config.containsKey(Utility.KEY_TOGGLE_DRAW_DIAL) && config.getBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, false);
 
+        try {
+            togglesFragment = (TogglesFragment) getSupportFragmentManager().getFragments().get(1);
+            togglesFragment.setAmPm(toggleAmPm);
+            togglesFragment.setDayDate(toggleDayDate);
+            togglesFragment.setDimColour(toggleDimColour);
+            togglesFragment.setSolidText(toggleSolidText);
+            togglesFragment.setDigital(toggleDigital);
+            togglesFragment.setAnalogue(toggleAnalogue);
+            togglesFragment.setBattery(toggleBattery);
+            togglesFragment.setFixChin(toggleFixChin);
+            togglesFragment.setDial(toggleDial);
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
+    private void fetchWeatherData() {
         toggleWeather = config.containsKey(Utility.KEY_TOGGLE_WEATHER) && config.getBoolean(Utility.KEY_TOGGLE_WEATHER, false);
         autoLocation = (config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, true) || !config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION));
         fahrenheit = config.containsKey(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, false);
-    }
 
-    private void fetchWeatherData(DataMap config) {
         if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME)) {
             Time lastTime = new Time();
             lastTime.set(config.getLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME));
@@ -327,9 +421,20 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             if (config.containsKey(Utility.KEY_WIDGET_WEATHER_LOCATION))
                 manualLocation = config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION);
         }
+
+        try {
+            weatherFragment = (WeatherFragment) getSupportFragmentManager().getFragments().get(2);
+            weatherFragment.setWeather(toggleWeather);
+            weatherFragment.setAutoLocation(autoLocation);
+            weatherFragment.setFahrenheit(fahrenheit);
+            weatherFragment.setManualLocation(manualLocation);
+            weatherFragment.setWeatherData(weatherData);
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
-    private void fetchColours(DataMap config) {
+    private void fetchColours() {
         if (config.containsKey(Utility.KEY_BACKGROUND_COLOUR))
             backgroundColour = config.getString(Utility.KEY_BACKGROUND_COLOUR);
 
@@ -341,23 +446,52 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         if (config.containsKey(Utility.KEY_ACCENT_COLOUR))
             accentColour = config.getString(Utility.KEY_ACCENT_COLOUR);
+
+        try {
+            coloursFragment = (ColoursFragment) getSupportFragmentManager().getFragments().get(0);
+            coloursFragment.setBackground(backgroundColour);
+            coloursFragment.setMiddle(middleColour);
+            coloursFragment.setForeground(foregroundColour);
+            coloursFragment.setAccent(accentColour);
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
-    private void init(DataMap config) {
-        fetchColours(config);
-        fetchToggles(config);
-        fetchWeatherData(config);
+    private void init() {
+        fetchColours();
+        fetchToggles();
+        fetchWeatherData();
         preview.setConfig(config);
         preview.setVisibility(View.VISIBLE);
 
-        mAdapter = new TabAdapter(getSupportFragmentManager());
-
-        pager.setAdapter(mAdapter);
+        pager.setAdapter(new TabAdapter(getSupportFragmentManager()));
     }
 
     private void sendConfigUpdateMessage() {
         if (mPeerId != null) {
-            updateConfig();
+            //updateConfig();
+            config.putString(Utility.KEY_BACKGROUND_COLOUR, backgroundColour);
+            config.putString(Utility.KEY_MIDDLE_COLOUR, middleColour);
+            config.putString(Utility.KEY_FOREGROUND_COLOUR, foregroundColour);
+            config.putString(Utility.KEY_ACCENT_COLOUR, accentColour);
+
+            config.putBoolean(Utility.KEY_TOGGLE_AM_PM, toggleAmPm);
+            config.putBoolean(Utility.KEY_TOGGLE_DAY_DATE, toggleDayDate);
+            config.putBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, toggleDimColour);
+            config.putBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, toggleSolidText);
+            config.putBoolean(Utility.KEY_TOGGLE_DIGITAL, toggleDigital);
+            config.putBoolean(Utility.KEY_TOGGLE_ANALOGUE, toggleAnalogue);
+            config.putBoolean(Utility.KEY_TOGGLE_BATTERY, toggleBattery);
+            config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, toggleFixChin);
+            config.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, toggleDial);
+
+            config.putBoolean(Utility.KEY_TOGGLE_WEATHER, toggleWeather);
+            config.putBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, fahrenheit);
+            config.putBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, autoLocation);
+
+            if (manualLocation.length() > 0 && !autoLocation)
+                config.putString(Utility.KEY_WIDGET_WEATHER_LOCATION, manualLocation);
 
             byte[] rawData = config.toByteArray();
 
@@ -443,6 +577,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         preview.setConfig(config);
 
         try {
+            coloursFragment = (ColoursFragment) getSupportFragmentManager().getFragments().get(0);
             coloursFragment.setBackground(backgroundColour);
             coloursFragment.setMiddle(middleColour);
             coloursFragment.setForeground(foregroundColour);
@@ -452,6 +587,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         }
 
         try {
+            togglesFragment = (TogglesFragment) getSupportFragmentManager().getFragments().get(1);
             togglesFragment.setAmPm(toggleAmPm);
             togglesFragment.setDayDate(toggleDayDate);
             togglesFragment.setDimColour(toggleDimColour);
@@ -466,42 +602,15 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         }
 
         try {
+            weatherFragment = (WeatherFragment) getSupportFragmentManager().getFragments().get(2);
             weatherFragment.setWeather(toggleWeather);
             weatherFragment.setAutoLocation(autoLocation);
             weatherFragment.setFahrenheit(fahrenheit);
             weatherFragment.setManualLocation(manualLocation);
+            weatherFragment.setWeatherData(weatherData);
         } catch (Exception e) {
             // ignore
         }
-    }
-
-    private void updateConfig() {
-        if (config == null)
-            config = new DataMap();
-
-        config.putString(Utility.KEY_BACKGROUND_COLOUR, backgroundColour);
-        config.putString(Utility.KEY_MIDDLE_COLOUR, middleColour);
-        config.putString(Utility.KEY_FOREGROUND_COLOUR, foregroundColour);
-        config.putString(Utility.KEY_ACCENT_COLOUR, accentColour);
-
-        config.putBoolean(Utility.KEY_TOGGLE_AM_PM, toggleAmPm);
-        config.putBoolean(Utility.KEY_TOGGLE_DAY_DATE, toggleDayDate);
-        config.putBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, toggleDimColour);
-        config.putBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, toggleSolidText);
-        config.putBoolean(Utility.KEY_TOGGLE_DIGITAL, toggleDigital);
-        config.putBoolean(Utility.KEY_TOGGLE_ANALOGUE, toggleAnalogue);
-        config.putBoolean(Utility.KEY_TOGGLE_BATTERY, toggleBattery);
-        config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, toggleFixChin);
-        config.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, toggleDial);
-        config.putBoolean(Utility.KEY_TOGGLE_WEATHER, toggleWeather);
-
-        config.putBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, fahrenheit);
-        config.putBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, autoLocation);
-
-        if (manualLocation.length() > 0 && !autoLocation)
-            config.putString(Utility.KEY_WIDGET_WEATHER_LOCATION, manualLocation);
-
-        preview.setConfig(config);
     }
 
     public static class TabAdapter extends FragmentPagerAdapter {
