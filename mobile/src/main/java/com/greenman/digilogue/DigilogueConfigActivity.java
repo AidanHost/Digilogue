@@ -43,6 +43,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     private static final String TAG = "DigilogueConfigActivity";
 
     //region variables
+    private static final String KEY_CONFIG = "CONFIG";
+
     private static ColoursFragment coloursFragment;
     private static TogglesFragment togglesFragment;
     private static WeatherFragment weatherFragment;
@@ -99,25 +101,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
         tabs = getResources().getStringArray(R.array.tab_array);
 
-        if (savedInstanceState != null) {
-            for (int i = 0 ; i < savedInstanceState.size(); i++) {
-                String key = savedInstanceState.keySet().toArray()[i].toString();
-                Object value = savedInstanceState.get(key);
-
-                if (config == null)
-                    config = new DataMap();
-
-                if (value instanceof Integer) {
-                    config.putInt(key, (int)value);
-                } else if (value instanceof Long) {
-                    config.putLong(key, (long) value);
-                } else if (value instanceof Boolean) {
-                    config.putBoolean(key, (boolean) value);
-                } else if (value instanceof String) {
-                    config.putString(key, (String) value);
-                }
-            }
-        }
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_CONFIG))
+            config = DataMap.fromByteArray(savedInstanceState.getByteArray(KEY_CONFIG));
 
         coloursFragment = new ColoursFragment();
         togglesFragment = new TogglesFragment();
@@ -130,21 +115,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     @Override
     protected void onSaveInstanceState (Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        for (int i = 0; i < config.keySet().size(); i++) {
-            String key = config.keySet().toArray()[i].toString();
-            Object value = config.get(key);
-
-            if (value instanceof Integer) {
-                outState.putInt(key, (int)value);
-            } else if (value instanceof Long) {
-                outState.putLong(key, (long)value);
-            } else if (value instanceof Boolean) {
-                outState.putBoolean(key, (boolean)value);
-            } else if (value instanceof String) {
-                outState.putString(key, (String)value);
-            }
-        }
+        if (config != null)
+            outState.putByteArray(KEY_CONFIG, config.toByteArray());
     }
 
     @Override
@@ -470,7 +442,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
 
     private void sendConfigUpdateMessage() {
         if (mPeerId != null) {
-            //updateConfig();
             config.putString(Utility.KEY_BACKGROUND_COLOUR, backgroundColour);
             config.putString(Utility.KEY_MIDDLE_COLOUR, middleColour);
             config.putString(Utility.KEY_FOREGROUND_COLOUR, foregroundColour);
@@ -496,10 +467,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             byte[] rawData = config.toByteArray();
 
             Wearable.MessageApi.sendMessage(mGoogleApiClient, mPeerId, Utility.PATH_DIGILOGUE_SETTINGS, rawData);
-
-            Uri.Builder builder = new Uri.Builder();
-            Uri uri = builder.scheme("wear").path(Utility.PATH_DIGILOGUE_SETTINGS).authority(mPeerId).build();
-            Wearable.DataApi.getDataItem(mGoogleApiClient, uri).setResultCallback(this);
         }
     }
 
