@@ -101,36 +101,96 @@ public class TogglesFragment extends Fragment {
         digital_element_size_text.setText(String.format(getActivity().getString(R.string.digital_size), mDigitalElementSize));
         digital_element_size.setProgress(mDigitalElementSize);
 
-        CompoundButton.OnCheckedChangeListener checkBoxListener = new CompoundButton.OnCheckedChangeListener() {
+        toggle_am_pm.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (mListener != null) {
                     Bundle toggles = new Bundle();
                     toggles.putBoolean(ARG_AM_PM, toggle_am_pm.isChecked());
-                    toggles.putBoolean(ARG_DAY_DATE, toggle_day_date.isChecked());
-                    toggles.putBoolean(ARG_DIM_COLOUR, toggle_dim_colour.isChecked());
-                    toggles.putBoolean(ARG_SOLID_TEXT, toggle_solid_text.isChecked());
-                    toggles.putBoolean(ARG_DIGITAL, toggle_digital.isChecked());
-                    toggles.putBoolean(ARG_ANALOGUE, toggle_analogue.isChecked());
-                    toggles.putBoolean(ARG_BATTERY, toggle_battery.isChecked());
-                    toggles.putBoolean(ARG_FIX_CHIN, toggle_fix_chin.isChecked());
-                    toggles.putBoolean(ARG_DIAL, toggle_dial.isChecked());
-                    toggles.putInt(ARG_ANALOGUE_ELEMENT_SIZE, analogue_element_size.getProgress());
-                    toggles.putInt(ARG_DIGITAL_ELEMENT_SIZE, digital_element_size.getProgress());
                     mListener.onToggleChanged(toggles);
                 }
             }
-        };
-
-        toggle_am_pm.setOnCheckedChangeListener(checkBoxListener);
-        toggle_day_date.setOnCheckedChangeListener(checkBoxListener);
-        toggle_dim_colour.setOnCheckedChangeListener(checkBoxListener);
-        toggle_solid_text.setOnCheckedChangeListener(checkBoxListener);
-        toggle_digital.setOnCheckedChangeListener(checkBoxListener);
-        toggle_analogue.setOnCheckedChangeListener(checkBoxListener);
-        toggle_battery.setOnCheckedChangeListener(checkBoxListener);
-        toggle_fix_chin.setOnCheckedChangeListener(checkBoxListener);
-        toggle_dial.setOnCheckedChangeListener(checkBoxListener);
+        });
+        toggle_day_date.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mListener != null) {
+                    Bundle toggles = new Bundle();
+                    toggles.putBoolean(ARG_DAY_DATE, toggle_day_date.isChecked());
+                    mListener.onToggleChanged(toggles);
+                }
+            }
+        });
+        toggle_dim_colour.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mListener != null) {
+                    Bundle toggles = new Bundle();
+                    toggles.putBoolean(ARG_DIM_COLOUR, toggle_dim_colour.isChecked());
+                    mListener.onToggleChanged(toggles);
+                }
+            }
+        });
+        toggle_solid_text.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mListener != null) {
+                    Bundle toggles = new Bundle();
+                    toggles.putBoolean(ARG_SOLID_TEXT, toggle_solid_text.isChecked());
+                    mListener.onToggleChanged(toggles);
+                }
+            }
+        });
+        toggle_digital.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mListener != null) {
+                    Bundle toggles = new Bundle();
+                    toggles.putBoolean(ARG_DIGITAL, toggle_digital.isChecked());
+                    mListener.onToggleChanged(toggles);
+                }
+            }
+        });
+        toggle_analogue.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mListener != null) {
+                    Bundle toggles = new Bundle();
+                    toggles.putBoolean(ARG_ANALOGUE, toggle_analogue.isChecked());
+                    mListener.onToggleChanged(toggles);
+                }
+            }
+        });
+        toggle_battery.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mListener != null) {
+                    Bundle toggles = new Bundle();
+                    toggles.putBoolean(ARG_BATTERY, toggle_battery.isChecked());
+                    mListener.onToggleChanged(toggles);
+                }
+            }
+        });
+        toggle_fix_chin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mListener != null) {
+                    Bundle toggles = new Bundle();
+                    toggles.putBoolean(ARG_FIX_CHIN, toggle_fix_chin.isChecked());
+                    mListener.onToggleChanged(toggles);
+                }
+            }
+        });
+        toggle_dial.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mListener != null) {
+                    Bundle toggles = new Bundle();
+                    toggles.putBoolean(ARG_DIAL, toggle_dial.isChecked());
+                    mListener.onToggleChanged(toggles);
+                }
+            }
+        });
 
         analogue_element_size.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -139,17 +199,7 @@ public class TogglesFragment extends Fragment {
 
                 if (mListener != null) {
                     Bundle toggles = new Bundle();
-                    toggles.putBoolean(ARG_AM_PM, toggle_am_pm.isChecked());
-                    toggles.putBoolean(ARG_DAY_DATE, toggle_day_date.isChecked());
-                    toggles.putBoolean(ARG_DIM_COLOUR, toggle_dim_colour.isChecked());
-                    toggles.putBoolean(ARG_SOLID_TEXT, toggle_solid_text.isChecked());
-                    toggles.putBoolean(ARG_DIGITAL, toggle_digital.isChecked());
-                    toggles.putBoolean(ARG_ANALOGUE, toggle_analogue.isChecked());
-                    toggles.putBoolean(ARG_BATTERY, toggle_battery.isChecked());
-                    toggles.putBoolean(ARG_FIX_CHIN, toggle_fix_chin.isChecked());
-                    toggles.putBoolean(ARG_DIAL, toggle_dial.isChecked());
                     toggles.putInt(ARG_ANALOGUE_ELEMENT_SIZE, analogue_element_size.getProgress());
-                    toggles.putInt(ARG_DIGITAL_ELEMENT_SIZE, digital_element_size.getProgress());
                     mListener.onToggleChanged(toggles);
                 }
             }
@@ -172,16 +222,6 @@ public class TogglesFragment extends Fragment {
 
                 if (mListener != null) {
                     Bundle toggles = new Bundle();
-                    toggles.putBoolean(ARG_AM_PM, toggle_am_pm.isChecked());
-                    toggles.putBoolean(ARG_DAY_DATE, toggle_day_date.isChecked());
-                    toggles.putBoolean(ARG_DIM_COLOUR, toggle_dim_colour.isChecked());
-                    toggles.putBoolean(ARG_SOLID_TEXT, toggle_solid_text.isChecked());
-                    toggles.putBoolean(ARG_DIGITAL, toggle_digital.isChecked());
-                    toggles.putBoolean(ARG_ANALOGUE, toggle_analogue.isChecked());
-                    toggles.putBoolean(ARG_BATTERY, toggle_battery.isChecked());
-                    toggles.putBoolean(ARG_FIX_CHIN, toggle_fix_chin.isChecked());
-                    toggles.putBoolean(ARG_DIAL, toggle_dial.isChecked());
-                    toggles.putInt(ARG_ANALOGUE_ELEMENT_SIZE, analogue_element_size.getProgress());
                     toggles.putInt(ARG_DIGITAL_ELEMENT_SIZE, digital_element_size.getProgress());
                     mListener.onToggleChanged(toggles);
                 }

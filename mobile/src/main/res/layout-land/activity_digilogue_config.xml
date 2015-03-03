@@ -10,7 +10,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.greenman.digilogue.DigilogueConfigActivity">
 
-    <!--// TODO: border-->
     <com.greenman.digilogue.view.PreviewWatchFace
         android:id="@+id/preview"
         android:layout_width="206dp"

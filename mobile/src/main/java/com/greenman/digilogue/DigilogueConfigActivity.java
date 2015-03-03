@@ -206,13 +206,13 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         if (colours.containsKey(ColoursFragment.ARG_BACKGROUND))
             backgroundColour = colours.getString(ColoursFragment.ARG_BACKGROUND);
 
-        if (colours.containsKey(ColoursFragment.ARG_BACKGROUND))
+        if (colours.containsKey(ColoursFragment.ARG_MIDDLE))
             middleColour = colours.getString(ColoursFragment.ARG_MIDDLE);
 
-        if (colours.containsKey(ColoursFragment.ARG_BACKGROUND))
+        if (colours.containsKey(ColoursFragment.ARG_FOREGROUND))
             foregroundColour = colours.getString(ColoursFragment.ARG_FOREGROUND);
 
-        if (colours.containsKey(ColoursFragment.ARG_BACKGROUND))
+        if (colours.containsKey(ColoursFragment.ARG_ACCENT))
             accentColour = colours.getString(ColoursFragment.ARG_ACCENT);
 
         try {

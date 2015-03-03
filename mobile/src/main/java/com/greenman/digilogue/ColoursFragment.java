@@ -32,26 +32,6 @@ public class ColoursFragment extends Fragment {
     private Spinner foreground;
     private Spinner accent;
 
-    AdapterView.OnItemSelectedListener spinnerListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            if (mListener != null) {
-                Bundle colours = new Bundle();
-                colours.putString(ColoursFragment.ARG_BACKGROUND, colourNames[background.getSelectedItemPosition()]);
-                colours.putString(ColoursFragment.ARG_MIDDLE, colourNames[middle.getSelectedItemPosition()]);
-                colours.putString(ColoursFragment.ARG_FOREGROUND, colourNames[foreground.getSelectedItemPosition()]);
-                colours.putString(ColoursFragment.ARG_ACCENT, colourNames[accent.getSelectedItemPosition()]);
-
-                mListener.onColourSelected(colours);
-            }
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
-
     public ColoursFragment() {
         // Required empty public constructor
     }
@@ -84,10 +64,66 @@ public class ColoursFragment extends Fragment {
         setUpColorPickerSelection(foreground, mForeground);
         setUpColorPickerSelection(accent, mAccent);
 
-        background.setOnItemSelectedListener(spinnerListener);
-        middle.setOnItemSelectedListener(spinnerListener);
-        foreground.setOnItemSelectedListener(spinnerListener);
-        accent.setOnItemSelectedListener(spinnerListener);
+        background.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (mListener != null) {
+                    Bundle colours = new Bundle();
+                    colours.putString(ColoursFragment.ARG_BACKGROUND, colourNames[background.getSelectedItemPosition()]);
+                    mListener.onColourSelected(colours);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        middle.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (mListener != null) {
+                    Bundle colours = new Bundle();
+                    colours.putString(ColoursFragment.ARG_MIDDLE, colourNames[middle.getSelectedItemPosition()]);
+                    mListener.onColourSelected(colours);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        foreground.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (mListener != null) {
+                    Bundle colours = new Bundle();
+                    colours.putString(ColoursFragment.ARG_FOREGROUND, colourNames[foreground.getSelectedItemPosition()]);
+                    mListener.onColourSelected(colours);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        accent.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (mListener != null) {
+                    Bundle colours = new Bundle();
+                    colours.putString(ColoursFragment.ARG_ACCENT, colourNames[accent.getSelectedItemPosition()]);
+                    mListener.onColourSelected(colours);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override
