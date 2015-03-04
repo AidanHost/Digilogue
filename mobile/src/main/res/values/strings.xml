@@ -64,7 +64,7 @@
     <string name="toggles_title">Options</string>
     <string name="weather_title">Weather</string>
     <string name="settings_title">Settings</string>
-    <string name="warning"><b>Warning:</b> changing the settings below could possibly cause screen burn-in. Change them at your own risk.</string>
+    <string name="warning"><b>Warning:</b> changing the options below could possibly cause screen burn-in. Change them at your own risk.</string>
     <string name="analogue_size">Analogue line width: %d%%</string>
     <string name="digital_size">Digital Size: %d%%</string>
 
