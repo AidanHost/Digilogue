@@ -73,7 +73,11 @@ public class WeatherFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mToggleWeather = toggle_weather.isChecked();
-                fireWeatherChanged();
+                if (mListener != null) {
+                    Bundle weather = new Bundle();
+                    weather.putBoolean(ARG_TOGGLE_WEATHER, toggle_weather.isChecked());
+                    mListener.onWeatherChanged(weather);
+                }
             }
         });
 
@@ -85,21 +89,33 @@ public class WeatherFragment extends Fragment {
                 else
                     location.setVisibility(View.VISIBLE);
 
-                fireWeatherChanged();
+                if (mListener != null) {
+                    Bundle weather = new Bundle();
+                    weather.putBoolean(ARG_AUTO_LOCATION, widget_weather_auto_location.isChecked());
+                    mListener.onWeatherChanged(weather);
+                }
             }
         });
 
         widget_weather_fahrenheit.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                fireWeatherChanged();
+                if (mListener != null) {
+                    Bundle weather = new Bundle();
+                    weather.putBoolean(ARG_FAHRENHEIT, widget_weather_fahrenheit.isChecked());
+                    mListener.onWeatherChanged(weather);
+                }
             }
         });
 
         widget_weather_text_location.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                fireWeatherChanged();
+                if (mListener != null) {
+                    Bundle weather = new Bundle();
+                    weather.putString(ARG_LOCATION, widget_weather_text_location.getText().toString());
+                    mListener.onWeatherChanged(weather);
+                }
             }
         });
 

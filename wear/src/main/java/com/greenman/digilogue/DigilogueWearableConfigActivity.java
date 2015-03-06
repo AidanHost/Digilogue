@@ -95,28 +95,6 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
 
         String[] colors = getResources().getStringArray(R.array.color_array);
         listView.setAdapter(new ColorListAdapter(colors));
-
-        /*WearableListView foregroundListView = (WearableListView) findViewById(R.id.foreground_color_picker);
-        // BoxInsetLayout adds padding by default on round devices. Add some on square devices.
-        content.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
-                if (!insets.isRound()) {
-                    v.setPaddingRelative(
-                            (int) getResources().getDimensionPixelSize(R.dimen.content_padding_start),
-                            v.getPaddingTop(),
-                            v.getPaddingEnd(),
-                            v.getPaddingBottom());
-                }
-                return v.onApplyWindowInsets(insets);
-            }
-        });
-
-        foregroundListView.setHasFixedSize(true);
-        foregroundListView.setClickListener(this);
-        foregroundListView.addOnScrollListener(this);
-
-        foregroundListView.setAdapter(new ColorListAdapter(colors));*/
     }
 
     @Override
@@ -210,7 +188,6 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
         if (configKeysToOverwrite == null)
             configKeysToOverwrite = new DataMap();
 
-        //configKeysToOverwrite.putBoolean(WatchFaceUtil.KEY_TOGGLE_AM_PM, true); // TODO: checkbox
         configKeysToOverwrite.putString(Utility.KEY_BACKGROUND_COLOUR, backgroundColour);
         configKeysToOverwrite.putString(Utility.KEY_MIDDLE_COLOUR, middleColour);
         configKeysToOverwrite.putString(Utility.KEY_FOREGROUND_COLOUR, foregroundColour);
@@ -269,8 +246,8 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
          */
         private static final float SHRINK_CIRCLE_RATIO = .75f;
 
-        private static final float SHRINK_LABEL_ALPHA = .5f;
-        private static final float EXPAND_LABEL_ALPHA = 1f;
+        /*private static final float SHRINK_LABEL_ALPHA = .5f;
+        private static final float EXPAND_LABEL_ALPHA = 1f;*/
 
         private final TextView mLabel;
         private final CircledImageView mColor;
@@ -279,11 +256,11 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
         private final float mShrinkCircleRadius;
 
         private final ObjectAnimator mExpandCircleAnimator;
-        private final ObjectAnimator mExpandLabelAnimator;
+        //private final ObjectAnimator mExpandLabelAnimator;
         private final AnimatorSet mExpandAnimator;
 
         private final ObjectAnimator mShrinkCircleAnimator;
-        private final ObjectAnimator mShrinkLabelAnimator;
+        //private final ObjectAnimator mShrinkLabelAnimator;
         private final AnimatorSet mShrinkAnimator;
 
         public ColorItem(Context context) {
@@ -297,14 +274,14 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
             mShrinkCircleRadius = mExpandCircleRadius * SHRINK_CIRCLE_RATIO;
 
             mShrinkCircleAnimator = ObjectAnimator.ofFloat(mColor, "circleRadius", mExpandCircleRadius, mShrinkCircleRadius);
-            mShrinkLabelAnimator = ObjectAnimator.ofFloat(mLabel, "alpha", EXPAND_LABEL_ALPHA, SHRINK_LABEL_ALPHA);
+            //mShrinkLabelAnimator = ObjectAnimator.ofFloat(mLabel, "alpha", EXPAND_LABEL_ALPHA, SHRINK_LABEL_ALPHA);
             mShrinkAnimator = new AnimatorSet().setDuration(ANIMATION_DURATION_MS);
-            mShrinkAnimator.playTogether(mShrinkCircleAnimator, mShrinkLabelAnimator);
+            mShrinkAnimator.playTogether(mShrinkCircleAnimator); //, mShrinkLabelAnimator);
 
             mExpandCircleAnimator = ObjectAnimator.ofFloat(mColor, "circleRadius", mShrinkCircleRadius, mExpandCircleRadius);
-            mExpandLabelAnimator = ObjectAnimator.ofFloat(mLabel, "alpha", SHRINK_LABEL_ALPHA, EXPAND_LABEL_ALPHA);
+            //mExpandLabelAnimator = ObjectAnimator.ofFloat(mLabel, "alpha", SHRINK_LABEL_ALPHA, EXPAND_LABEL_ALPHA);
             mExpandAnimator = new AnimatorSet().setDuration(ANIMATION_DURATION_MS);
-            mExpandAnimator.playTogether(mExpandCircleAnimator, mExpandLabelAnimator);
+            mExpandAnimator.playTogether(mExpandCircleAnimator); //, mExpandLabelAnimator);
         }
 
         @Override
@@ -313,13 +290,13 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
                 mShrinkAnimator.cancel();
                 if (!mExpandAnimator.isRunning()) {
                     mExpandCircleAnimator.setFloatValues(mColor.getCircleRadius(), mExpandCircleRadius);
-                    mExpandLabelAnimator.setFloatValues(mLabel.getAlpha(), EXPAND_LABEL_ALPHA);
+                    //mExpandLabelAnimator.setFloatValues(mLabel.getAlpha(), EXPAND_LABEL_ALPHA);
                     mExpandAnimator.start();
                 }
             } else {
                 mExpandAnimator.cancel();
                 mColor.setCircleRadius(mExpandCircleRadius);
-                mLabel.setAlpha(EXPAND_LABEL_ALPHA);
+                //mLabel.setAlpha(EXPAND_LABEL_ALPHA);
             }
         }
 
@@ -329,13 +306,13 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
                 mExpandAnimator.cancel();
                 if (!mShrinkAnimator.isRunning()) {
                     mShrinkCircleAnimator.setFloatValues(mColor.getCircleRadius(), mShrinkCircleRadius);
-                    mShrinkLabelAnimator.setFloatValues(mLabel.getAlpha(), SHRINK_LABEL_ALPHA);
+                    //mShrinkLabelAnimator.setFloatValues(mLabel.getAlpha(), SHRINK_LABEL_ALPHA);
                     mShrinkAnimator.start();
                 }
             } else {
                 mShrinkAnimator.cancel();
                 mColor.setCircleRadius(mShrinkCircleRadius);
-                mLabel.setAlpha(SHRINK_LABEL_ALPHA);
+                //mLabel.setAlpha(SHRINK_LABEL_ALPHA);
             }
         }
 
@@ -346,55 +323,7 @@ public class DigilogueWearableConfigActivity extends Activity implements Wearabl
 
         private String getColor() {
             return mLabel.getText().toString().toLowerCase();
-            //return mColor.getDefaultCircleColor();
         }
-
-        // TODO: show colours in icon
-        /*private class DualColourDrawable extends Drawable {
-            private Paint mPaint, mPaintAlternate;
-
-            public DualColourDrawable(String colorName) {
-                mPaint = new Paint();
-                mPaint.setStrokeWidth(50f);
-
-                mPaintAlternate = new Paint();
-                mPaintAlternate.setStrokeWidth(50f);
-
-                if (colorName.toLowerCase().contains("black")) {
-                    mPaint.setColor(Color.parseColor("black"));
-                    mPaintAlternate.setColor(Color.parseColor("white"));
-                } else if (colorName.toLowerCase().contains("blue")) {
-                    mPaint.setColor(Color.parseColor("blue"));
-                    mPaintAlternate.setColor(Color.parseColor("red"));
-                } else if (colorName.toLowerCase().contains("navy")) {
-                    mPaint.setColor(Color.parseColor("navy"));
-                    mPaintAlternate.setColor(Color.parseColor("green"));
-                }
-            }
-
-            @Override
-            public void draw(Canvas canvas) {
-                //setBounds(0, 0, 50, 50);
-
-                canvas.drawColor(Color.parseColor("black"));
-                //canvas.drawLine(50, 0, 50, 50, mPaintAlternate);
-            }
-
-            @Override
-            public void setAlpha(int alpha) {
-
-            }
-
-            @Override
-            public void setColorFilter(ColorFilter cf) {
-
-            }
-
-            @Override
-            public int getOpacity() {
-                return PixelFormat.TRANSLUCENT;
-            }
-        }*/
     }
 
     private static class ColorItemViewHolder extends WearableListView.ViewHolder {
