@@ -82,8 +82,6 @@
         <item>@string/colour_title</item>
         <item>@string/toggles_title</item>
         <item>@string/weather_title</item>
-        <!--// TODO: settings tabs-->
-        <!--<item>@string/settings_title</item>-->
     </string-array>
 
 </resources>

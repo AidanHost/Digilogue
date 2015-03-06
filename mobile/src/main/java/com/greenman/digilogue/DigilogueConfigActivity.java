@@ -614,9 +614,6 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                     return togglesFragment;
                 case 2:
                     return weatherFragment;
-                case 3:
-                    // TODO: settings tabs
-                    return new Fragment();
 
                 default:
                     return new Fragment();
