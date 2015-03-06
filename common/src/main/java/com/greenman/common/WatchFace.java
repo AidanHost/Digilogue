@@ -214,7 +214,6 @@ public class WatchFace {
         ratio = centerX / (centerX - (float)mChinHeight);
         modifier = ratio - ((float)mChinHeight / centerX);
 
-//        mXOffset = centerX * FORTY_FIVE_DP;
         mXOffset = centerX * FORTY_SEVEN_DP;
         mYOffset = centerX * TWELVE_DP;
 
@@ -280,7 +279,6 @@ public class WatchFace {
         mBackgroundPaint = new Paint();
         mBackgroundPaint.setColor(Color.parseColor(mBackgroundColour));
 
-//        float textSize = centerX * THIRTY_SIX_DP;
         float textSize = centerX * THIRTY_EIGHT_DP;
 
         mDigitalHourPaint = createTextPaint(Color.parseColor(mForegroundColour));
@@ -722,15 +720,9 @@ public class WatchFace {
             x = centerX - (mXOffset * digitalSizeModifier);
             y = centerY + (mYOffset * digitalSizeModifier);
 
-            // Draw the hours.
             drawHourText(canvas);
-
             drawColon(canvas);
-
-            // Draw the minutes.
             drawMinuteText(canvas);
-
-            // Draw AM/PM indicator
             drawAmPm(canvas);
         }
     }
@@ -806,6 +798,7 @@ public class WatchFace {
         drawDayDate(canvas);
         drawBattery(canvas);
         drawWeather(canvas);
+        drawPhoneConnectivity(canvas);
     }
 
     private static void drawDayDate(Canvas canvas) {
@@ -1076,6 +1069,12 @@ public class WatchFace {
                 canvas.drawLine(weatherIconCenterX, weatherIconCenterY, weatherIconCenterX + (centerX * TEN_DP), weatherIconCenterY, mWidgetWeatherPaint);
             }
         }
+    }
+
+    private static void drawPhoneConnectivity(Canvas canvas) {
+        // TODO: wifi/mobile connectivity indicator
+        // TODO: phone battery
+        // TODO: sound profile
     }
 
     private static void drawHint(Canvas canvas) {
