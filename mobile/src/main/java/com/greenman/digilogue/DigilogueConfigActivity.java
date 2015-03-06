@@ -61,17 +61,16 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
     public boolean toggleAmPm = Utility.CONFIG_DEFAULT_TOGGLE_AM_PM;
     public boolean toggleDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
     public boolean toggleFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
-    public int analogueElementSize = 100;
-    public int digitalElementSize = 100;
+    public int analogueElementSize = Utility.CONFIG_DEFAULT_ANALOGUE_ELEMENT_SIZE;
+    public int digitalElementSize = Utility.CONFIG_DEFAULT_DIGITAL_ELEMENT_SIZE;
     public boolean toggleDimColour = Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR;
     public boolean toggleSolidText = Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT;
 
     public boolean toggleWeather = Utility.CONFIG_DEFAULT_TOGGLE_WEATHER;
     public boolean fahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
     public boolean autoLocation = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION;
+    public String manualLocation = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_LOCATION;
     public String weatherData = "";
-    public String manualLocation = "";
-
     //endregion
 
     //region Overrides
@@ -150,12 +149,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         super.onStop();
     }
 
-    @Override // GoogleApiClient.ConnectionCallbacks
+    @Override
     public void onConnected(Bundle connectionHint) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onConnected: " + connectionHint);
-        }
-
         if (config == null) {
             if (mPeerId != null) {
                 Uri.Builder builder = new Uri.Builder();
@@ -169,7 +164,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         }
     }
 
-    @Override // ResultCallback<DataApi.DataItemResult>
+    @Override
     public void onResult(DataApi.DataItemResult dataItemResult) {
         if (dataItemResult.getStatus().isSuccess() && dataItemResult.getDataItem() != null) {
             DataItem configDataItem = dataItemResult.getDataItem();
@@ -184,18 +179,12 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         init();
     }
 
-    @Override // GoogleApiClient.ConnectionCallbacks
+    @Override
     public void onConnectionSuspended(int cause) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onConnectionSuspended: " + cause);
-        }
     }
 
-    @Override // GoogleApiClient.OnConnectionFailedListener
+    @Override
     public void onConnectionFailed(ConnectionResult result) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onConnectionFailed: " + result);
-        }
     }
 
     @Override
@@ -337,8 +326,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         toggleAmPm = config.containsKey(Utility.KEY_TOGGLE_AM_PM) && config.getBoolean(Utility.KEY_TOGGLE_AM_PM, false);
         toggleDial = config.containsKey(Utility.KEY_TOGGLE_DRAW_DIAL) && config.getBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, false);
         toggleFixChin = config.containsKey(Utility.KEY_TOGGLE_FIX_CHIN) && config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN, false);
-        analogueElementSize = config.containsKey(Utility.KEY_ANALOGUE_ELEMENT_SIZE) ? config.getInt(Utility.KEY_ANALOGUE_ELEMENT_SIZE) : 100;
-        digitalElementSize = config.containsKey(Utility.KEY_DIGITAL_ELEMENT_SIZE) ? config.getInt(Utility.KEY_DIGITAL_ELEMENT_SIZE) : 100;
+        analogueElementSize = config.containsKey(Utility.KEY_ANALOGUE_ELEMENT_SIZE) ? config.getInt(Utility.KEY_ANALOGUE_ELEMENT_SIZE) : Utility.CONFIG_DEFAULT_ANALOGUE_ELEMENT_SIZE;
+        digitalElementSize = config.containsKey(Utility.KEY_DIGITAL_ELEMENT_SIZE) ? config.getInt(Utility.KEY_DIGITAL_ELEMENT_SIZE) : Utility.CONFIG_DEFAULT_DIGITAL_ELEMENT_SIZE;
         toggleDimColour = config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR) && config.getBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, true) || !config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR);
         toggleSolidText = config.containsKey(Utility.KEY_TOGGLE_SOLID_TEXT) && config.getBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, false);
 
@@ -365,6 +354,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         autoLocation = (config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, true) || !config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION));
         fahrenheit = config.containsKey(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT) && config.getBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, false);
 
+        weatherData = "";
+
         if (config.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME)) {
             Time lastTime = new Time();
             lastTime.set(config.getLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME));
@@ -389,7 +380,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                     config.getInt(Utility.KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F) + getString(R.string.degrees) + "F\n\n";
         }
 
-        if (config.containsKey(Utility.KEY_WIDGET_WEATHER_LOCATION)) {
+        if (config.containsKey(Utility.KEY_WIDGET_WEATHER_LOCATION) && config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION) != null && !config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION).isEmpty()) {
             weatherData += getString(R.string.location) + config.getString(Utility.KEY_WIDGET_WEATHER_LOCATION);
         }
 
@@ -434,70 +425,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         }
     }
 
-    private void assignMissingValues() {
-        if (!config.containsKey(Utility.KEY_BACKGROUND_COLOUR))
-            config.putString(Utility.KEY_BACKGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_BACKGROUND);
-
-        if (!config.containsKey(Utility.KEY_MIDDLE_COLOUR))
-            config.putString(Utility.KEY_MIDDLE_COLOUR, Utility.COLOUR_NAME_DEFAULT_MIDDLE);
-
-        if (!config.containsKey(Utility.KEY_FOREGROUND_COLOUR))
-            config.putString(Utility.KEY_FOREGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_FOREGROUND);
-
-        if (!config.containsKey(Utility.KEY_ACCENT_COLOUR))
-            config.putString(Utility.KEY_ACCENT_COLOUR, Utility.COLOUR_NAME_DEFAULT_ACCENT);
-
-
-        if (!config.containsKey(Utility.KEY_TOGGLE_ANALOGUE))
-            config.putBoolean(Utility.KEY_TOGGLE_ANALOGUE, Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE);
-
-        if (!config.containsKey(Utility.KEY_TOGGLE_DIGITAL))
-            config.putBoolean(Utility.KEY_TOGGLE_DIGITAL, Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL);
-
-        if (!config.containsKey(Utility.KEY_TOGGLE_BATTERY))
-            config.putBoolean(Utility.KEY_TOGGLE_BATTERY, Utility.CONFIG_DEFAULT_TOGGLE_BATTERY);
-
-        if (!config.containsKey(Utility.KEY_TOGGLE_DAY_DATE))
-            config.putBoolean(Utility.KEY_TOGGLE_DAY_DATE, Utility.CONFIG_DEFAULT_TOGGLE_DAY_DATE);
-
-        if (!config.containsKey(Utility.KEY_TOGGLE_AM_PM))
-            config.putBoolean(Utility.KEY_TOGGLE_AM_PM, Utility.CONFIG_DEFAULT_TOGGLE_AM_PM);
-
-        if (!config.containsKey(Utility.KEY_TOGGLE_DRAW_DIAL))
-            config.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, Utility.CONFIG_DEFAULT_TOGGLE_DIAL);
-
-        if (!config.containsKey(Utility.KEY_TOGGLE_FIX_CHIN))
-            config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN);
-
-        if (!config.containsKey(Utility.KEY_ANALOGUE_ELEMENT_SIZE))
-            config.putInt(Utility.KEY_ANALOGUE_ELEMENT_SIZE, 100);
-
-        if (!config.containsKey(Utility.KEY_DIGITAL_ELEMENT_SIZE))
-            config.putInt(Utility.KEY_DIGITAL_ELEMENT_SIZE, 100);
-
-        if (!config.containsKey(Utility.KEY_TOGGLE_DIM_COLOUR))
-            config.putBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR);
-
-        if (!config.containsKey(Utility.KEY_TOGGLE_SOLID_TEXT))
-            config.putBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT);
-
-
-        if (!config.containsKey(Utility.KEY_TOGGLE_WEATHER))
-            config.putBoolean(Utility.KEY_TOGGLE_WEATHER, Utility.CONFIG_DEFAULT_TOGGLE_WEATHER);
-
-        if (!config.containsKey(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT))
-            config.putBoolean(Utility.KEY_WIDGET_WEATHER_FAHRENHEIT, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT);
-
-        if (!config.containsKey(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION))
-            config.putBoolean(Utility.KEY_WIDGET_WEATHER_AUTO_LOCATION, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION);
-
-        if (!config.containsKey(Utility.KEY_WIDGET_WEATHER_LOCATION))
-            config.putString(Utility.KEY_WIDGET_WEATHER_LOCATION, Utility.CONFIG_DEFAULT_WIDGET_WEATHER_LOCATION);
-    }
-
     private void init() {
-        assignMissingValues();
-
         fetchColours();
         fetchToggles();
         fetchWeatherData();
@@ -556,8 +484,8 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         defaults.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, Utility.CONFIG_DEFAULT_TOGGLE_DIAL);
         defaults.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN);
 
-        defaults.putInt(Utility.KEY_ANALOGUE_ELEMENT_SIZE, 100);
-        defaults.putInt(Utility.KEY_DIGITAL_ELEMENT_SIZE, 100);
+        defaults.putInt(Utility.KEY_ANALOGUE_ELEMENT_SIZE, Utility.CONFIG_DEFAULT_ANALOGUE_ELEMENT_SIZE);
+        defaults.putInt(Utility.KEY_DIGITAL_ELEMENT_SIZE, Utility.CONFIG_DEFAULT_DIGITAL_ELEMENT_SIZE);
         defaults.putBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR);
         defaults.putBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT);
 
@@ -584,15 +512,15 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
         toggleAmPm = Utility.CONFIG_DEFAULT_TOGGLE_AM_PM;
         toggleDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
         toggleFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
-        analogueElementSize = 100;
-        digitalElementSize = 100;
+        analogueElementSize = Utility.CONFIG_DEFAULT_ANALOGUE_ELEMENT_SIZE;
+        digitalElementSize = Utility.CONFIG_DEFAULT_DIGITAL_ELEMENT_SIZE;
         toggleDimColour = Utility.CONFIG_DEFAULT_TOGGLE_DIM_COLOUR;
         toggleSolidText = Utility.CONFIG_DEFAULT_TOGGLE_SOLID_TEXT;
 
         toggleWeather = Utility.CONFIG_DEFAULT_TOGGLE_WEATHER;
         fahrenheit = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT;
         autoLocation = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION;
-        manualLocation = "";
+        manualLocation = Utility.CONFIG_DEFAULT_WIDGET_WEATHER_LOCATION;
 
         config.putString(Utility.KEY_BACKGROUND_COLOUR, Utility.COLOUR_NAME_DEFAULT_BACKGROUND);
         config.putString(Utility.KEY_MIDDLE_COLOUR, Utility.COLOUR_NAME_DEFAULT_MIDDLE);
@@ -686,6 +614,9 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                     return togglesFragment;
                 case 2:
                     return weatherFragment;
+                case 3:
+                    // TODO: settings tabs
+                    return new Fragment();
 
                 default:
                     return new Fragment();

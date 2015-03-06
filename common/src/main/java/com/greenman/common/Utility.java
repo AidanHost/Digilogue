@@ -4,69 +4,64 @@ public class Utility {
     public static final String PATH_DIGILOGUE_SETTINGS = "/digilogue/colours";
     public static final int REFRESH_WEATHER_DELAY_HOURS = 3;
 
-    // boolean keys
-    public static final String KEY_TOGGLE_AM_PM = "com.greenman.digilogue.12HOUR_FORMAT";
-    public static final String KEY_TOGGLE_ANALOGUE = "com.greenman.digilogue.ANALOGUE";
-    public static final String KEY_TOGGLE_DRAW_DIAL = "com.greenman.digilogue.DRAW_DIAL";
-    public static final String KEY_TOGGLE_DIGITAL = "com.greenman.digilogue.DIGITAL";
-    public static final String KEY_TOGGLE_BATTERY = "com.greenman.digilogue.BATTERY";
-    public static final String KEY_TOGGLE_DAY_DATE = "com.greenman.digilogue.DAY_DATE";
-    public static final String KEY_TOGGLE_DIM_COLOUR = "com.greenman.digilogue.DIM_COLOUR";
-    public static final String KEY_TOGGLE_SOLID_TEXT = "com.greenman.digilogue.SOLID_TEXT";
-    public static final String KEY_TOGGLE_WEATHER = "com.greenman.digilogue.SHOW_WEATHER";
-    public static final String KEY_TOGGLE_FIX_CHIN = "com.greenman.digilogue.FIX_CHIN";
-
-    public static final String KEY_WIDGET_WEATHER_FAHRENHEIT = "com.greenman.digilogue.FAHRENHEIT";
-    public static final String KEY_WIDGET_WEATHER_AUTO_LOCATION = "com.greenman.digilogue.AUTO_LOCATION";
-    public static final String KEY_WIDGET_WEATHER_DATA_ISDAYTIME = "com.greenman.digilogue.WEATHER_ISDAYTIME";
-
-    public static final String KEY_ANALOGUE_ELEMENT_SIZE = "com.greenman.digilogue.ANALOGUE_ELEMENT_SIZE";
-    public static final String KEY_DIGITAL_ELEMENT_SIZE = "com.greenman.digilogue.DIGITAL_ELEMENT_SIZE";
-
-    // string keys
+    // keys
     public static final String KEY_BACKGROUND_COLOUR = "com.greenman.digilogue.BACKGROUND_COLOUR";
     public static final String KEY_MIDDLE_COLOUR = "com.greenman.digilogue.MIDDLE_COLOUR";
     public static final String KEY_FOREGROUND_COLOUR = "com.greenman.digilogue.FOREGROUND_COLOUR";
     public static final String KEY_ACCENT_COLOUR = "com.greenman.digilogue.ACCENT_COLOUR";
+
+    public static final String KEY_TOGGLE_ANALOGUE = "com.greenman.digilogue.ANALOGUE";
+    public static final String KEY_TOGGLE_DIGITAL = "com.greenman.digilogue.DIGITAL";
+    public static final String KEY_TOGGLE_BATTERY = "com.greenman.digilogue.BATTERY";
+    public static final String KEY_TOGGLE_DAY_DATE = "com.greenman.digilogue.DAY_DATE";
+    public static final String KEY_TOGGLE_AM_PM = "com.greenman.digilogue.12HOUR_FORMAT";
+    public static final String KEY_TOGGLE_DRAW_DIAL = "com.greenman.digilogue.DRAW_DIAL";
+    public static final String KEY_TOGGLE_FIX_CHIN = "com.greenman.digilogue.FIX_CHIN";
+
+    public static final String KEY_ANALOGUE_ELEMENT_SIZE = "com.greenman.digilogue.ANALOGUE_ELEMENT_SIZE";
+    public static final String KEY_DIGITAL_ELEMENT_SIZE = "com.greenman.digilogue.DIGITAL_ELEMENT_SIZE";
+
+    public static final String KEY_TOGGLE_DIM_COLOUR = "com.greenman.digilogue.DIM_COLOUR";
+    public static final String KEY_TOGGLE_SOLID_TEXT = "com.greenman.digilogue.SOLID_TEXT";
+
+    public static final String KEY_TOGGLE_WEATHER = "com.greenman.digilogue.SHOW_WEATHER";
+    public static final String KEY_WIDGET_WEATHER_FAHRENHEIT = "com.greenman.digilogue.FAHRENHEIT";
+    public static final String KEY_WIDGET_WEATHER_AUTO_LOCATION = "com.greenman.digilogue.AUTO_LOCATION";
+    public static final String KEY_WIDGET_WEATHER_DATA_ISDAYTIME = "com.greenman.digilogue.WEATHER_ISDAYTIME";
     public static final String KEY_WIDGET_WEATHER_LOCATION = "com.greenman.digilogue.LOCATION";
 
-    // int keys
     public static final String KEY_WIDGET_WEATHER_DATA_TEMPERATURE_C = "com.greenman.digilogue.WEATHER_TEMPERATURE_C";
     public static final String KEY_WIDGET_WEATHER_DATA_TEMPERATURE_F = "com.greenman.digilogue.WEATHER_TEMPERATURE_F";
     public static final String KEY_WIDGET_WEATHER_DATA_CODE = "com.greenman.digilogue.WEATHER_CODE";
 
-    // long keys
     public static final String KEY_WIDGET_WEATHER_DATA_DATETIME = "com.greenman.digilogue.WEATHER_DATETIME";
 
-    // boolean defaults
-    public static final boolean CONFIG_DEFAULT_TOGGLE_AM_PM = false;
+    // defaults
+    public static final String COLOUR_NAME_DEFAULT_BACKGROUND = "black";
+    public static final String COLOUR_NAME_DEFAULT_MIDDLE = "gray";
+    public static final String COLOUR_NAME_DEFAULT_FOREGROUND = "white";
+    public static final String COLOUR_NAME_DEFAULT_ACCENT = "red";
+
     public static final boolean CONFIG_DEFAULT_TOGGLE_ANALOGUE = true;
-    public static final boolean CONFIG_DEFAULT_TOGGLE_DIAL = false;
     public static final boolean CONFIG_DEFAULT_TOGGLE_DIGITAL = true;
     public static final boolean CONFIG_DEFAULT_TOGGLE_BATTERY = true;
     public static final boolean CONFIG_DEFAULT_TOGGLE_DAY_DATE = true;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_AM_PM = false;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_DIAL = false;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_FIX_CHIN = false;
+    public static final int CONFIG_DEFAULT_ANALOGUE_ELEMENT_SIZE = 100;
+    public static final int CONFIG_DEFAULT_DIGITAL_ELEMENT_SIZE = 100;
     public static final boolean CONFIG_DEFAULT_TOGGLE_DIM_COLOUR = true;
     public static final boolean CONFIG_DEFAULT_TOGGLE_SOLID_TEXT = false;
-    public static final boolean CONFIG_DEFAULT_TOGGLE_FIX_CHIN = false;
 
     public static final boolean CONFIG_DEFAULT_TOGGLE_WEATHER = false;
     public static final boolean CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT = false;
     public static final boolean CONFIG_DEFAULT_WIDGET_WEATHER_AUTO_LOCATION = true;
     public static final boolean CONFIG_DEFAULT_WIDGET_WEATHER_DAYTIME = true;
-
-    // string defaults
-    public static final String COLOUR_NAME_DEFAULT_BACKGROUND = "black";
-    public static final String COLOUR_NAME_DEFAULT_MIDDLE = "gray";
-    public static final String COLOUR_NAME_DEFAULT_FOREGROUND = "white";
-    public static final String COLOUR_NAME_DEFAULT_ACCENT = "red";
     public static final String CONFIG_DEFAULT_WIDGET_WEATHER_LOCATION = "";
-
-    // int defaults
     public static final int WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_C = -999;
     public static final int WIDGET_WEATHER_DATA_DEFAULT_TEMPERATURE_F = -999;
     public static final int WIDGET_WEATHER_DATA_DEFAULT_CODE = Utility.WeatherCodes.UNKNOWN;
-
-    // long defaults
     public static final long WIDGET_WEATHER_DATA_DEFAULT_DATETIME = 0;
 
     public static class WeatherCodes {

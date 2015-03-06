@@ -32,13 +32,13 @@ public class PreviewWatchFace extends View {
     public PreviewWatchFace(Context context) {
         super(context);
 
-        WatchFace.init(getResources().getDisplayMetrics(), 206f / 320f);
+        WatchFace.init();
     }
 
     public PreviewWatchFace(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        WatchFace.init(getResources().getDisplayMetrics(), 206f / 320f);
+        WatchFace.init();
     }
 
     //region overrides
@@ -86,7 +86,7 @@ public class PreviewWatchFace extends View {
         return bundle;
     }
 
-    public static void setHintText(String text, boolean showHint) {
+    public void setHintText(String text, boolean showHint) {
         WatchFace.setHintText(text, showHint);
     }
     //endregion

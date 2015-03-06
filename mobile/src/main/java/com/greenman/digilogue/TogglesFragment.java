@@ -35,8 +35,8 @@ public class TogglesFragment extends Fragment {
     private boolean mToggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
     private boolean mToggleFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
     private boolean mToggleDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
-    private int mAnalogueElementSize = 100;
-    private int mDigitalElementSize = 100;
+    private int mAnalogueElementSize = Utility.CONFIG_DEFAULT_ANALOGUE_ELEMENT_SIZE;
+    private int mDigitalElementSize = Utility.CONFIG_DEFAULT_DIGITAL_ELEMENT_SIZE;
 
     private OnFragmentInteractionListener mListener;
 
