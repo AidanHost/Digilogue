@@ -360,7 +360,6 @@ public class WatchFace {
         setUpPaints();
     }
 
-    // TODO: check this works after update
     public static Bundle assignMissingValues(Bundle config) {
         if (config == null)
             config = new Bundle();
