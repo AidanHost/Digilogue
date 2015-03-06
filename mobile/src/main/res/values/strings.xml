@@ -20,7 +20,7 @@
     <string name="location_hint">City, Country (Eg. Cape Town, ZA)</string>
     <!--<string name="widget_weather_frequency">Update weather every %02d hours</string>-->
     <string name="weather_api_credit">Weather by World Weather Online</string>
-    <string name="play_store_description_instruction">View the Play Store description for more info.</string>
+    <string name="play_store_description_instruction">View <a href="https://docs.google.com/document/d/1JA3BDl4EG9pFGEngkfHiv5ZhXnh9Ii2LrI_Kii8mpDQ/edit?usp=sharing">this Google Doc</a> for manual location options.\nView the different <a href="https://lh5.ggpht.com/64ItqnImwa3RMzHPzm7roQsPmEATr44Gt9Hx0Du4lumLLDVM1ZKHB7tgqzR8oPBlhMg=h3000">weather icons here</a></string>
     <string name="weather_data_info">Weather data will be displayed here once fetched.</string>
     <string name="degrees">°</string>
     <string name="title_no_device_connected">No wearable device is currently connected.</string>
@@ -49,8 +49,8 @@
     <string name="patchy_heavy_snow">Patchy Heavy Snow</string>
     <string name="moderate_rain_with_thunder">Moderate or Heavy Rain with Thunder</string>
     <string name="unknown">Unknown</string>
-    <string name="toggle_dim">Dim colour for ambient mode (disable with caution)</string>
-    <string name="toggle_solid_number">Solid text in ambient mode (enable with caution)</string>
+    <string name="toggle_dim">Dim colour for ambient mode</string>
+    <string name="toggle_solid_number">Solid text in ambient mode</string>
     <string name="toggle_battery">Battery</string>
     <string name="toggle_digital">Digital</string>
     <string name="toggle_analogue">Analogue</string>
@@ -61,8 +61,12 @@
     <string name="reset_defaults">Reset defaults</string>
     <string name="save">Save</string>
     <string name="colour_title">Colours</string>
-    <string name="toggles_title">Toggles</string>
+    <string name="toggles_title">Options</string>
     <string name="weather_title">Weather</string>
+    <string name="settings_title">Settings</string>
+    <string name="warning"><b>Warning:</b> changing the options below could possibly cause screen burn-in. Change them at your own risk.</string>
+    <string name="analogue_size">Analogue line width: %d%%</string>
+    <string name="digital_size">Digital Size: %d%%</string>
 
     <string-array name="color_array">
         <item>@string/color_black</item>
