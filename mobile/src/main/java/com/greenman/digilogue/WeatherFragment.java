@@ -3,6 +3,7 @@ package com.greenman.digilogue;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -133,6 +134,9 @@ public class WeatherFragment extends Fragment {
         widget_weather_auto_location = (CheckBox) view.findViewById(R.id.widget_weather_auto_location);
         widget_weather_text_location = (EditText) view.findViewById(R.id.widget_weather_text_location);
         location = (LinearLayout) view.findViewById(R.id.location);
+
+        TextView weather_help_links = (TextView) view.findViewById(R.id.weather_help_links);
+        weather_help_links.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     @Override
