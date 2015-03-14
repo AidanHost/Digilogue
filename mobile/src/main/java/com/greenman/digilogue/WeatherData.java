@@ -13,6 +13,8 @@ class WeatherData {
     private int code = Utility.WeatherCodes.UNKNOWN;
     private String location = "";
     private boolean dayTime = true;
+    private long sunrise = 0;
+    private long sunset = 0;
 
     public int getTemperatureC() {
         return temperatureC;
@@ -43,6 +45,11 @@ class WeatherData {
             temperatureF = Integer.parseInt(currentConditionObj.getString("FeelsLikeF"));
             code = Integer.parseInt(currentConditionObj.getString("weatherCode"));
             dayTime = currentConditionObj.getString("isdaytime").equals("yes");
+
+            JSONObject weatherObj = (JSONObject) dataObj.getJSONArray("weather").get(0);
+            JSONObject astronomyObj = (JSONObject) weatherObj.getJSONArray("astronomy").get(0);
+
+            sunrise = Long.parseLong(astronomyObj.getString("sunrise"));
 
             JSONObject requestObj = (JSONObject) dataObj.getJSONArray("request").get(0);
             location = requestObj.getString("query");
