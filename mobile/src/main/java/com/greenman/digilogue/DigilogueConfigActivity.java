@@ -210,8 +210,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             config.putString(Utility.KEY_FOREGROUND_COLOUR, foregroundColour);
             config.putString(Utility.KEY_ACCENT_COLOUR, accentColour);
             preview.setConfig(config);
-        } catch (Exception e) {
-            // ignore
+        } catch (Exception ignored) {
         }
     }
 
@@ -266,9 +265,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             config.putBoolean(Utility.KEY_TOGGLE_DIM_COLOUR, toggleDimColour);
             config.putBoolean(Utility.KEY_TOGGLE_SOLID_TEXT, toggleSolidText);
             preview.setConfig(config);
-        } catch (Exception e) {
-            // ignore
-        }
+        } catch (Exception ignored) {}
     }
 
     @Override
@@ -297,9 +294,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
                 config.putString(Utility.KEY_WIDGET_WEATHER_LOCATION, manualLocation);
 
             preview.setConfig(config);
-        } catch (Exception e) {
-            // ignore
-        }
+        } catch (Exception ignored) {}
     }
     //endregion
 
@@ -344,8 +339,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             togglesFragment.setDigitalElementSize(digitalElementSize);
             togglesFragment.setDimColour(toggleDimColour);
             togglesFragment.setSolidText(toggleSolidText);
-        } catch (Exception e) {
-            // ignore
+        } catch (Exception ignored) {
         }
     }
 
@@ -396,8 +390,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             weatherFragment.setFahrenheit(fahrenheit);
             weatherFragment.setManualLocation(manualLocation);
             weatherFragment.setWeatherData(weatherData);
-        } catch (Exception e) {
-            // ignore
+        } catch (Exception ignored) {
         }
     }
 
@@ -420,9 +413,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             coloursFragment.setMiddle(middleColour);
             coloursFragment.setForeground(foregroundColour);
             coloursFragment.setAccent(accentColour);
-        } catch (Exception e) {
-            // ignore
-        }
+        } catch (Exception ignored) {}
     }
 
     private void init() {
@@ -554,9 +545,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             coloursFragment.setMiddle(middleColour);
             coloursFragment.setForeground(foregroundColour);
             coloursFragment.setAccent(accentColour);
-        } catch (Exception e) {
-            // ignore
-        }
+        } catch (Exception ignored) {}
 
         try {
             togglesFragment = (TogglesFragment) getSupportFragmentManager().getFragments().get(1);
@@ -571,9 +560,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             togglesFragment.setDigitalElementSize(digitalElementSize);
             togglesFragment.setDimColour(toggleDimColour);
             togglesFragment.setSolidText(toggleSolidText);
-        } catch (Exception e) {
-            // ignore
-        }
+        } catch (Exception ignored) {}
 
         try {
             weatherFragment = (WeatherFragment) getSupportFragmentManager().getFragments().get(2);
@@ -582,9 +569,7 @@ public class DigilogueConfigActivity extends ActionBarActivity implements Google
             weatherFragment.setFahrenheit(fahrenheit);
             weatherFragment.setManualLocation(manualLocation);
             weatherFragment.setWeatherData(weatherData);
-        } catch (Exception e) {
-            // ignore
-        }
+        } catch (Exception ignored) {}
     }
 
     public static class TabAdapter extends FragmentPagerAdapter {
