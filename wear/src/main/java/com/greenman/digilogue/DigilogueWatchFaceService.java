@@ -179,6 +179,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             WatchFace.init();
 
             mTime = new Time();
+            mGoogleApiClient.connect();
         }
 
         @Override
@@ -210,10 +211,6 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             mTime.setToNow();
 
-            try {
-                WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
-            } catch (Exception ignored) {}
-
             if (mToggleWeather && mTime.toMillis(true) >= mLastTime + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS) && mRunWeather) {
                 mUpdateHandler.sendEmptyMessage(MSG_REFRESH_WEATHER);
                 mRunWeather = false;
@@ -226,6 +223,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
 
             if (mLowBitAmbient)
                 WatchFace.setAntiAlias(inAmbientMode);
+
+            try {
+                WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
+            } catch (Exception ignored) {}
 
             if (mConfig != null) {
                 if (mConfig.containsKey(Utility.KEY_TOGGLE_WEATHER))
