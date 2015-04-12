@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.greenman.common.Utility;
@@ -23,6 +24,7 @@ public class TogglesFragment extends Fragment {
     public static final String ARG_BATTERY = "toggleBattery";
     public static final String ARG_FIX_CHIN = "toggleFixChin";
     public static final String ARG_DIAL = "toggleDial";
+    public static final String ARG_AMBIENT_TICKS = "toggleAmbientTicks";
     public static final String ARG_ANALOGUE_ELEMENT_SIZE = "analogueElementSize";
     public static final String ARG_DIGITAL_ELEMENT_SIZE = "digitalElementSize";
 
@@ -35,20 +37,22 @@ public class TogglesFragment extends Fragment {
     private boolean mToggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
     private boolean mToggleFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
     private boolean mToggleDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
+    private boolean mToggleAmbientTicks = Utility.CONFIG_DEFAULT_TOGGLE_AMBIENT_TICKS;
     private int mAnalogueElementSize = Utility.CONFIG_DEFAULT_ANALOGUE_ELEMENT_SIZE;
     private int mDigitalElementSize = Utility.CONFIG_DEFAULT_DIGITAL_ELEMENT_SIZE;
 
     private OnFragmentInteractionListener mListener;
 
-    private CheckBox toggle_am_pm;
-    private CheckBox toggle_day_date;
-    private CheckBox toggle_dim_colour;
-    private CheckBox toggle_solid_text;
-    private CheckBox toggle_digital;
-    private CheckBox toggle_analogue;
-    private CheckBox toggle_battery;
-    private CheckBox toggle_fix_chin;
-    private CheckBox toggle_dial;
+    private Switch toggle_am_pm;
+    private Switch toggle_day_date;
+    private Switch toggle_dim_colour;
+    private Switch toggle_solid_text;
+    private Switch toggle_digital;
+    private Switch toggle_analogue;
+    private Switch toggle_battery;
+    private Switch toggle_fix_chin;
+    private Switch toggle_dial;
+    private Switch toggle_ambient_ticks;
     private TextView analogue_element_size_text;
     private TextView digital_element_size_text;
     private SeekBar analogue_element_size;
@@ -75,6 +79,7 @@ public class TogglesFragment extends Fragment {
             mToggleBattery = ((DigilogueConfigActivity) getActivity()).toggleBattery;
             mToggleFixChin = ((DigilogueConfigActivity) getActivity()).toggleFixChin;
             mToggleDial = ((DigilogueConfigActivity) getActivity()).toggleDial;
+            mToggleAmbientTicks = ((DigilogueConfigActivity) getActivity()).toggleAmbientTicks;
             mAnalogueElementSize = ((DigilogueConfigActivity) getActivity()).analogueElementSize;
             mDigitalElementSize = ((DigilogueConfigActivity) getActivity()).digitalElementSize;
         }
@@ -96,6 +101,7 @@ public class TogglesFragment extends Fragment {
         toggle_battery.setChecked(mToggleBattery);
         toggle_fix_chin.setChecked(mToggleFixChin);
         toggle_dial.setChecked(mToggleDial);
+        toggle_ambient_ticks.setChecked(mToggleAmbientTicks);
         analogue_element_size_text.setText(String.format(getActivity().getString(R.string.analogue_size), mAnalogueElementSize));
         analogue_element_size.setProgress(mAnalogueElementSize);
         digital_element_size_text.setText(String.format(getActivity().getString(R.string.digital_size), mDigitalElementSize));
@@ -191,6 +197,16 @@ public class TogglesFragment extends Fragment {
                 }
             }
         });
+        toggle_ambient_ticks.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mListener != null) {
+                    Bundle toggles = new Bundle();
+                    toggles.putBoolean(ARG_AMBIENT_TICKS, toggle_ambient_ticks.isChecked());
+                    mListener.onToggleChanged(toggles);
+                }
+            }
+        });
 
         analogue_element_size.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -243,15 +259,16 @@ public class TogglesFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstance) {
         super.onViewCreated(view, savedInstance);
 
-        toggle_am_pm = (CheckBox) view.findViewById(R.id.toggle_am_pm);
-        toggle_day_date = (CheckBox) view.findViewById(R.id.toggle_date_day);
-        toggle_dim_colour = (CheckBox) view.findViewById(R.id.toggle_dim);
-        toggle_solid_text = (CheckBox) view.findViewById(R.id.toggle_solid_number);
-        toggle_digital = (CheckBox) view.findViewById(R.id.toggle_digital);
-        toggle_analogue = (CheckBox) view.findViewById(R.id.toggle_analogue);
-        toggle_battery = (CheckBox) view.findViewById(R.id.toggle_battery);
-        toggle_fix_chin = (CheckBox) view.findViewById(R.id.toggle_fix_chin);
-        toggle_dial = (CheckBox) view.findViewById(R.id.toggle_dial);
+        toggle_am_pm = (Switch) view.findViewById(R.id.toggle_am_pm);
+        toggle_day_date = (Switch) view.findViewById(R.id.toggle_date_day);
+        toggle_dim_colour = (Switch) view.findViewById(R.id.toggle_dim);
+        toggle_solid_text = (Switch) view.findViewById(R.id.toggle_solid_number);
+        toggle_digital = (Switch) view.findViewById(R.id.toggle_digital);
+        toggle_analogue = (Switch) view.findViewById(R.id.toggle_analogue);
+        toggle_battery = (Switch) view.findViewById(R.id.toggle_battery);
+        toggle_fix_chin = (Switch) view.findViewById(R.id.toggle_fix_chin);
+        toggle_dial = (Switch) view.findViewById(R.id.toggle_dial);
+        toggle_ambient_ticks = (Switch) view.findViewById(R.id.toggle_ambient_ticks);
         analogue_element_size_text = (TextView) view.findViewById(R.id.analogue_element_size_text);
         analogue_element_size = (SeekBar) view.findViewById(R.id.analogue_element_size);
         digital_element_size_text = (TextView) view.findViewById(R.id.digital_element_size_text);
@@ -319,6 +336,11 @@ public class TogglesFragment extends Fragment {
     public void setDial(boolean toggle) {
         mToggleDial = toggle;
         toggle_dial.setChecked(mToggleDial);
+    }
+
+    public void setAmbientTicks(boolean toggle) {
+        mToggleAmbientTicks = toggle;
+        toggle_ambient_ticks.setChecked(mToggleAmbientTicks);
     }
 
     public void setAnalogueElementSize(int size) {
