@@ -174,6 +174,7 @@ public class WatchFace {
     static boolean mToggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
     static boolean mFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
     static boolean mToggleDrawDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
+    static boolean mToggleAmbientTicks = Utility.CONFIG_DEFAULT_TOGGLE_AMBIENT_TICKS;
     private static float mAnalogueElementSize = 100f;
     private static float mDigitalElementSize = 100f;
 
@@ -332,6 +333,7 @@ public class WatchFace {
         mToggleDayDate = config.getBoolean(Utility.KEY_TOGGLE_DAY_DATE);
         mToggleAmPm = config.getBoolean(Utility.KEY_TOGGLE_AM_PM);
         mToggleDrawDial = config.getBoolean(Utility.KEY_TOGGLE_DRAW_DIAL);
+        mToggleAmbientTicks = config.getBoolean(Utility.KEY_TOGGLE_AMBIENT_TICKS);
         mFixChin = config.getBoolean(Utility.KEY_TOGGLE_FIX_CHIN);
         mAnalogueElementSize = config.getInt(Utility.KEY_ANALOGUE_ELEMENT_SIZE);
         mDigitalElementSize = config.getInt(Utility.KEY_DIGITAL_ELEMENT_SIZE);
@@ -392,6 +394,9 @@ public class WatchFace {
 
         if (!config.containsKey(Utility.KEY_TOGGLE_DRAW_DIAL))
             config.putBoolean(Utility.KEY_TOGGLE_DRAW_DIAL, Utility.CONFIG_DEFAULT_TOGGLE_DIAL);
+
+        if (!config.containsKey(Utility.KEY_TOGGLE_AMBIENT_TICKS))
+            config.putBoolean(Utility.KEY_TOGGLE_AMBIENT_TICKS, Utility.CONFIG_DEFAULT_TOGGLE_AMBIENT_TICKS);
 
         if (!config.containsKey(Utility.KEY_TOGGLE_FIX_CHIN))
             config.putBoolean(Utility.KEY_TOGGLE_FIX_CHIN, Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN);
@@ -518,46 +523,48 @@ public class WatchFace {
     }
 
     private static void drawHourTicks(Canvas canvas) {
-        innerTickRadius = centerX  - (centerX * TEN_DP);
-        innerShortTickRadius = innerTickRadius - (centerX * THREE_DP);
-        outerShortTickRadius = innerShortTickRadius - (centerX * TEN_DP);
+        if (!mIsInAmbientMode || mToggleAmbientTicks) {
+            innerTickRadius = centerX - (centerX * TEN_DP);
+            innerShortTickRadius = innerTickRadius - (centerX * THREE_DP);
+            outerShortTickRadius = innerShortTickRadius - (centerX * TEN_DP);
 
-        for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
-            tickRot = (float) (tickIndex * Math.PI * 2f / 12f);
-            innerX = (float) Math.sin(tickRot) * innerTickRadius;
-            innerY = (float) -Math.cos(tickRot) * innerTickRadius;
-            outerX = (float) Math.sin(tickRot) * centerX;
-            outerY = (float) -Math.cos(tickRot) * centerX;
+            for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
+                tickRot = (float) (tickIndex * Math.PI * 2f / 12f);
+                innerX = (float) Math.sin(tickRot) * innerTickRadius;
+                innerY = (float) -Math.cos(tickRot) * innerTickRadius;
+                outerX = (float) Math.sin(tickRot) * centerX;
+                outerY = (float) -Math.cos(tickRot) * centerX;
 
-            if (mFixChin) {
-                difference = centerY + outerY - (mHeight - mChinHeight);
+                if (mFixChin) {
+                    difference = centerY + outerY - (mHeight - mChinHeight);
 
-                if (difference > 0) {
-                    innerX = (float) Math.sin(tickRot) * (innerTickRadius * modifier);
-                    innerY = (float) -Math.cos(tickRot) * innerTickRadius - difference;
-                    outerX = (float) Math.sin(tickRot) * (centerX * modifier);
-                    outerY = (float) -Math.cos(tickRot) * centerX - difference;
+                    if (difference > 0) {
+                        innerX = (float) Math.sin(tickRot) * (innerTickRadius * modifier);
+                        innerY = (float) -Math.cos(tickRot) * innerTickRadius - difference;
+                        outerX = (float) Math.sin(tickRot) * (centerX * modifier);
+                        outerY = (float) -Math.cos(tickRot) * centerX - difference;
+                    }
                 }
-            }
 
-            if (!mIsInAmbientMode)
-                canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mHourTickPaint);
+                if (!mIsInAmbientMode)
+                    canvas.drawLine(centerX + innerX, centerY + innerY, centerX + outerX, centerY + outerY, mHourTickPaint);
 
-            innerShortX = (float) Math.sin(tickRot) * innerShortTickRadius;
-            innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius;
-            outerShortX = (float) Math.sin(tickRot) * outerShortTickRadius;
-            outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius;
+                innerShortX = (float) Math.sin(tickRot) * innerShortTickRadius;
+                innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius;
+                outerShortX = (float) Math.sin(tickRot) * outerShortTickRadius;
+                outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius;
 
-            if (mFixChin) {
-                if (mGotChin && centerY + (-Math.cos(tickRot) * centerX) > mHeight - mChinHeight) {
-                    innerShortX = (float) Math.sin(tickRot) * (innerShortTickRadius * modifier);
-                    innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius - difference;
-                    outerShortX = (float) Math.sin(tickRot) * (outerShortTickRadius * modifier);
-                    outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius - difference;
+                if (mFixChin) {
+                    if (mGotChin && centerY + (-Math.cos(tickRot) * centerX) > mHeight - mChinHeight) {
+                        innerShortX = (float) Math.sin(tickRot) * (innerShortTickRadius * modifier);
+                        innerShortY = (float) -Math.cos(tickRot) * innerShortTickRadius - difference;
+                        outerShortX = (float) Math.sin(tickRot) * (outerShortTickRadius * modifier);
+                        outerShortY = (float) -Math.cos(tickRot) * outerShortTickRadius - difference;
+                    }
                 }
-            }
 
-            canvas.drawLine(centerX + innerShortX, centerY + innerShortY, centerX + outerShortX, centerY + outerShortY, mHourTickPaint);
+                canvas.drawLine(centerX + innerShortX, centerY + innerShortY, centerX + outerShortX, centerY + outerShortY, mHourTickPaint);
+            }
         }
     }
 

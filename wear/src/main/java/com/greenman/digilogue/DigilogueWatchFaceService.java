@@ -4,13 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Bundle;
@@ -41,9 +36,6 @@ import com.google.android.gms.wearable.Wearable;
 import com.greenman.common.Utility;
 import com.greenman.common.WatchFace;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -158,7 +150,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 if (mConfig.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME)) {
                     long oldTime = mLastTime;
                     mLastTime = config.getLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME);
-                    if (mLastTime != oldTime)
+                    if (mLastTime != oldTime || mTime.toMillis(true) >= mLastTime + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS))
                         mRunWeather = true;
 
                     if (mToggleWeather && !mRunWeather && mLastTime == 0)
@@ -187,6 +179,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             WatchFace.init();
 
             mTime = new Time();
+            mGoogleApiClient.connect();
         }
 
         @Override
@@ -216,6 +209,8 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             super.onTimeTick();
             invalidate();
 
+            mTime.setToNow();
+
             if (mToggleWeather && mTime.toMillis(true) >= mLastTime + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS) && mRunWeather) {
                 mUpdateHandler.sendEmptyMessage(MSG_REFRESH_WEATHER);
                 mRunWeather = false;
@@ -229,6 +224,10 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
             if (mLowBitAmbient)
                 WatchFace.setAntiAlias(inAmbientMode);
 
+            try {
+                WatchFaceUtil.fetchConfigDataMap(mGoogleApiClient, fetchConfigCallback);
+            } catch (Exception ignored) {}
+
             if (mConfig != null) {
                 if (mConfig.containsKey(Utility.KEY_TOGGLE_WEATHER))
                     mToggleWeather = mConfig.getBoolean(Utility.KEY_TOGGLE_WEATHER);
@@ -236,7 +235,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 if (mConfig.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME)) {
                     long oldTime = mLastTime;
                     mLastTime = mConfig.getLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME);
-                    if (mLastTime != oldTime)
+                    if (mLastTime != oldTime || mTime.toMillis(true) >= mLastTime + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS))
                         mRunWeather = true;
 
                     if (mToggleWeather && !mRunWeather && mLastTime == 0)
@@ -332,7 +331,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                     if (mConfig.containsKey(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME)) {
                         long oldTime = mLastTime;
                         mLastTime = config.getLong(Utility.KEY_WIDGET_WEATHER_DATA_DATETIME);
-                        if (mLastTime != oldTime)
+                        if (mLastTime != oldTime || mTime.toMillis(true) >= mLastTime + TimeUnit.HOURS.toMillis(Utility.REFRESH_WEATHER_DELAY_HOURS))
                             mRunWeather = true;
 
                         if (mToggleWeather && !mRunWeather && mLastTime == 0)
@@ -380,13 +379,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 String key = config.keySet().toArray()[i].toString();
                 Object value = config.get(key);
                 if (value instanceof Integer) {
-                    bundle.putInt(key, (int)value);
+                    bundle.putInt(key, (int) value);
                 } else if (value instanceof Boolean) {
-                    bundle.putBoolean(key, (boolean)value);
+                    bundle.putBoolean(key, (boolean) value);
                 } else if (value instanceof String) {
-                    bundle.putString(key, (String)value);
+                    bundle.putString(key, (String) value);
                 } else if (value instanceof Long) {
-                    bundle.putLong(key, (long)value);
+                    bundle.putLong(key, (long) value);
                 }
             }
 
@@ -400,13 +399,13 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
                 String key = bundle.keySet().toArray()[i].toString();
                 Object value = bundle.get(key);
                 if (value instanceof Integer) {
-                    map.putInt(key, (int)value);
+                    map.putInt(key, (int) value);
                 } else if (value instanceof Boolean) {
-                    map.putBoolean(key, (boolean)value);
+                    map.putBoolean(key, (boolean) value);
                 } else if (value instanceof String) {
-                    map.putString(key, (String)value);
+                    map.putString(key, (String) value);
                 } else if (value instanceof Long) {
-                    map.putLong(key, (long)value);
+                    map.putLong(key, (long) value);
                 }
             }
 
@@ -415,6 +414,7 @@ public class DigilogueWatchFaceService extends CanvasWatchFaceService {
         //endregion
 
         //region Timer methods
+
         /**
          * Starts the {@link #mUpdateHandler} timer if it should be running and isn't currently
          * or stops it if it shouldn't be running but currently is.

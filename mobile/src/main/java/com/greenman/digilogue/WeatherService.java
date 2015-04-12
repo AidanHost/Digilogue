@@ -92,7 +92,7 @@ public class WeatherService extends WearableListenerService implements GoogleApi
                 InputStream is = null;
 
                 try {
-                    String apiURL = "http://api.worldweatheronline.com/free/v2/weather.ashx?key=30566152af44998e55196aeacb2e1&format=json&fx=no&extra=isDayTime&q=";
+                    String apiURL = "http://api2.worldweatheronline.com/free/v2/weather.ashx?key=30566152af44998e55196aeacb2e1&format=json&fx=no&extra=isDayTime&q=";
                     con = (HttpURLConnection) (new URL(apiURL + location)).openConnection();
                     con.setRequestMethod("GET");
                     con.setDoInput(true);
