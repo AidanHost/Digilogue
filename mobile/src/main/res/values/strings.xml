@@ -20,7 +20,8 @@
     <string name="location_hint">City, Country (Eg. Cape Town, ZA)</string>
     <!--<string name="widget_weather_frequency">Update weather every %02d hours</string>-->
     <string name="weather_api_credit">Weather by World Weather Online</string>
-    <string name="play_store_description_instruction">View <a href="https://docs.google.com/document/d/1JA3BDl4EG9pFGEngkfHiv5ZhXnh9Ii2LrI_Kii8mpDQ/edit?usp=sharing">this Google Doc</a> for manual location options.\nView the different <a href="https://lh5.ggpht.com/64ItqnImwa3RMzHPzm7roQsPmEATr44Gt9Hx0Du4lumLLDVM1ZKHB7tgqzR8oPBlhMg=h3000">weather icons here</a></string>
+    <string name="play_store_description_instruction">View <a href="https://docs.google.com/document/d/1JA3BDl4EG9pFGEngkfHiv5ZhXnh9Ii2LrI_Kii8mpDQ/edit?usp=sharing">this Google Doc</a> for manual location options.</string>
+    <string name="weather_icon_help">View the different <a href="https://lh5.ggpht.com/64ItqnImwa3RMzHPzm7roQsPmEATr44Gt9Hx0Du4lumLLDVM1ZKHB7tgqzR8oPBlhMg=h3000">weather icons here</a></string>
     <string name="weather_data_info">Weather data will be displayed here once fetched.</string>
     <string name="degrees">°</string>
     <string name="title_no_device_connected">No wearable device is currently connected.</string>
@@ -67,6 +68,7 @@
     <string name="warning"><b>Warning:</b> changing the options below could possibly cause screen burn-in. Change them at your own risk.</string>
     <string name="analogue_size">Analogue line width: %d%%</string>
     <string name="digital_size">Digital Size: %d%%</string>
+    <string name="ambient_ticks">Ambient hour ticks</string>
 
     <string-array name="color_array">
         <item>@string/color_black</item>

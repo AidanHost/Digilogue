@@ -16,6 +16,7 @@ public class Utility {
     public static final String KEY_TOGGLE_DAY_DATE = "com.greenman.digilogue.DAY_DATE";
     public static final String KEY_TOGGLE_AM_PM = "com.greenman.digilogue.12HOUR_FORMAT";
     public static final String KEY_TOGGLE_DRAW_DIAL = "com.greenman.digilogue.DRAW_DIAL";
+    public static final String KEY_TOGGLE_AMBIENT_TICKS = "com.greenman.digilogue.AMBIENT_TICKS";
     public static final String KEY_TOGGLE_FIX_CHIN = "com.greenman.digilogue.FIX_CHIN";
 
     public static final String KEY_ANALOGUE_ELEMENT_SIZE = "com.greenman.digilogue.ANALOGUE_ELEMENT_SIZE";
@@ -48,6 +49,7 @@ public class Utility {
     public static final boolean CONFIG_DEFAULT_TOGGLE_DAY_DATE = true;
     public static final boolean CONFIG_DEFAULT_TOGGLE_AM_PM = false;
     public static final boolean CONFIG_DEFAULT_TOGGLE_DIAL = false;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_AMBIENT_TICKS = true;
     public static final boolean CONFIG_DEFAULT_TOGGLE_FIX_CHIN = false;
     public static final int CONFIG_DEFAULT_ANALOGUE_ELEMENT_SIZE = 100;
     public static final int CONFIG_DEFAULT_DIGITAL_ELEMENT_SIZE = 100;

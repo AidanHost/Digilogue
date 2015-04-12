@@ -11,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.greenman.common.Utility;
@@ -22,9 +23,9 @@ public class WeatherFragment extends Fragment {
     public static final String ARG_LOCATION = "location";
     public static final String ARG_DATA = "data";
 
-    private CheckBox toggle_weather;
-    private CheckBox widget_weather_fahrenheit;
-    private CheckBox widget_weather_auto_location;
+    private Switch toggle_weather;
+    private Switch widget_weather_fahrenheit;
+    private Switch widget_weather_auto_location;
 
     private LinearLayout location;
     private TextView widget_weather_text_data;
@@ -128,15 +129,18 @@ public class WeatherFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstance) {
         super.onViewCreated(view, savedInstance);
 
-        toggle_weather = (CheckBox) view.findViewById(R.id.toggle_weather);
+        toggle_weather = (Switch) view.findViewById(R.id.toggle_weather);
         widget_weather_text_data = (TextView) view.findViewById(R.id.widget_weather_text_data);
-        widget_weather_fahrenheit = (CheckBox) view.findViewById(R.id.widget_weather_fahrenheit);
-        widget_weather_auto_location = (CheckBox) view.findViewById(R.id.widget_weather_auto_location);
+        widget_weather_fahrenheit = (Switch) view.findViewById(R.id.widget_weather_fahrenheit);
+        widget_weather_auto_location = (Switch) view.findViewById(R.id.widget_weather_auto_location);
         widget_weather_text_location = (EditText) view.findViewById(R.id.widget_weather_text_location);
         location = (LinearLayout) view.findViewById(R.id.location);
 
         TextView weather_help_links = (TextView) view.findViewById(R.id.weather_help_links);
         weather_help_links.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView weather_icon_help = (TextView) view.findViewById(R.id.weather_icon_help);
+        weather_icon_help.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     @Override

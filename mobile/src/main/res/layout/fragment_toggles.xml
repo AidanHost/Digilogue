@@ -2,7 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.greenman.digilogue.TogglesFragment">
+    tools:context="com.greenman.digilogue.TogglesFragment"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,21 +18,23 @@
             android:paddingBottom="10dp"
             android:paddingTop="10dp">
 
-            <CheckBox
+            <Switch
                 android:id="@+id/toggle_analogue"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="2"
-                android:text="@string/toggle_analogue" />
+                android:text="@string/toggle_analogue"
+                android:paddingRight="10dp"/>
 
-            <CheckBox
+            <Switch
                 android:id="@+id/toggle_digital"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="2"
-                android:text="@string/toggle_digital" />
+                android:text="@string/toggle_digital"
+                android:paddingLeft="10dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -39,21 +43,23 @@
             android:orientation="horizontal"
             android:paddingBottom="10dp">
 
-            <CheckBox
+            <Switch
                 android:id="@+id/toggle_battery"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="2"
-                android:text="@string/toggle_battery" />
+                android:text="@string/toggle_battery"
+                android:paddingRight="10dp" />
 
-            <CheckBox
+            <Switch
                 android:id="@+id/toggle_date_day"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="2"
-                android:text="@string/toggle_date_day" />
+                android:text="@string/toggle_date_day"
+                android:paddingLeft="10dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -62,21 +68,23 @@
             android:orientation="horizontal"
             android:paddingBottom="10dp">
 
-            <CheckBox
+            <Switch
                 android:id="@+id/toggle_am_pm"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="2"
-                android:text="@string/digital_config_format" />
+                android:text="@string/digital_config_format"
+                android:paddingRight="10dp" />
 
-            <CheckBox
+            <Switch
                 android:id="@+id/toggle_dial"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="2"
-                android:text="@string/toggle_dial" />
+                android:text="@string/toggle_dial"
+                android:paddingLeft="10dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -85,13 +93,23 @@
             android:orientation="horizontal"
             android:paddingBottom="10dp">
 
-            <CheckBox
+            <Switch
                 android:id="@+id/toggle_fix_chin"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="2"
-                android:text="@string/moto_mode" />
+                android:text="@string/moto_mode"
+                android:paddingRight="10dp" />
+
+            <Switch
+                android:id="@+id/toggle_ambient_ticks"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="2"
+                android:text="@string/ambient_ticks"
+                android:paddingLeft="10dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -151,21 +169,23 @@
             android:orientation="horizontal"
             android:paddingBottom="10dp">
 
-            <CheckBox
+            <Switch
                 android:id="@+id/toggle_dim"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="2"
-                android:text="@string/toggle_dim" />
+                android:text="@string/toggle_dim"
+                android:paddingRight="10dp" />
 
-            <CheckBox
+            <Switch
                 android:id="@+id/toggle_solid_number"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="2"
-                android:text="@string/toggle_solid_number" />
+                android:text="@string/toggle_solid_number"
+                android:paddingLeft="10dp" />
         </LinearLayout>
 
         <!-- // TODO: connection indicator-->
