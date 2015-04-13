@@ -44,6 +44,7 @@ public class PreviewWatchFace extends View {
     //region overrides
     @Override
     public void onDraw(Canvas canvas) {
+        WatchFace.setUpPaints(getWidth(), getHeight());
         WatchFace.draw(canvas, getWidth(), getHeight(), true);
     }
 

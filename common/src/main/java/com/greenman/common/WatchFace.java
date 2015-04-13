@@ -207,6 +207,20 @@ public class WatchFace {
 
         canvas.drawRect(0, 0, width, height, mBackgroundPaint);
 
+        updateMeasurements(width, height);
+
+        drawAnalogue(canvas);
+        drawDigital(canvas);
+
+        drawIndicators(canvas);
+
+        drawHint(canvas);
+    }
+
+    private static void updateMeasurements(int width, int height) {
+        mWidth = width;
+        mHeight = height;
+
         // Find the center. Ignore the window insets so that, on round watches with a
         // "chin", the watch face is centered on the entire screen, not just the usable
         // portion.
@@ -223,13 +237,11 @@ public class WatchFace {
         mSmallTextYOffset = mYOffset / 2f;
 
         mColonWidth = mColonPaint.measureText(COLON_STRING);
+    }
 
-        drawAnalogue(canvas);
-        drawDigital(canvas);
-
-        drawIndicators(canvas);
-
-        drawHint(canvas);
+    public static void setUpPaints(int width, int height) {
+        updateMeasurements(width, height);
+        setUpPaints();
     }
 
     private static void setUpPaints() {
