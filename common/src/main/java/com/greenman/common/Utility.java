@@ -18,6 +18,8 @@ public class Utility {
     public static final String KEY_TOGGLE_DRAW_DIAL = "com.greenman.digilogue.DRAW_DIAL";
     public static final String KEY_TOGGLE_AMBIENT_TICKS = "com.greenman.digilogue.AMBIENT_TICKS";
     public static final String KEY_TOGGLE_FIX_CHIN = "com.greenman.digilogue.FIX_CHIN";
+    public static final String KEY_TOGGLE_CONNECTION = "com.greenman.digilogue.CONNECTION";
+
 
     public static final String KEY_ANALOGUE_ELEMENT_SIZE = "com.greenman.digilogue.ANALOGUE_ELEMENT_SIZE";
     public static final String KEY_DIGITAL_ELEMENT_SIZE = "com.greenman.digilogue.DIGITAL_ELEMENT_SIZE";
@@ -55,6 +57,7 @@ public class Utility {
     public static final int CONFIG_DEFAULT_DIGITAL_ELEMENT_SIZE = 100;
     public static final boolean CONFIG_DEFAULT_TOGGLE_DIM_COLOUR = true;
     public static final boolean CONFIG_DEFAULT_TOGGLE_SOLID_TEXT = false;
+    public static final boolean CONFIG_DEFAULT_TOGGLE_CONNECTION = false;
 
     public static final boolean CONFIG_DEFAULT_TOGGLE_WEATHER = false;
     public static final boolean CONFIG_DEFAULT_WIDGET_WEATHER_FAHRENHEIT = false;

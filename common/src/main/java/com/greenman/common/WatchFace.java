@@ -73,6 +73,7 @@ public class WatchFace {
     private static Paint mHourTickPaint;
     private static Paint mMinuteTickPaint;
     private static Paint mBatteryFullPaint;
+    private static Paint mWiFiPaint;
     private static Paint mBatteryPaint;
     private static Paint mTextElementPaint;
     private static Paint mWidgetWeatherPaint;
@@ -95,6 +96,7 @@ public class WatchFace {
 
     // Paths
     private static final Path batteryIcon = new Path();
+    private static final Path wiFiIcon = new Path();
     private static final Path batteryIconLevel = new Path();
     private static final Path moonPath = new Path();
     private static final Path cloudPath = new Path();
@@ -172,6 +174,7 @@ public class WatchFace {
     static boolean mToggleDigital = Utility.CONFIG_DEFAULT_TOGGLE_DIGITAL;
     static boolean mToggleAnalogue = Utility.CONFIG_DEFAULT_TOGGLE_ANALOGUE;
     static boolean mToggleBattery = Utility.CONFIG_DEFAULT_TOGGLE_BATTERY;
+    static boolean mToggleConnection = Utility.CONFIG_DEFAULT_TOGGLE_CONNECTION;
     static boolean mFixChin = Utility.CONFIG_DEFAULT_TOGGLE_FIX_CHIN;
     static boolean mToggleDrawDial = Utility.CONFIG_DEFAULT_TOGGLE_DIAL;
     static boolean mToggleAmbientTicks = Utility.CONFIG_DEFAULT_TOGGLE_AMBIENT_TICKS;
@@ -342,6 +345,7 @@ public class WatchFace {
         mToggleAnalogue = config.getBoolean(Utility.KEY_TOGGLE_ANALOGUE);
         mToggleDigital = config.getBoolean(Utility.KEY_TOGGLE_DIGITAL);
         mToggleBattery = config.getBoolean(Utility.KEY_TOGGLE_BATTERY);
+        mToggleConnection = config.getBoolean(Utility.KEY_TOGGLE_CONNECTION);
         mToggleDayDate = config.getBoolean(Utility.KEY_TOGGLE_DAY_DATE);
         mToggleAmPm = config.getBoolean(Utility.KEY_TOGGLE_AM_PM);
         mToggleDrawDial = config.getBoolean(Utility.KEY_TOGGLE_DRAW_DIAL);
@@ -1091,6 +1095,24 @@ public class WatchFace {
     }
 
     private static void drawPhoneConnectivity(Canvas canvas) {
+        if (mToggleConnection) {
+            // Draw WiFi icon
+            wiFiIcon.reset();
+            wiFiIcon.moveTo((centerX / 2f) - (centerX * THIRTY_FIVE_DP), centerY + mSmallTextYOffset);
+            wiFiIcon.rLineTo(0, -(centerX * THIRTEEN_DP));
+
+            wiFiIcon.close();
+
+            mWiFiPaint.setStyle(Paint.Style.STROKE);
+            mWiFiPaint.setColor(Color.parseColor(mBackgroundColour));
+            mWiFiPaint.setAlpha(255);
+            canvas.drawPath(wiFiIcon, mWiFiPaint);
+
+            mWiFiPaint.setStyle(Paint.Style.FILL);
+            mWiFiPaint.setColor(Color.parseColor(mMiddleColour));
+            mWiFiPaint.setAlpha(mForegroundOpacityLevel);
+            canvas.drawPath(wiFiIcon, mWiFiPaint);
+        }
         // TODO: wifi/mobile connectivity indicator
         // TODO: phone battery
         // TODO: sound profile
@@ -1244,7 +1266,7 @@ public class WatchFace {
 
     private static void drawFog(Canvas canvas, float x, float y) {
         float left = x - (centerX * FIVE_DP);
-        float top = y - (centerX * FOUR_DP);
+        float top = y - (centerX * SIX_DP);
         float length = (centerX * FOURTEEN_DP);
 
         mWidgetWeatherPaint.setColor(Color.parseColor(mBackgroundColour));
@@ -1258,7 +1280,7 @@ public class WatchFace {
         top += (centerX * FOUR_DP);
         canvas.drawLine(left, top, left + length, top, mWidgetWeatherPaint);
 
-        top = y - (centerX * FOUR_DP);
+        top = y - (centerX * SIX_DP);
 
         mWidgetWeatherPaint.setColor(Color.parseColor(mForegroundColour));
         mWidgetWeatherPaint.setAlpha(mForegroundOpacityLevel);
